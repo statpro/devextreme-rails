@@ -3,6 +3,8 @@
 This gem just includes [DevExtreme](https://js.devexpress.com/Documentation/ApiReference/UI_Widgets/dxDataGrid/) as an asset in the Rails asset pipeline.
 Devextreme is not free for commercial use, so make sure you have a [valid license](https://js.devexpress.com/Licensing/) to use DevExtreme.
 
+It also adds a nice ruby dsl to be able to create data tables easily
+
 ## Installation
 
 Add this line to your application's Gemfile:
