@@ -397,11 +397,17 @@ module Devextreme
         query.offset = params.fetch('skip', 0).to_i
         query.limit = params.fetch('take', @options[:paging][:pageSize]).to_i
 
+        # NB: TODO message about OFFSET in SQL Server requiring an ORDER
+        if is_connection_sql_server?
+          query = query.order("(SELECT NULL)") if query.orders.empty?
+        end
+
         # NB: need to provide binds if $* variables are in the SQL
         sql = query.to_sql
-        resultset = @base_query.model.find_by_sql(sql, (sql =~ /\$.+/ ? (query.bind_values + @base_query.bound_attributes) : []))
+        resultset = @base_query.model.find_by_sql(sql, (sql =~ parameter_binding_character ? (query.bind_values + @base_query.bound_attributes) : []))
 
-        ActiveRecord::Associations::Preloader.new.preload(resultset, @base_query.includes_values)
+        # avoid n+1's
+        ActiveRecord::Associations::Preloader.new.preload(resultset, @base_query.includes_values) if @base_query.includes_values.present?
 
         Jbuilder.encode do |json|
 
@@ -470,17 +476,17 @@ module Devextreme
             query.orders.clear
             query.offset = nil
             query.limit = nil
-            query = query.project(@base_query.model.arel_table[:id].count)
+            query = query.project(@base_query.model.arel_table[@base_query.model.primary_key].count)
             sql = query.to_sql
 
             # NB: need to provide binds
             count_result = @base_query.model.connection.exec_query(
               sql,
               'SQL',
-              (sql =~ /\$.+/ ? (query.bind_values + @base_query.bound_attributes) : [])
+              (sql =~ parameter_binding_character ? (query.bind_values + @base_query.bound_attributes) : [])
             )
 
-            json.total_count((count_result.first['count'].to_i rescue 0) )  # handles cases when there is a group by
+            json.total_count((count_result.rows.flatten.first.to_i) )  # handles cases when there is a group by
           end
         end
       end
@@ -509,13 +515,10 @@ module Devextreme
         end
 
         sql = query.to_sql
-        resultset = @base_query.model.find_by_sql(sql, (sql =~ /\$.+/ ? (query.bind_values + @base_query.bound_attributes) : []))
+        resultset = @base_query.model.find_by_sql(sql, (sql =~ parameter_binding_character ? (query.bind_values + @base_query.bound_attributes) : []))
 
-        begin
-          ActiveRecord::Associations::Preloader.new.preload(resultset, @base_query.includes_values)
-        rescue ActiveModel::MissingAttributeError
-          # Do nothing here
-        end
+        # avoid n+1's
+        ActiveRecord::Associations::Preloader.new.preload(resultset, @base_query.includes_values) if @base_query.includes_values.present?
 
         resultset.each do |instance|
           rows << cols.collect do |c|
@@ -540,13 +543,10 @@ module Devextreme
         query.limit = 1000 # putting hard limit to prevent issues (not ideal of course)
 
         sql = query.to_sql
-        resultset = @base_query.model.find_by_sql(sql, (sql =~ /\$.+/ ? (query.bind_values + @base_query.bound_attributes) : []))
+        resultset = @base_query.model.find_by_sql(sql, (sql =~ parameter_binding_character ? (query.bind_values + @base_query.bound_attributes) : []))
 
-        begin
-          ActiveRecord::Associations::Preloader.new.preload(resultset, @base_query.includes_values)
-        rescue ActiveModel::MissingAttributeError
-          # Do nothing here
-        end
+        # avoid n+1's
+        ActiveRecord::Associations::Preloader.new.preload(resultset, @base_query.includes_values) if @base_query.includes_values.present?
 
         DataTableXlsGenerator.new(self, view_context, resultset, options).run
 
@@ -560,6 +560,16 @@ module Devextreme
 
       def each_row(instance, view_context)
         @columns.collect{|c| c.value(instance, view_context) rescue nil}
+      end
+
+      private
+
+      def is_connection_sql_server?
+        @base_query.model.connection == "SQLServer"
+      end
+
+      def parameter_binding_character
+        is_connection_sql_server? ? /[\$@].+/ : /\$.+/
       end
 
     end
