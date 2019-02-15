@@ -1,8 +1,7 @@
 # Devextreme::Rails
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/devextreme/rails`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+This gem just includes [DevExtreme](https://js.devexpress.com/Documentation/ApiReference/UI_Widgets/dxDataGrid/) as an asset in the Rails asset pipeline.
+Devextreme is not free for commercial use, so make sure you have a [valid license](https://js.devexpress.com/Licensing/) to use DevExtreme.
 
 ## Installation
 
@@ -22,7 +21,68 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+Creat a data table using a ruby dsl:
+
+E.g.
+```ruby
+class ExchangeRateDataTable < Devextreme::DataTable::Base
+
+  def initialize(base_query = ExchangeRate)
+    # assume you have activemodel associations set up for these includes for lookups
+    super (base_query.includes(:exchange_rate_source, :from_currency, :to_currency))
+
+    # define your columns and their data types 
+    define_columns do |c|
+      c.text :code
+      c.text :name
+      c.text :description
+      c.lookup [:exchange_rate_source, :name]
+      c.lookup [:from_currency, :code]
+      c.lookup [:to_currency, :code]
+      c.text :data_warning_count, proc { |instance| instance.data_warning_count }
+    end
+
+    # include all crud actions (or you optionally only show some by calling the underlying add_show_action, add_edit_action, add_delete_action methods)   
+    include_crud_actions
+
+    # override any options that are supported by the devextreme grid
+    option :group_panel => {:visible => false}
+    option :columnChooser => {:enabled => false}
+    option :selection => { :mode => 'single' }
+
+    # specify the path used to do remote calls to load more data fro the data table
+    source :exchange_rates_path
+  end
+
+end
+
+
+```
+
+In you controller
+
+```ruby
+def find_data_table
+  @data_table = ExchangeRateDataTable.new(current_filter_query)
+end
+
+def index
+  current_filter_query = ExchangeRate.all
+  @data_table = ExchangeRateDataTable.new(current_filter_query)
+  respond_to do |format|
+    format.html
+    format.js
+    format.json { render data_table_json: @data_table }
+    # these are all optional
+    format.xml { render data_table_xml: @data_table }
+    format.csv { render data_table_csv: @data_table }
+    format.xls { render data_table_xls: @data_table }
+    format.s3 {  create_data_table_s3(@data_table)
+       render "/data_tables/adhoc_export.js.erb" }
+  end
+end
+
+```
 
 ## Development
 
