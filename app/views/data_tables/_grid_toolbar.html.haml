@@ -1,0 +1,144 @@
+-# fixme: is there a better way?
+= render partial: 'data_tables/extra_grid_toolbar', locals: local_assigns rescue nil
+
+%li
+  %button.btn.as_tooltip{:type => 'button', :id => "btn_refresh_#{container_id}", :data => { :container_id => container_id}, :title => t(:refresh, :scope => :data_tables)}
+    = icon_tag('refresh')
+    %span
+      = t(:refresh, :scope => :data_tables)
+
+- if download_visible
+  -# bit of a HACK since some data tables don't specify a source, use url_for
+  - download_params = params.merge(:format => :csv, :is_master_detail => (options[:is_master_detail] || false)).permit!
+  - s3_params = params.merge(:format => :s3, :is_master_detail => (options[:is_master_detail] || false)).permit!
+  %li
+    #temp-wtf.hidden
+      = tag :input, :id => "#{container_id}-total_count"
+    = link_to data_table.url(self, download_params),
+      :class => [:hidden],
+      :title => t(:download, :scope => :data_tables),
+      :id => "#{container_id}-csv_download",
+      :target => "_blank" do
+      = icon_tag('download')
+      %span
+        = t(:download, :scope => :data_tables)
+
+
+      = link_to "#download_csv",
+        :class => [:btn, :download_button, :as_tooltip], :title => t(:download, :scope => :data_tables),
+        :onclick => "csv_downloaded()" do
+        = icon_tag('download')
+        %span
+          = t(:download, :scope => :data_tables)
+
+    :javascript
+      function csv_downloaded() {
+
+        var enabled = #{has_s3_download ? 'true' : 'false' };
+
+        var total_count_string = $("##{container_id}-total_count").val();
+        window.location = $('##{container_id}-csv_download').attr('href');
+        var total_count = parseInt(total_count_string);
+
+        if(total_count > 999  && enabled) {
+          $("##{container_id}-download_modal").modal({backdrop: false}).modal('show');
+        }
+        return false;
+      }
+
+- if column_picker_visible
+  %li
+    %a.btn.as_tooltip{:type => 'button', :id => "btn_col_chooser_#{container_id}", :data => { :container_id => container_id}, :title => t(:configure, :scope => :data_tables)}
+      = icon_tag('cogs')
+      %span
+        = t(:configure, :scope => :data_tables)
+
+- if reset_layout_visible
+  - user_grid_layout = { :controller_class_name => self.controller_name, :action_name => self.action_name, :grid_name => data_table.class.name }
+  %li
+    = link_to user_grid_layouts_reset_layout_path(:container_id => container_id, :user_grid_layout => user_grid_layout),
+              :method => :put,
+              :remote => true,
+              :data => { :confirm => 'Are you sure you want to reset your column layout?' },
+              :class => 'btn btn-default as_tooltip',
+              :title => t(:reset, :scope => :data_tables) do
+      = icon_tag('undo')
+      %span
+        = t(:reset, :scope => :data_tables)
+
+
+
+- other_body_content do
+  = render :partial => 'data_tables/download_modal', :locals => { :url => data_table.url(self, s3_params), :container_id => container_id } if download_visible
+
+:javascript
+  $(function(){
+
+    $("#btn_col_chooser_#{ container_id }").on("click", function() {
+      var dataGrid = getDataGrid("#" + $(this).data('container-id'));
+      dataGrid.showColumnChooser();
+    });
+
+    // use the class to match the link
+    // bind to the ajax:before event
+    // and add the data for the request to the
+    // data-params attribute of the link in question
+
+    $(".delete_selected_items_#{ container_id }").on("ajax:before", function() {
+      var keys = getSelectedRowKeys("##{ container_id }");
+
+      if (keys.length > 0) {
+        $(this).data('params', {
+          ids: keys,
+          container_id: "#{ container_id }"
+        });
+      }
+      else {
+        // FIXME: this isn't a specific enough jQuery selector when filter_form_id == "form"
+        //   since if there is more than one form, it will include them all
+        var search_params = $("#{filter_form_id}.auto-submit").serializeArray();
+        var data = {
+          name: 'container_id',
+          value: "#{ container_id }"
+        }
+
+        search_params.push(data);
+
+        $(this).data('params', search_params);
+      }
+
+
+    }).on('click', function() {
+      var dataGrid = getDataGrid("##{ container_id }");
+      var keys = dataGrid.getSelectedRowKeys();
+      var value_count = keys.length > 0 ? keys.length : dataGrid.totalCount();
+
+      $(this).data('confirm', 'Are you sure you want to delete ' + value_count + ' selected row(s)?');
+
+    });
+
+    // Set the selected ids on the hidden 'ids' field
+    $('.purge_data_button').on('click', function(){
+      var dataGrid = getDataGrid("##{ container_id }");
+      var keys = dataGrid.getSelectedRowKeys();
+      var value_count = keys.length > 0 ? keys.length : dataGrid.totalCount();
+      var ids_input = $("#new_purge_data_helper").find('input[name="ids[]"]');
+      ids_input.val(keys.join());
+
+      $('.purge_data_form .confirm_message').text('Are you sure you want to purge ' + value_count + ' selected row(s)?');
+    });
+
+    $("#btn_refresh_#{ container_id }").on("click", function() {
+      var dataGrid = getDataGrid("#" + $(this).data('container-id'));
+      dataGrid.refresh();
+    });
+  });
+
+  function getDataGrid(container_id) {
+    return $(container_id).dxDataGrid('instance');
+  }
+
+  function getSelectedRowKeys(container_id) {
+    var dataGrid = getDataGrid(container_id);
+    return dataGrid.getSelectedRowKeys();
+  }

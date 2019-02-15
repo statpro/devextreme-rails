@@ -1,0 +1,233 @@
+- toolbar_for = options.delete(:toolbar_name) || :toolbar
+- content_for(toolbar_for) do
+
+  = render :partial => 'data_tables/grid_toolbar', :locals => { :container_id => container_id,
+                                                                :bulk_actions_visible => bulk_actions_visible,
+                                                                :column_picker_visible => column_picker_visible,
+                                                                :download_visible => download_visible,
+                                                                :reset_layout_visible => reset_layout_visible,
+                                                                :data_table => data_table,
+                                                                :filter_form_id => filter_form_id,
+                                                                :has_s3_download => has_s3_download,
+                                                                :options => options }
+
+.clearfix
+.dxDataGrid-holder
+  - height_style = (height.present?) ? "height: #{height};" : ""
+  - width_style = (width.present?) ? "width: #{width};" : ""
+  .dxDataGrid-container.well.well-small{:style => height_style + width_style}
+    .dxDataGrid{:id => "#{container_id}"}
+    .row-count{:id => "#{container_id}"}
+
+- unless disable_state_storing
+  - #this is bad, we shouldn't be calling sql functions from views.
+  - columns_layout = UserGridLayout.get_user_grid_layout(current_user, self.controller_name, self.action_name, data_table.class.name, data_table.additional_layout_key)
+
+  - highlighted_result = params[:highlighted_result]
+  - highlighted_result_is_text = params[:highlighted_result_is_text] || false
+  #dialog_container
+
+:javascript
+
+  $(window).resize(function() {
+    ItemResize();
+  });
+
+  function ItemResize() {
+    if (#{ !(height_style.present? || width_style.present?) }){
+      var screenHeight = $('.navbar-fixed-bottom').offset().top - $('.dxDataGrid-holder').offset().top
+      var footerHeight = $('footer').height();
+      window.setGridHolderHeight = screenHeight - footerHeight
+      $(".dxDataGrid").height( setGridHolderHeight );
+    }
+  }
+
+  $(function() {
+    ItemResize();
+    var dataGrid = $("##{ container_id }");
+
+    var compact_view_json = #{compact_view_json};
+    var columns_json = [#{columns_json}];
+
+    dataGrid.data("compact-view", compact_view_json);
+    dataGrid.data("default-json", columns_json);
+
+    // FIXME: this isn't a specific enough jQuery selector when filter_form_id == "form"
+    //   since if there is more than one form, it will include them all
+    // if all controllers correctly implement url_params, then "converted_load_options"
+    //   will contain the necessary values and the filter will work
+    var search_params = $("#{filter_form_id}").serialize();
+
+    var user_grid_layouts_save_layout_path = '#{ disable_state_storing ? '' : user_grid_layouts_save_layout_path}'
+
+    var dataSource = new DevExpress.data.CustomStore({
+      key: '#{ data_table.base_query.table_name }.id',
+      load: function(loadOptions) {
+        var d = new $.Deferred();
+
+        var params = {
+          format: 'json',
+          filterOptions: loadOptions.filter ? JSON.stringify(loadOptions.filter) : "",   //Getting filter options
+          sortOptions: loadOptions.sort ? JSON.stringify(loadOptions.sort) : "",  //Getting sort options
+
+          //skip and take are used for paging
+          skip: loadOptions.skip, //A number of records that should be skipped
+          take: loadOptions.take, //A number of records that should be taken
+
+          requireTotalCount: loadOptions.requireTotalCount,
+          search_params: search_params
+        };
+
+        $.extend(params, #{ converted_load_options })
+
+          var request = $.getJSON("#{ data_table.url(self) }", params)
+          request.done(function (data) {
+            d.resolve(data.items, { totalCount: data.total_count });
+            var totalCount = "Row count: " + data.total_count
+
+            $("##{container_id}-total_count").val(data.total_count);
+
+            var loadpanel = $(".row-count##{container_id}").dxLoadPanel({
+              visible: false,
+              showIndicator: false,
+              message: totalCount,
+              showPane: true,
+              height: 30,
+              width: 120,
+              shading: false,
+              position: { of: $('##{container_id} .dx-scrollable-container'), at: 'top right', offset: '-60, 10' },
+              closeOnOutsideClick: false,
+              onShown: function(){
+                setTimeout(function () {
+                    loadpanel.hide();
+                    $(".row-count##{container_id}").css('display', 'none' );
+                }, 2500 )
+              }
+            }).dxLoadPanel("instance");
+
+            dataGrid.dxDataGrid('instance').endCustomLoading();
+
+            if (#{requireTotalRowCountIndicator}) { loadpanel.show(); };
+          });
+
+          var columns_layout = #{ columns_layout.to_json};
+          if (!#{disable_state_storing} && columns_layout != undefined && columns_layout.columns != undefined && params.skip == 0) {
+            var grid = dataGrid.dxDataGrid('instance');
+
+            $.each(columns_layout.columns, function( index, value ) {
+              if (value.precision != undefined) {
+                grid.columnOption(value.dataField, 'precision', value.precision);
+              }
+            });
+          }
+        return d.promise();
+      }
+    });
+
+    var gridDataSourceConfiguration = {
+      store: dataSource
+    };
+    dataGrid.dxDataGrid({
+      dataSource: gridDataSourceConfiguration,
+
+      columns:
+          columns_json,
+        summary: {
+          totalItems: [
+            #{ summaries_json }
+          ]
+        }
+      ,
+      #{ options_json },
+      onContentReady: function(e){
+        activateJSPlugins();
+      }#{ functions },
+      onRowPrepared: function (rowInfo) {
+
+        if (rowInfo.data && rowInfo.rowType != 'group' && rowInfo.data['#{ data_table.base_query.table_name }'] ) {
+          var row_info_data = rowInfo.data['#{ data_table.base_query.table_name }'];
+
+          // Handle rules highlighted_result
+          if (row_info_data.id == #{ highlighted_result_is_text ? "'#{highlighted_result}'" : highlighted_result.to_i }){
+            rowInfo.rowElement.addClass('highlighted_result');
+          }
+
+          // Handle data table highlight_row
+          if (row_info_data.hasOwnProperty('_highlight_row')) {
+            highlight_row_data = JSON.parse(row_info_data._highlight_row)
+
+            if (highlight_row_data.highlight_row) {
+              rowInfo.rowElement.addClass(highlight_row_data.highlight_row_class);
+            }
+          }
+        }
+      },
+      onInitialized: function(e) {
+        this.beginCustomLoading();
+      },
+      stateStoring: {
+        ignoreColumnOptionNames: [],
+        enabled: #{!disable_state_storing},
+        type: 'custom',
+        customLoad: function() {
+          return #{ columns_layout.to_json};
+        },
+        customSave: function (gridState) {
+          // removing everything we dont need
+          delete gridState.pageIndex;
+          delete gridState.pageSize;
+          delete gridState.allowedPageSizes;
+          delete gridState.selectedRowKeys;
+
+          var grid = dataGrid.dxDataGrid('instance');
+
+          $.each(gridState.columns, function( index, value ) {
+            var column = grid.columnOption(value.dataField);
+            if (column.format == "fixedPoint") {
+              gridState.columns[index].precision = column.precision;
+            }
+          });
+
+          var jGridState = JSON.stringify(gridState);
+
+          $.ajax({
+            type: "PUT",
+            url: user_grid_layouts_save_layout_path,
+            data: {
+              user_grid_layout: {
+                controller_class_name: '#{ self.controller_name}',
+                action_name: '#{ self.action_name}',
+                grid_name: '#{ data_table.class.name}',
+                additional_layout_key: '#{ data_table.additional_layout_key }',
+                columns_layout: jGridState
+              }
+            }
+          });
+        }
+      },
+      onContextMenuPreparing: function(e) {
+        if(e.target === 'header' && e.column.format == "fixedPoint") {
+          e.items.push({
+            beginGroup: true,
+            container_id: "#{container_id}",
+            closeMenuOnClick: false,
+            column: e.column,
+            template: column_header_template_precision,
+            onItemClick: function(e) {
+              if (e.itemElement.context.type == "button") {
+                e.component.hide();
+              }
+            }
+          });
+        }
+      }
+    });
+
+
+    $(".dx-loadpanel").dxLoadPanel({
+      message: "Loading...",
+      showIndicator: true,
+      position: { at: 'top', offset: '5 200' },
+      showPane: true
+    });
+  });
