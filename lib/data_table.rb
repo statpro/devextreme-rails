@@ -91,7 +91,7 @@ module Devextreme
           # This stops the grid from reloading twice.
           #
           :paging => {
-            :pageSize => AppConfig.small_page_size
+            :pageSize => 25 #AppConfig.small_page_size
           }
 
         }
