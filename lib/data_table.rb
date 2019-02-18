@@ -407,7 +407,11 @@ module Devextreme
         resultset = @base_query.model.find_by_sql(sql, (sql =~ parameter_binding_character ? (query.bind_values + @base_query.bound_attributes) : []))
 
         # avoid n+1's
-        ActiveRecord::Associations::Preloader.new.preload(resultset, @base_query.includes_values) if @base_query.includes_values.present?
+        begin
+          ActiveRecord::Associations::Preloader.new.preload(resultset, @base_query.includes_values) if @base_query.includes_values.present?
+        rescue ActiveModel::MissingAttributeError
+          # Do nothing here
+        end
 
         Jbuilder.encode do |json|
 
@@ -518,7 +522,11 @@ module Devextreme
         resultset = @base_query.model.find_by_sql(sql, (sql =~ parameter_binding_character ? (query.bind_values + @base_query.bound_attributes) : []))
 
         # avoid n+1's
-        ActiveRecord::Associations::Preloader.new.preload(resultset, @base_query.includes_values) if @base_query.includes_values.present?
+        begin
+          ActiveRecord::Associations::Preloader.new.preload(resultset, @base_query.includes_values) if @base_query.includes_values.present?
+        rescue ActiveModel::MissingAttributeError
+          # Do nothing here
+        end
 
         resultset.each do |instance|
           rows << cols.collect do |c|
@@ -546,7 +554,11 @@ module Devextreme
         resultset = @base_query.model.find_by_sql(sql, (sql =~ parameter_binding_character ? (query.bind_values + @base_query.bound_attributes) : []))
 
         # avoid n+1's
-        ActiveRecord::Associations::Preloader.new.preload(resultset, @base_query.includes_values) if @base_query.includes_values.present?
+        begin
+          ActiveRecord::Associations::Preloader.new.preload(resultset, @base_query.includes_values) if @base_query.includes_values.present?
+        rescue ActiveModel::MissingAttributeError
+          # Do nothing here
+        end
 
         DataTableXlsGenerator.new(self, view_context, resultset, options).run
 
