@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    devextreme-rails (15.2.5.1)
+    devextreme-rails (15.2.5.3)
 
 GEM
   remote: https://rubygems.org/
