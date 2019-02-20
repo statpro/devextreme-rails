@@ -480,7 +480,7 @@ module Devextreme
             query.orders.clear
             query.offset = nil
             query.limit = nil
-            sql = query.project(@base_query.model.arel_table[Arel.star].count).to_sql
+            sql = query.project(Arel.star.count).to_sql
 
             # NB: need to provide binds
             count_result = @base_query.model.connection.exec_query(
