@@ -576,7 +576,7 @@ module Devextreme
       private
 
       def is_connection_sql_server?
-        @base_query.model.connection == "SQLServer"
+        @base_query.model.connection.adapter_name == "SQLServer"
       end
 
       def parameter_binding_character
