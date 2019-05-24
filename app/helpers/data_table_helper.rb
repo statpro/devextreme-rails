@@ -76,25 +76,49 @@ module DataTableHelper
     compact_view = data_table.options.delete(:compact_view)
     compact_view_json = compact_view ? compact_view.to_json : [].to_json
 
+    custom_summary_functions = []
     summaries_json = data_table.summaries.map do |summary|
-      if summary.is_a?(DataTable::SummaryCustom)
-        showInColumn = summary.options.delete(:showInColumn)
-        column = summary.options.delete(:column)
-        sum_data = [
-          "name: '#{data_table.base_query.table_name}.#{summary.name.join('.') rescue summary.name.to_s}'",
-          "showInColumn: '#{data_table.base_query.table_name}.#{showInColumn}'",
-          "column: '#{data_table.base_query.table_name}.#{column}'"
-        ]
-      else
-        sum_data = [
-          "column: '#{data_table.base_query.table_name}.#{summary.name.join('.') rescue summary.name.to_s}'"
-        ]
+      sum_name = "#{data_table.base_query.table_name}.#{summary.name.join('.') rescue summary.name.to_s}"
+      sum_data = [
+        "name: '#{sum_name}'"
+      ]
+
+      if (show_in_column = summary.options.delete(:showInColumn)).present?
+        sum_data << "showInColumn: '#{data_table.base_query.table_name}.#{show_in_column}'"
       end
+
+      if (column = summary.options.delete(:column)).present?
+        sum_data << "column: '#{data_table.base_query.table_name}.#{column}'"
+      end
+
+      if (display_format_function = summary.options.delete(:display_format_function)).present?
+        sum_data << "customizeText: function(obj){return #{display_format_function}(obj);}"
+      elsif (display_format = summary.options.delete(:display_format)).present?
+        sum_data << "displayFormat: '#{display_format}'"
+      end
+
+      if (value_format_function = summary.options.delete(:value_format_function)).present?
+        sum_data << "valueFormat: function(value){return #{value_format_function}(value);}"
+      elsif (value_format = summary.options.delete(:value_format)).present?
+        sum_data << "valueFormat: '#{value_format}'"
+      end
+
+      if summary.is_a?(Devextreme::DataTable::SummaryCustom)
+        if (custom_summary_function = summary.options.delete(:custom_summary_function)).present?
+          custom_summary_functions << "#{custom_summary_function}(options,'#{sum_name}');"
+        end
+
+        if (custom_summary_value = summary.options.delete(:custom_summary_value)).present?
+          custom_summary_functions << "genericCustomSummary(options,'#{sum_name}','#{custom_summary_value}');"
+        end
+      end
+
       sum_format = hash_to_json(summary.options)
       sum_data << sum_format unless sum_format.blank?
       sum_data.flatten.join(',')
     end
     summaries_json = summaries_json.map{|s| "{#{s}}"}.join(',')
+    custom_summary_functions = custom_summary_functions.join('')
 
     group_panel_visible = data_table.options[:group_panel][:visible]
     column_picker_visible = (options[:column_picker].nil? || options[:column_picker] == true)
@@ -113,6 +137,7 @@ module DataTableHelper
               :columns_json => columns_json,
               :compact_view_json => compact_view_json,
               :summaries_json => summaries_json,
+              :custom_summary_functions => custom_summary_functions,
               :group_panel_visible => group_panel_visible,
               :column_picker_visible => column_picker_visible,
               :download_visible => download_visible,

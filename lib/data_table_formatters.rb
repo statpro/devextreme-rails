@@ -132,7 +132,7 @@ module Devextreme
       end
 
       def summary_custom
-        {:summaryType => 'custom', :displayFormat => '{0}'}
+        {:summaryType => 'custom'}
       end
 
     end

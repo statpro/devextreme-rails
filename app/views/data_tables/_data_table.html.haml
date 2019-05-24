@@ -12,12 +12,12 @@
                                                                 :options => options }
 
 .clearfix
-.dxDataGrid-holder
+.dxDataGrid-holder{:id => "#{container_id}-holder"}
   - height_style = (height.present?) ? "height: #{height};" : ""
   - width_style = (width.present?) ? "width: #{width};" : ""
-  .dxDataGrid-container.well.well-small{:style => height_style + width_style}
+  .dxDataGrid-container.well.well-small{:id => "#{container_id}-container", :style => height_style + width_style}
     .dxDataGrid{:id => "#{container_id}"}
-    .row-count{:id => "#{container_id}"}
+    .row-count{:id => "#{container_id}-row_count"}
 
 - unless disable_state_storing
   - #this is bad, we shouldn't be calling sql functions from views.
@@ -30,21 +30,16 @@
 :javascript
 
   $(window).resize(function() {
-    ItemResize();
+    var h = #{(height.present?) ? height.gsub('px', '') : 'null'};
+    var w = #{(width.present?) ? width.gsub('px', '') : 'null'};
+    ItemResize($("##{ container_id }"), h, w);
   });
 
-  function ItemResize() {
-    if (#{ !(height_style.present? || width_style.present?) }){
-      var screenHeight = $('.navbar-fixed-bottom').offset().top - $('.dxDataGrid-holder').offset().top
-      var footerHeight = $('footer').height();
-      window.setGridHolderHeight = screenHeight - footerHeight
-      $(".dxDataGrid").height( setGridHolderHeight );
-    }
-  }
-
   $(function() {
-    ItemResize();
     var dataGrid = $("##{ container_id }");
+    var h = #{(height.present?) ? height.gsub('px', '') : 'null'};
+    var w = #{(width.present?) ? width.gsub('px', '') : 'null'};
+    ItemResize(dataGrid, h, w);
 
     var compact_view_json = #{compact_view_json};
     var columns_json = [#{columns_json}];
@@ -87,7 +82,7 @@
 
             $("##{container_id}-total_count").val(data.total_count);
 
-            var loadpanel = $(".row-count##{container_id}").dxLoadPanel({
+            var loadpanel = $("##{container_id}-row_count").dxLoadPanel({
               visible: false,
               showIndicator: false,
               message: totalCount,
@@ -100,7 +95,7 @@
               onShown: function(){
                 setTimeout(function () {
                     loadpanel.hide();
-                    $(".row-count##{container_id}").css('display', 'none' );
+                    $("##{container_id}-row_count").css('display', 'none' );
                 }, 2500 )
               }
             }).dxLoadPanel("instance");
@@ -135,7 +130,10 @@
         summary: {
           totalItems: [
             #{ summaries_json }
-          ]
+          ],
+          calculateCustomSummary: function (options) {
+            #{ custom_summary_functions }
+          }
         }
       ,
       #{ options_json },
