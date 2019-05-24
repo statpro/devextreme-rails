@@ -15,6 +15,8 @@
 .dxDataGrid-holder{:id => "#{container_id}-holder"}
   - height_style = (height.present?) ? "height: #{height};" : ""
   - width_style = (width.present?) ? "width: #{width};" : ""
+  - height_number = (height.present?) ? height.gsub('px', '') : 'null'
+  - width_number = (width.present?) ? width.gsub('px', '') : 'null'
   .dxDataGrid-container.well.well-small{:id => "#{container_id}-container", :style => height_style + width_style}
     .dxDataGrid{:id => "#{container_id}"}
     .row-count{:id => "#{container_id}-row_count"}
@@ -30,16 +32,12 @@
 :javascript
 
   $(window).resize(function() {
-    var h = #{(height.present?) ? height.gsub('px', '') : 'null'};
-    var w = #{(width.present?) ? width.gsub('px', '') : 'null'};
-    ItemResize($("##{ container_id }"), h, w);
+    ItemResize($("##{ container_id }"), #{height_number}, #{width_number});
   });
 
   $(function() {
     var dataGrid = $("##{ container_id }");
-    var h = #{(height.present?) ? height.gsub('px', '') : 'null'};
-    var w = #{(width.present?) ? width.gsub('px', '') : 'null'};
-    ItemResize(dataGrid, h, w);
+    ItemResize(dataGrid, #{height_number}, #{width_number});
 
     var compact_view_json = #{compact_view_json};
     var columns_json = [#{columns_json}];
