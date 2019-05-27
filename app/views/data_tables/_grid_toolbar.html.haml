@@ -1,5 +1,15 @@
--# fixme: is there a better way?
-= render partial: 'data_tables/extra_grid_toolbar', locals: local_assigns rescue nil
+- show_purge_data = respond_to?(:purge_data_for) && purge_data_for.include?(action_name.to_sym)
+- show_bulk_delete = route_exists?(:action => :bulk_delete) && respond_to?(:bulk_delete_for) && bulk_delete_for.include?(action_name.to_sym)
+
+- if bulk_actions_visible
+
+  - if show_purge_data
+    = render 'data_tables/purge_data_button'
+
+  - if show_bulk_delete
+    - path_controller_name = Rails.application.routes.recognize_path(data_table.url(self))[:controller]
+    = render :partial => 'data_tables/bulk_delete_button', :locals => {:path_controller_name => path_controller_name, :container_id => container_id}
+
 
 %li
   %button.btn.as_tooltip{:type => 'button', :id => "btn_refresh_#{container_id}", :data => { :container_id => container_id}, :title => t(:refresh, :scope => :data_tables)}
@@ -69,6 +79,7 @@
 
 
 - other_body_content do
+  = render(:partial => 'data_tables/purge_data_dialog', :locals => { :container_id => container_id, :filter_form_id => filter_form_id }) if show_purge_data
   = render :partial => 'data_tables/download_modal', :locals => { :url => data_table.url(self, s3_params), :container_id => container_id } if download_visible
 
 :javascript

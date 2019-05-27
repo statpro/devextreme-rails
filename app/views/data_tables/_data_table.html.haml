@@ -58,8 +58,6 @@
     //   will contain the necessary values and the filter will work
     var search_params = $("#{filter_form_id}").serialize();
 
-    var user_grid_layouts_save_layout_path = '#{ disable_state_storing ? '' : user_grid_layouts_save_layout_path}'
-
     var dataSource = new DevExpress.data.CustomStore({
       key: '#{ data_table.base_query.table_name }.id',
       load: function(loadOptions) {
@@ -192,7 +190,7 @@
 
           $.ajax({
             type: "PUT",
-            url: user_grid_layouts_save_layout_path,
+            url: '#{ user_grid_layouts_save_layout_path}',
             data: {
               user_grid_layout: {
                 controller_class_name: '#{ self.controller_name}',
