@@ -7,7 +7,7 @@
     = render 'data_tables/purge_data_button'
 
   - if show_bulk_delete
-    - path_controller_name = Rails.application.routes.recognize_path(data_table.url(self))[:controller]
+    - path_controller_name = Rails.application.routes.recognize_path(data_table.url(self).gsub(request.env["SCRIPT_NAME"], ""))[:controller]
     = render :partial => 'data_tables/bulk_delete_button', :locals => {:path_controller_name => path_controller_name, :container_id => container_id}
 
 
