@@ -116,7 +116,7 @@ module Devextreme
       end
 
       def define_summaries(&block)
-        builder = SummaryBuilder.new(@t_scope)
+        builder = SummaryBuilder.new(@t_scope, base_query.table_name)
         yield builder if block_given?
         @summaries = builder.summaries
       end
@@ -1065,54 +1065,80 @@ module Devextreme
 
       attr_reader :type
 
-      def initialize(name, t_scope, options = nil, value = nil)
+      def initialize(name, t_scope, table_name, options = nil, value = nil)
         @name = name
         @t_scope = t_scope
+        @table_name = table_name
         @options = options || {}
         @value = value
+      end
+
+      def transform_options!()
+        prefix = "#{@table_name}."
+        @name = "#{prefix}#{@name}" unless @name.to_s.include?(prefix)
+        @options[:name] = @name
+        @options[:column] = "#{prefix}#{@options[:column]}" if @options.has_key?(:column) && !@options[:column].to_s.include?(prefix)
+        @options[:show_in_column] = "#{prefix}#{@options[:show_in_column]}" if @options.has_key?(:show_in_column) && !@options[:show_in_column].to_s.include?(prefix)
       end
     end
 
     class SummarySum < Summary
-      def initialize(name, t_scope, options = nil, value = nil)
-        super name, t_scope, options, value
+      def initialize(name, t_scope, table_name, options = nil, value = nil)
+        super name, t_scope, table_name, options, value
         option(DataTableFormatters.summary_sum)
+        option(:column => name)
+
+        transform_options!
       end
     end
 
     class SummaryMin < Summary
-      def initialize(name, t_scope, options = nil, value = nil)
-        super name, t_scope, options, value
+      def initialize(name, t_scope, table_name, options = nil, value = nil)
+        super name, t_scope, table_name, options, value
         option(DataTableFormatters.summary_min)
+        option(:column => name)
+
+        transform_options!
       end
     end
 
     class SummaryMax < Summary
-      def initialize(name, t_scope, options = nil, value = nil)
-        super name, t_scope, options, value
+      def initialize(name, t_scope, table_name, options = nil, value = nil)
+        super name, t_scope, table_name, options, value
         option(DataTableFormatters.summary_max)
+        option(:column => name)
+
+        transform_options!
       end
     end
 
     class SummaryAvg < Summary
-      def initialize(name, t_scope, options = nil, value = nil)
-        super name, t_scope, options, value
+      def initialize(name, t_scope, table_name, options = nil, value = nil)
+        super name, t_scope, table_name, options, value
         option(DataTableFormatters.summary_avg)
+        option(:column => name)
+
+        transform_options!
       end
     end
 
     class SummaryCount < Summary
-      def initialize(name, t_scope, options = nil, value = nil)
-        super name, t_scope, options, value
+      def initialize(name, t_scope, table_name, options = nil, value = nil)
+        super name, t_scope, table_name, options, value
         option(DataTableFormatters.summary_count)
+        option(:column => name)
+
+        transform_options!
       end
     end
 
     class SummaryCustom < Summary
-      def initialize(name, column, t_scope, options = nil, value = nil)
-        super name, t_scope, options, value
+      def initialize(name, column, t_scope, table_name, options = nil, value = nil)
+        super name, t_scope, table_name, options, value
         option(DataTableFormatters.summary_custom)
-        option(:showInColumn => column, :column => "#{column}")
+        option(:show_in_column => column, :column => column)
+
+        transform_options!
       end
     end
 
@@ -1120,9 +1146,10 @@ module Devextreme
 
       attr_accessor :summaries
 
-      def initialize(t_scope)
+      def initialize(t_scope, table_name)
         @t_scope = t_scope
         @summaries = []
+        @table_name = table_name
       end
 
       # Signitures:
@@ -1133,31 +1160,31 @@ module Devextreme
       # avg    :column
       # count  :column
 
-      # TODO:
+      # TODO:: Fix custom summary height issue
       # custom :column
 
       def sum(name, options = nil, value = nil)
-        @summaries << SummarySum.new(name, @t_scope, options, value)
+        @summaries << SummarySum.new(name, @t_scope, @table_name, options, value)
       end
 
       def min(name, options = nil, value = nil)
-        @summaries << SummaryMin.new(name, @t_scope, options, value)
+        @summaries << SummaryMin.new(name, @t_scope, @table_name, options, value)
       end
 
       def max(name, options = nil, value = nil)
-        @summaries << SummaryMax.new(name, @t_scope, options, value)
+        @summaries << SummaryMax.new(name, @t_scope, @table_name, options, value)
       end
 
       def avg(name, options = nil, value = nil)
-        @summaries << SummaryAvg.new(name, @t_scope, options, value)
+        @summaries << SummaryAvg.new(name, @t_scope, @table_name, options, value)
       end
 
       def count(name, options = nil, value = nil)
-        @summaries << SummaryCount.new(name, @t_scope, options, value)
+        @summaries << SummaryCount.new(name, @t_scope, @table_name, options, value)
       end
 
       def custom(name, column, options = nil, value = nil)
-        @summaries << SummaryCustom.new(name, column, @t_scope, options, value)
+        @summaries << SummaryCustom.new(name, column, @t_scope, @table_name, options, value)
       end
     end
 

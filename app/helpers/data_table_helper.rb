@@ -78,38 +78,15 @@ module DataTableHelper
 
     custom_summary_functions = []
     summaries_json = data_table.summaries.map do |summary|
-      sum_name = "#{data_table.base_query.table_name}.#{summary.name.join('.') rescue summary.name.to_s}"
-      sum_data = [
-        "name: '#{sum_name}'"
-      ]
-
-      if (show_in_column = summary.options.delete(:showInColumn)).present?
-        sum_data << "showInColumn: '#{data_table.base_query.table_name}.#{show_in_column}'"
-      end
-
-      if (column = summary.options.delete(:column)).present?
-        sum_data << "column: '#{data_table.base_query.table_name}.#{column}'"
-      end
-
-      if (display_format_function = summary.options.delete(:display_format_function)).present?
-        sum_data << "customizeText: function(obj){return #{display_format_function}(obj);}"
-      elsif (display_format = summary.options.delete(:display_format)).present?
-        sum_data << "displayFormat: '#{display_format}'"
-      end
-
-      if (value_format_function = summary.options.delete(:value_format_function)).present?
-        sum_data << "valueFormat: function(value){return #{value_format_function}(value);}"
-      elsif (value_format = summary.options.delete(:value_format)).present?
-        sum_data << "valueFormat: '#{value_format}'"
-      end
+      sum_data = []
 
       if summary.is_a?(Devextreme::DataTable::SummaryCustom)
         if (custom_summary_function = summary.options.delete(:custom_summary_function)).present?
-          custom_summary_functions << "#{custom_summary_function}(options,'#{sum_name}');"
+          custom_summary_functions << "#{custom_summary_function}(options,'#{summary.name}');"
         end
 
         if (custom_summary_value = summary.options.delete(:custom_summary_value)).present?
-          custom_summary_functions << "genericCustomSummary(options,'#{sum_name}','#{custom_summary_value}');"
+          custom_summary_functions << "genericCustomSummary(options,'#{summary.name}','#{custom_summary_value}');"
         end
       end
 
