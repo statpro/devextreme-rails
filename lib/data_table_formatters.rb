@@ -132,7 +132,8 @@ module Devextreme
       end
 
       def summary_custom
-        {:summaryType => 'custom', :displayFormat => '{0}'}
+        # default displayFormat is '{0}'
+        {:summaryType => 'custom'}
       end
 
     end
