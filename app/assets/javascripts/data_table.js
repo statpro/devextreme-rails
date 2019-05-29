@@ -10,3 +10,8 @@ function ItemResize(dataGrid, height, width) {
     dataGrid.height( parseInt(height)-dgMargin );
   }
 }
+function genericCustomSummary(opt, name, value) {
+  if (opt.name === name && opt.summaryProcess === "start") {
+    opt.totalValue = value;
+  }
+}
