@@ -75,32 +75,41 @@
 
           var request = $.getJSON("#{ data_table.url(self) }", params)
           request.done(function (data) {
-            d.resolve(data.items, { totalCount: data.total_count });
-            var totalCount = "Row count: " + data.total_count
 
-            $("##{container_id}-total_count").val(data.total_count);
+            if(data.total_count != undefined) {
+              d.resolve(data.items, { totalCount: data.total_count });
 
-            var loadpanel = $("##{container_id}-row_count").dxLoadPanel({
-              visible: false,
-              showIndicator: false,
-              message: totalCount,
-              showPane: true,
-              height: 30,
-              width: 120,
-              shading: false,
-              position: { of: $('##{container_id} .dx-scrollable-container'), at: 'top right', offset: '-60, 10' },
-              closeOnOutsideClick: false,
-              onShown: function(){
-                setTimeout(function () {
-                    loadpanel.hide();
-                    $("##{container_id}-row_count").css('display', 'none' );
-                }, 2500 )
+              $("##{container_id}-total_count").val(data.total_count);
+            } else {
+              d.resolve(data.items);
+
+              if (#{requireTotalRowCountIndicator}) {
+
+                var totalCount = "Row count: " + $("##{container_id}-total_count").val();
+
+                var loadpanel = $("##{container_id}-row_count").dxLoadPanel({
+                  visible: false,
+                  showIndicator: false,
+                  message: totalCount,
+                  showPane: true,
+                  height: 30,
+                  width: 150,
+                  shading: false,
+                  position: { of: $('##{container_id} .dx-scrollable-container'), at: 'right top', offset: '-75, 20' },
+                  closeOnOutsideClick: false,
+                  onShown: function(){
+                    setTimeout(function () {
+                        loadpanel.hide();
+                        $("##{container_id}-row_count").css('display', 'none' );
+                    }, 2500 )
+                  }
+                }).dxLoadPanel("instance");
+
+                loadpanel.show();
               }
-            }).dxLoadPanel("instance");
+            }
 
             dataGrid.dxDataGrid('instance').endCustomLoading();
-
-            if (#{requireTotalRowCountIndicator}) { loadpanel.show(); };
           });
 
           var columns_layout = #{ columns_layout.to_json};
@@ -166,7 +175,18 @@
         enabled: #{!disable_state_storing},
         type: 'custom',
         customLoad: function() {
-          return #{ columns_layout.to_json};
+
+          var custom_layout = #{ columns_layout.to_json};
+          var grid = dataGrid.dxDataGrid('instance');
+          $.each(custom_layout.columns, function( index, value ) {
+
+            if (value.precision != undefined) {
+              grid.columnOption(value.dataField, 'format.precision', value.precision);
+            }
+
+          });
+
+          return custom_layout;
         },
         customSave: function (gridState) {
           // removing everything we dont need
@@ -179,8 +199,9 @@
 
           $.each(gridState.columns, function( index, value ) {
             var column = grid.columnOption(value.dataField);
-            if (column.format == "fixedPoint") {
-              gridState.columns[index].precision = column.precision;
+            if (column.format != undefined && column.format.type == "fixedPoint") {
+              // Saving precision tto restore in customLoad
+              gridState.columns[index].precision = column.format.precision;
             }
           });
 
@@ -202,7 +223,7 @@
         }
       },
       onContextMenuPreparing: function(e) {
-        if(e.target === 'header' && e.column.format == "fixedPoint") {
+        if(e.target === 'header' && e.column.format.type == "fixedPoint") {
           e.items.push({
             beginGroup: true,
             container_id: "#{container_id}",
@@ -223,7 +244,7 @@
     $(".dx-loadpanel").dxLoadPanel({
       message: "Loading...",
       showIndicator: true,
-      position: { at: 'top', offset: '5 200' },
+      position: { of: $('##{container_id} .dx-scrollable-container'), at: 'center', offset: '0 100' },
       showPane: true
     });
   });

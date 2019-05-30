@@ -4,11 +4,11 @@ module Devextreme
     class << self
 
       def format_percentage(precision = 3)
-        {:format => 'fixedPoint', :precision => precision, :css_class => 'numeric-column', :alignment => 'right'}
+        {:format => { :type => 'fixedPoint', :precision => precision}, :css_class => 'numeric-column', :alignment => 'right'}
       end
 
       def format_fixed(precision = 2)
-        {:format => 'fixedPoint', :precision => precision, :css_class => 'numeric-column', :alignment => 'right'}
+        {:format => { :type => 'fixedPoint', :precision => precision}, :css_class => 'numeric-column', :alignment => 'right'}
       end
 
       def format_date(format = 'MMM dd, yyyy')

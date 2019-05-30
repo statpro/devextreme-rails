@@ -119,11 +119,11 @@ var column_template_linkto = function(container, options){
   if (options.value){
     var text = options.value.text;
 
-    if (options.column.format == "fixedPoint") {
+    if (options.column.format != undefined && options.column.format.type == "fixedPoint") {
       var value = options.value.value;
 
       if (!isNaN(value)) {
-        text = Globalize.format(value, "n" + options.column.precision);
+        text = Globalize.format(value, "n" + options.column.format.precision);
       }
     }
 
@@ -165,11 +165,11 @@ var column_template_linkto_content = function(container, options){
   if (options.value && options.value.content){
     var href = $.parseHTML(options.value.content);
 
-    if (options.column.format == "fixedPoint") {
+    if (options.column.format != undefined && options.column.format.type == "fixedPoint") {
       var value = options.value.value;
 
       if (!isNaN(value)) {
-        text = Globalize.format(value, "n" + options.column.precision);
+        text = Globalize.format(value, "n" + options.column.format.precision);
 
         // 3 == Text
         // see https://www.w3schools.com/jsref/prop_node_nodetype.asp
@@ -502,7 +502,7 @@ var column_header_template_precision = function(itemData, itemIndex, itemElement
             .attr('min', 0)
             .attr('max', 100)
             .attr('step', 1)
-            .attr('value', itemData.column.precision)
+            .attr('value', itemData.column.format.precision)
             .attr('required', 'required')
             .css('height', 'initial')
         )
@@ -525,7 +525,7 @@ function handlePrecisionUpdate(e){
   var max_precision = parseInt($('#precisionInput').attr('max'), 10);
 
   if (!isNaN(new_precision) && new_precision >= min_precision && new_precision <= max_precision) {
-    grid.columnOption(e.data.columnDataField, 'precision', new_precision);
+    grid.columnOption(e.data.columnDataField, 'format.precision', new_precision);
 
     // This is a hack for the context menu not to close when your input value is invalid
     // See /app/views/data_tables/_data_table.html.haml:209
