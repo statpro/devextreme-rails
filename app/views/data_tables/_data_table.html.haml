@@ -238,7 +238,7 @@
         }
       },
       height: function() {
-        var screenHeight = $('.navbar-fixed-bottom').offset().top - $('##{container_id}-holder').offset().top;
+        var screenHeight = $('.navbar-fixed-bottom').offset().top - $('##{container_id}-holder').parent().offset().top;
         var footerHeight = $('footer').height();
         return screenHeight - footerHeight;
       }
