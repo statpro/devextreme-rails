@@ -37,7 +37,6 @@
 
   $(function() {
     var dataGrid = $("##{ container_id }");
-    ItemResize(dataGrid, #{height_number}, #{width_number});
 
     var compact_view_json = #{compact_view_json};
     var columns_json = [#{columns_json}];
@@ -237,6 +236,11 @@
             }
           });
         }
+      },
+      height: function() {
+        var screenHeight = $('.navbar-fixed-bottom').offset().top - $('##{container_id}-holder').offset().top;
+        var footerHeight = $('footer').height();
+        return screenHeight - footerHeight;
       }
     });
 
