@@ -40,7 +40,10 @@ module Devextreme
           :scrolling => {
             :mode => 'virtual',
             :preloadEnabled => false,
-            :use_native => true
+            :use_native => false
+          },
+          :remoteOperations => {
+            :groupPaging => true
           },
           :hover_state_enabled => false,
           :filter_row => {
