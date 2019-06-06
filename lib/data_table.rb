@@ -43,7 +43,8 @@ module Devextreme
             :use_native => false
           },
           :remoteOperations => {
-            :groupPaging => true
+            :groupPaging => true,
+            :grouping => false
           },
           :hover_state_enabled => false,
           :filter_row => {
@@ -263,7 +264,7 @@ module Devextreme
       end
 
       def option(option)
-        @options.merge!(option)
+        @options.deep_merge!(option)
       end
 
       def action_builder(name, &block)
