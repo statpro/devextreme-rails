@@ -394,28 +394,7 @@ module Devextreme
       end
 
       def to_json(view_context, params = {})
-
-        require_count = params.fetch('requireTotalCount', 'false') == 'true'
-
-        query = self.query!(params)
-        query.offset = params.fetch('skip', 0).to_i
-        query.limit = params.fetch('take', @options[:paging][:pageSize]).to_i
-
-        # NB: TODO message about OFFSET in SQL Server requiring an ORDER
-        if is_connection_sql_server?
-          query = query.order("(SELECT NULL)") if query.orders.empty?
-        end
-
-        # NB: need to provide binds if $* variables are in the SQL
-        sql = query.to_sql
-        resultset = @base_query.model.find_by_sql(sql, (sql =~ parameter_binding_character ? (query.bind_values + @base_query.bound_attributes) : []))
-
-        # avoid n+1's
-        begin
-          ActiveRecord::Associations::Preloader.new.preload(resultset, @base_query.includes_values) if @base_query.includes_values.present?
-        rescue ActiveModel::MissingAttributeError
-          # Do nothing here
-        end
+        resultset, total_count = get_resultset_and_count(params)
 
         Jbuilder.encode do |json|
 
@@ -479,23 +458,51 @@ module Devextreme
             end
           end
 
-          if require_count
-            query.projections.clear
-            query.orders.clear
-            query.offset = nil
-            query.limit = nil
-            sql = query.project(Arel.star.count).to_sql
+          json.total_count(total_count) if total_count
+        end
+      end
 
-            # NB: need to provide binds
-            count_result = @base_query.model.connection.exec_query(
+      def get_resultset_and_count(params)
+
+        query = self.query!(params)
+        query.offset = params.fetch('skip', 0).to_i
+        query.limit = params.fetch('take', @options[:paging][:pageSize]).to_i
+
+        # NB: TODO message about OFFSET in SQL Server requiring an ORDER
+        if is_connection_sql_server?
+          query = query.order("(SELECT NULL)") if query.orders.empty?
+        end
+
+        # NB: need to provide binds if $* variables are in the SQL
+        sql = query.to_sql
+        resultset = @base_query.model.find_by_sql(sql, (sql =~ parameter_binding_character ? (query.bind_values + @base_query.bound_attributes) : []))
+
+        # avoid n+1's
+        begin
+          ActiveRecord::Associations::Preloader.new.preload(resultset, @base_query.includes_values) if @base_query.includes_values.present?
+        rescue ActiveModel::MissingAttributeError
+          # Do nothing here
+        end
+
+        require_count = params.fetch('requireTotalCount', 'false') == 'true'
+
+        total_count = if require_count
+          query.projections.clear
+          query.orders.clear
+          query.offset = nil
+          query.limit = nil
+          sql = query.project(Arel.star.count).to_sql
+
+          # NB: need to provide binds
+          count_result = @base_query.model.connection.exec_query(
               sql,
               'SQL',
               (sql =~ parameter_binding_character ? (query.bind_values + @base_query.bound_attributes) : [])
-            )
-
-            json.total_count((count_result.rows.flatten.first.to_i) )  # handles cases when there is a group by
-          end
+          )
+          count_result.rows.flatten.first.to_i  # handles cases when there is a group by
         end
+
+        return resultset, total_count
       end
 
       def to_csv(view_context, params, options)
