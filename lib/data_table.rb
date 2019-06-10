@@ -394,10 +394,7 @@ module Devextreme
       end
 
       def to_json(view_context, params = {})
-
-        require_count = params.fetch('requireTotalCount', 'false') == 'true'
-
-        resultset = get_resultset(params)
+        resultset, total_count = get_resultset_and_count(params)
 
         Jbuilder.encode do |json|
 
@@ -461,13 +458,12 @@ module Devextreme
             end
           end
 
-          if require_count
-            json.total_count(get_total_count(params, resultset))
-          end
+          json.total_count(total_count) if total_count
         end
       end
 
-      def get_resultset(params)
+      def get_resultset_and_count(params)
+
         query = self.query!(params)
         query.offset = params.fetch('skip', 0).to_i
         query.limit = params.fetch('take', @options[:paging][:pageSize]).to_i
@@ -488,24 +484,25 @@ module Devextreme
           # Do nothing here
         end
 
-        resultset
-      end
+        require_count = params.fetch('requireTotalCount', 'false') == 'true'
 
-      def get_total_count(params, _resultset)
-        query = self.query!(params)
-        query.projections.clear
-        query.orders.clear
-        query.offset = nil
-        query.limit = nil
-        sql = query.project(Arel.star.count).to_sql
+        total_count = if require_count
+          query.projections.clear
+          query.orders.clear
+          query.offset = nil
+          query.limit = nil
+          sql = query.project(Arel.star.count).to_sql
 
-        # NB: need to provide binds
-        count_result = @base_query.model.connection.exec_query(
-            sql,
-            'SQL',
-            (sql =~ parameter_binding_character ? (query.bind_values + @base_query.bound_attributes) : [])
-        )
-        count_result.rows.flatten.first.to_i  # handles cases when there is a group by
+          # NB: need to provide binds
+          count_result = @base_query.model.connection.exec_query(
+              sql,
+              'SQL',
+              (sql =~ parameter_binding_character ? (query.bind_values + @base_query.bound_attributes) : [])
+          )
+          count_result.rows.flatten.first.to_i  # handles cases when there is a group by
+        end
+
+        return resultset, total_count
       end
 
       def to_csv(view_context, params, options)
