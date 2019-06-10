@@ -67,16 +67,29 @@ var column_template_label_with_modal = function(container, options){
   }
 };
 
-var column_template_timeago = function(container, options){
-  if (options.value){
-    var abbr = $('<abbr />')
-      .addClass('timeago')
-      .attr('title', options.value.title)
-      .attr('datetime', options.value.datetime)
-      .text(options.value.formatted)
-      .data('datetime', options.value.datetime)
-      .appendTo(container);
+var base_column_template_timeago = function(css_class, container, options) {
+  if (options.value) {
+    var abbr = $('<abbr />');
+    abbr.addClass(css_class);
+    if (typeof options.value === 'string' || options.value instanceof String) {
+      abbr.text(options.value);
+    } else {
+      abbr
+        .attr('title', options.value.title)
+        .attr('datetime', options.value.datetime)
+        .text(options.value.formatted)
+        .data('datetime', options.value.datetime);
+    }
+    abbr.appendTo(container);
   }
+};
+
+var column_template_timeago = function(container, options){
+  base_column_template_timeago('timeago', container, options);
+};
+
+var column_template_timeago2 = function(container, options){
+  base_column_template_timeago('timeago2', container, options);
 };
 
 var column_template_timestamp = function(container, options){

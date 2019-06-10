@@ -23,6 +23,10 @@ module Devextreme
         {:data_type => 'date', :cell_template => :column_template_timeago, :css_class => 'time-ago-column'}.merge(grouping_disable)
       end
 
+      def format_timeago2
+        {:data_type => 'date', :cell_template => :column_template_timeago2, :css_class => 'time-ago-column'}.merge(grouping_disable)
+      end
+
       def format_timestamp
         {:data_type => 'date', :cell_template => :column_template_timestamp, :css_class => 'time-ago-column'}.merge(grouping_disable)
       end

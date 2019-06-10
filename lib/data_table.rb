@@ -623,6 +623,10 @@ module Devextreme
         @options[:downloadable] != false
       end
 
+      def allow_non_date_values?
+        @options[:allow_non_date_values] == true
+      end
+
       def link_to?
         @link_to ||= @params[:link_to].present?
       end
@@ -776,12 +780,25 @@ module Devextreme
 
       def value(instance, view_context)
         text = get_value(instance, view_context)
-        text ? {:title => text.to_time.iso8601, :datetime => text.getutc.iso8601, :formatted => text.to_time.to_formatted_s(:long) } : nil
+        if text.present? && text.respond_to?(:strftime)
+          {:title => text.to_time.iso8601, :datetime => text.getutc.iso8601, :formatted => text.to_time.to_formatted_s(:long) }
+        elsif allow_non_date_values?
+          text
+        else
+          nil
+        end
       end
 
       def to_csv_text(instance, view_context)
         value = get_value(instance, view_context)
         value.strftime(DEFAULT_EXPORT_DATE_TIME_FORMAT)
+      end
+    end
+
+    class ColumnTimeago2 < ColumnTimeago
+      def initialize(name, t_scope, options = nil, value = nil)
+        super name, t_scope, options, value
+        @options.merge!(DataTableFormatters.format_timeago2)
       end
     end
 
@@ -1008,6 +1025,10 @@ module Devextreme
 
       def timeago(name, options = nil, value = nil)
         @columns << ColumnTimeago.new(name, @t_scope, options, value)
+      end
+
+      def timeago2(name, options = nil, value = nil)
+        @columns << ColumnTimeago2.new(name, @t_scope, options, value)
       end
 
       def timestamp(name, options = nil, value = nil)
