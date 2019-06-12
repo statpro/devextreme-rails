@@ -67,7 +67,7 @@ module Devextreme
         @query.each do |instance|
           output << "<Row>"
           @data_table.each_row(instance, @view_context).each do |value|
-            if value.is_a?(Hash) && value.has_key?(:href)
+            if value.is_a?(Hash) && (value.has_key?(:href) || value.has_key?(:content))
               output << "<Cell><Data ss:Type=\"#{resolve_type(value)}\">#{value[:text]}</Data></Cell>"
             else
               output << "<Cell><Data ss:Type=\"#{resolve_type(value)}\">#{value}</Data></Cell>"
