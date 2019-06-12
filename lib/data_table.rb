@@ -581,7 +581,7 @@ module Devextreme
       end
 
       def each_row(instance, view_context)
-        @columns.collect{|c| c.value(instance, view_context) rescue nil}
+        @columns.collect{|c| c.to_xls_text(instance, view_context) rescue nil}
       end
 
       private
@@ -666,6 +666,12 @@ module Devextreme
 
       def to_csv_text(instance, view_context)
         get_value(instance, view_context)
+      end
+
+      # calling to_csv_text for overridden methods when exporting
+      # Keeping the methods separate for future overrides and diff's between implementations
+      def to_xls_text(instance, view_context)
+        to_csv_text(instance, view_context)
       end
 
       def get_value(instance, view_context)
