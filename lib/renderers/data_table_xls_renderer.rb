@@ -32,13 +32,36 @@ module Devextreme
     private
 
     def append_xls
+      header_font_fill = @options.dig(:styles,:header,:font_fill) || '#ffffff'
+      header_font_color = @options.dig(:styles,:header,:font_color) || '#000000'
+
       output = <<-XML
 <?xml version="1.0" encoding="UTF-8"?>
 <Workbook xmlns:x="urn:schemas-microsoft-com:office:excel"
           xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
           xmlns:html="http://www.w3.org/TR/REC-html40"
           xmlns="urn:schemas-microsoft-com:office:spreadsheet"
-          xmlns:o="urn:schemas-microsoft-com:office:office">
+          xmlns:o="urn:schemas-microsoft-com:office:office"> 
+        <Styles>
+          <Style ss:ID="Default" ss:Name="Normal">
+           <Alignment ss:Vertical="Bottom"/>
+           <Borders/>
+           <Font/>
+           <Interior/>
+           <NumberFormat/>
+           <Protection/>
+          </Style>
+          <Style ss:ID="s1">
+           <Borders>
+            <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
+            <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
+            <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
+            <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
+           </Borders>
+           <Font x:Family="Swiss" ss:Bold="1" ss:Color="#{header_font_color}"/>
+           <Interior ss:Color="#{header_font_fill}" ss:Pattern="Solid"/>
+          </Style>
+         </Styles>
   <Worksheet ss:Name="Sheet1">
     <Table>
       XML
@@ -59,7 +82,7 @@ module Devextreme
         unless @options.has_key?(:write_headers) && !@options[:write_headers]
           output << "<Row>"
           @data_table.each_header.each { |column|
-            output << "<Cell><Data ss:Type=\"String\">#{column}</Data></Cell>"
+            output << "<Cell ss:StyleID=\"s1\"><Data ss:Type=\"String\">#{column}</Data></Cell>"
           }
           output << "</Row>"
         end
