@@ -217,7 +217,7 @@
         }
       },
       onContextMenuPreparing: function(e) {
-        if(e.target === 'header' && e.column.format.type == "fixedPoint") {
+        if(e.target === 'header' && e.column.format != undefined && e.column.format.type == "fixedPoint") {
           e.items.push({
             beginGroup: true,
             container_id: "#{container_id}",
