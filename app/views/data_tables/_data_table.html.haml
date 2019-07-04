@@ -107,8 +107,6 @@
                 loadpanel.show();
               }
             }
-
-            dataGrid.dxDataGrid('instance').endCustomLoading();
           });
 
           var columns_layout = #{ columns_layout.to_json};
@@ -165,9 +163,6 @@
             }
           }
         }
-      },
-      onInitialized: function(e) {
-        this.beginCustomLoading();
       },
       stateStoring: {
         ignoreColumnOptionNames: [],
