@@ -107,8 +107,6 @@
                 loadpanel.show();
               }
             }
-
-            dataGrid.dxDataGrid('instance').endCustomLoading();
           });
 
           var columns_layout = #{ columns_layout.to_json};
@@ -166,9 +164,6 @@
           }
         }
       },
-      onInitialized: function(e) {
-        this.beginCustomLoading();
-      },
       stateStoring: {
         ignoreColumnOptionNames: [],
         enabled: #{!disable_state_storing},
@@ -222,7 +217,7 @@
         }
       },
       onContextMenuPreparing: function(e) {
-        if(e.target === 'header' && e.column.format.type == "fixedPoint") {
+        if(e.target === 'header' && e.column.format != undefined && e.column.format.type == "fixedPoint") {
           e.items.push({
             beginGroup: true,
             container_id: "#{container_id}",
