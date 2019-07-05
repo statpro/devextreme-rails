@@ -183,7 +183,7 @@ module Devextreme
 
           # got one?
           unless arel_table
-            Rails.logger.warn "'#{table}' table not found. Is the query for '#{arel_table.name}' correct?"
+            ::Rails.logger.warn "'#{table}' table not found. Is the query for '#{arel_table.name}' correct?"
             next
           end
 
@@ -242,18 +242,18 @@ module Devextreme
                 arel_col = assoc_arel_table[assoc_attribute]
               else
                 # associated column doesn't exist, ignore error and continue
-                Rails.logger.warn "Associated column '#{assoc_attribute}' not found. Is the query for '#{assoc_arel_table.name}' correct?"
+                ::Rails.logger.warn "Associated column '#{assoc_attribute}' not found. Is the query for '#{assoc_arel_table.name}' correct?"
                 next
               end
             else
               # relation doesn't exist, ignore error and continue
-              Rails.logger.warn "No 'belongs_to' association for '#{attribute}' found. Is the query for '#{arel_table.name}' correct?"
+              ::Rails.logger.warn "No 'belongs_to' association for '#{attribute}' found. Is the query for '#{arel_table.name}' correct?"
               next
             end
 
           else
             # column doesn't exist, ignore error and continue
-            Rails.logger.warn "Column '#{attribute}' not found. Is the query for '#{arel_table.name}' correct?"
+            ::Rails.logger.warn "Column '#{attribute}' not found. Is the query for '#{arel_table.name}' correct?"
             next
           end
 
