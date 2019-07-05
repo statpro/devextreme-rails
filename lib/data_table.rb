@@ -40,7 +40,8 @@ module Devextreme
           :scrolling => {
             :mode => 'virtual',
             :preloadEnabled => false,
-            :use_native => false
+            :use_native => false,
+            :scrollByContent => false
           },
           :remoteOperations => {
             :groupPaging => true,
@@ -48,7 +49,7 @@ module Devextreme
           },
           :hover_state_enabled => false,
           :filter_row => {
-            :visible => true
+            :visible => false
           },
           :search_panel => {
             :visible => false
