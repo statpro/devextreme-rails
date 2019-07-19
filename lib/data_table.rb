@@ -578,11 +578,17 @@ module Devextreme
       # NOTE: these methods consumed by DataTableXlsGenerator
 
       def each_header
-        @columns.collect{|c| c.caption}
+        @columns
+          .select {|column| column.options.fetch(:user_visible, true) == true}
+          .sort_by {|column| column.options[:user_visible_index]}
+          .collect(&:caption)
       end
 
       def each_row(instance, view_context)
-        @columns.collect{|c| c.to_xls_text(instance, view_context) rescue nil}
+        @columns
+          .select{ |column| column.options.fetch(:user_visible, true) == true }
+          .sort_by{ |column| column.options[:user_visible_index] }
+          .collect{ |column| column.to_xls_text(instance, view_context) rescue nil }
       end
 
       private
