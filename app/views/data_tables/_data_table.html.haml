@@ -22,7 +22,9 @@
     .row-count{:id => "#{container_id}-row_count"}
 
 - unless disable_state_storing
-  - #this is bad, we shouldn't be calling sql functions from views.
+  - # This is bad, we shouldn't be calling sql functions from views.
+  - # TODO:: We shouldn't have a dependancy on an external object in the gem.
+  - #        Possible solution is to add a requirement for the gem to have a UserGridLayout store(storage mechanism independent).
   - columns_layout = UserGridLayout.get_user_grid_layout(current_user, self.controller_name, self.action_name, data_table.class.name, data_table.additional_layout_key)
 
   - highlighted_result = params[:highlighted_result]

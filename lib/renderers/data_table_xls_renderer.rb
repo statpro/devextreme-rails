@@ -8,6 +8,10 @@ module Devextreme
       raise ArgumentError "Invalid model: #{model.class}"
     end
 
+    # TODO:: We shouldn't have a dependancy on an external object in the gem.
+    #        Possible solution is to add a requirement for the gem to have a UserGridLayout store(storage mechanism independent).
+    options[:columns_layout] = UserGridLayout.get_user_grid_layout(current_user, self.controller_name, self.action_name, model.class.name, model.additional_layout_key)
+
     send_data(
       model.to_xls(view_context, params, options),
       :type => :xls,
@@ -78,6 +82,14 @@ module Devextreme
       end
 
       if @query.any?
+        columns = @options.fetch(:columns_layout, {}).fetch('columns', [])
+
+        if columns.present?
+          @data_table.columns.each do |column|
+            user_column = columns.detect{|c| c['dataField'].split('.').last == column.name.to_s} || {'visible' => false}
+            column.options.merge!(:user_visible => user_column['visible'], :user_visible_index => user_column['visibleIndex'])
+          end
+        end
 
         unless @options.has_key?(:write_headers) && !@options[:write_headers]
           output << "<Row>"
