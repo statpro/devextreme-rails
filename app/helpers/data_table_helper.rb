@@ -32,8 +32,7 @@ module DataTableHelper
         masterDetail: {
             enabled: true,
             template: function(container, options) {
-                container.addClass('internal-grid-container').attr('id', options.rowIndex);
-                #{master_detail}(options);
+                #{master_detail}(container, options);
              }
         }
       JS
