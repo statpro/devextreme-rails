@@ -395,6 +395,7 @@ module Devextreme
       end
 
       def to_json(view_context, params = {})
+        params['take'] = params.fetch('take', @options[:paging][:pageSize]).to_i
         resultset, total_count = get_resultset_and_count(params)
 
         Jbuilder.encode do |json|
@@ -467,7 +468,9 @@ module Devextreme
 
         query = self.query!(params)
         query.offset = params.fetch('skip', 0).to_i
-        query.limit = params.fetch('take', @options[:paging][:pageSize]).to_i
+        unless params.fetch(:no_limit, false)
+          query.limit = params.fetch('take', 1000) # putting hard limit unless no_limit to prevent issues (not ideal of course)
+        end
 
         # NB: TODO message about OFFSET in SQL Server requiring an ORDER
         if is_connection_sql_server?
@@ -517,11 +520,6 @@ module Devextreme
 
         header = []
         rows = []
-        query = query!(params)
-
-        unless options.fetch(:no_limit, false)
-          query.limit = options.fetch(:limit, 1000)# putting hard limit to prevent issues (not ideal of course)
-        end
 
         cols = @columns.select{ |col| col.downloadable? }
 
@@ -529,15 +527,7 @@ module Devextreme
           header << cols.collect{|c| c.caption}.join(',')
         end
 
-        sql = query.to_sql
-        resultset = @base_query.model.find_by_sql(sql, (sql =~ parameter_binding_character ? (query.bind_values + @base_query.bound_attributes) : []))
-
-        # avoid n+1's
-        begin
-          ActiveRecord::Associations::Preloader.new.preload(resultset, @base_query.includes_values) if @base_query.includes_values.present?
-        rescue ActiveModel::MissingAttributeError
-          # Do nothing here
-        end
+        resultset, _ = get_resultset_and_count(params)
 
         resultset.each do |instance|
           rows << cols.collect do |c|
@@ -558,18 +548,7 @@ module Devextreme
         # TODO: refactor to use `send_data` so that the data is streamed to the browser instead
         #
 
-        query = query!(params)
-        query.limit = 1000 # putting hard limit to prevent issues (not ideal of course)
-
-        sql = query.to_sql
-        resultset = @base_query.model.find_by_sql(sql, (sql =~ parameter_binding_character ? (query.bind_values + @base_query.bound_attributes) : []))
-
-        # avoid n+1's
-        begin
-          ActiveRecord::Associations::Preloader.new.preload(resultset, @base_query.includes_values) if @base_query.includes_values.present?
-        rescue ActiveModel::MissingAttributeError
-          # Do nothing here
-        end
+        resultset, _ = get_resultset_and_count(params)
 
         DataTableXlsGenerator.new(self, view_context, resultset, options).run
 
