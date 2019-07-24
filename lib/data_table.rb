@@ -395,6 +395,7 @@ module Devextreme
       end
 
       def to_json(view_context, params = {})
+        params['take'] = params.fetch('take', @options[:paging][:pageSize]).to_i
         resultset, total_count = get_resultset_and_count(params)
 
         Jbuilder.encode do |json|
@@ -467,7 +468,9 @@ module Devextreme
 
         query = self.query!(params)
         query.offset = params.fetch('skip', 0).to_i
-        query.limit = params.fetch('take', params[:take]).to_i if params[:take]
+        unless params.fetch(:no_limit, false)
+          query.limit = params.fetch('take', 1000) # putting hard limit unless no_limit to prevent issues (not ideal of course)
+        end
 
         # NB: TODO message about OFFSET in SQL Server requiring an ORDER
         if is_connection_sql_server?
@@ -524,11 +527,6 @@ module Devextreme
           header << cols.collect{|c| c.caption}.join(',')
         end
 
-        query_limit = nil
-        unless options.fetch(:no_limit, false)
-          query_limit = options.fetch(:limit, 1000)# putting hard limit unless no_limit to prevent issues (not ideal of course)
-        end
-        params[:take] = query_limit
         resultset, _ = get_resultset_and_count(params)
 
         resultset.each do |instance|
@@ -550,11 +548,6 @@ module Devextreme
         # TODO: refactor to use `send_data` so that the data is streamed to the browser instead
         #
 
-        query_limit = nil
-        unless options.fetch(:no_limit, false)
-          query_limit = options.fetch(:limit, 1000)# putting hard limit unless no_limit to prevent issues (not ideal of course)
-        end
-        params[:take] = query_limit
         resultset, _ = get_resultset_and_count(params)
 
         DataTableXlsGenerator.new(self, view_context, resultset, options).run
