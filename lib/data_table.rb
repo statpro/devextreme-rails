@@ -641,13 +641,8 @@ module Devextreme
 
         return text unless text
 
-        if link_to?
-          {:href => @params[:link_to].call(instance,view_context), :text => text, :'data_remote' => remote?, :value => text}
-        elsif link_to_content?
-          {:content => @params[:link_to_content].call(instance,view_context), :text => text, :value => text}
-        else
-          text
-        end
+        text = extra_text_formatting(instance, view_context, text)
+        text
       end
 
       def to_csv_text(instance, view_context)
@@ -674,12 +669,18 @@ module Devextreme
 
       protected
 
+      def extra_text_formatting(instance, view_context, text)
+        text = extra_link_formatting(instance, view_context, text)
+        text = extra_css_formatting(instance, text)
+        text
+      end
+
       def extra_link_formatting(instance, view_context, text)
         if link_to?
-          text = {:href => @params[:link_to].call(instance, view_context), :text => text}
+          text = {:href => @params[:link_to].call(instance, view_context), :text => text, :'data_remote' => remote?, :value => text}
           text.merge!(:target => '_blank') if @params[:new_tab]
         elsif link_to_content?
-          text = {:content => @params[:link_to_content].call(instance, view_context), :text => text}
+          text = {:content => @params[:link_to_content].call(instance, view_context), :text => text, :value => text}
         end
         text
       end
@@ -726,30 +727,18 @@ module Devextreme
     end
 
     class ColumnText < Column
-      def value(instance, view_context)
-        text = get_value(instance, view_context).to_s
-        text = extra_text_formatting(instance, view_context, text)
-        text
+      def get_value(instance, view_context)
+        super(instance, view_context).to_s
       end
 
       def to_csv_text(instance, view_context)
         "\"#{get_value(instance, view_context)}\""
       end
-
-      protected
-
-      def extra_text_formatting(instance, view_context, text)
-        text = extra_link_formatting(instance, view_context, text)
-        text = extra_css_formatting(instance, text)
-        text
-      end
     end
 
     class ColumnAsOf < Column
-      def value(instance, view_context)
-        text = instance.as_of(@options[:date]).send(@name) if instance.respond_to? @name
-        text = extra_link_formatting(instance, view_context, text)
-        text
+      def get_value(instance, view_context)
+        instance.as_of(@options[:date]).send(@name) if instance.respond_to? @name
       end
     end
 
@@ -785,8 +774,8 @@ module Devextreme
         option(DataTableFormatters.format_timeago)
       end
 
-      def value(instance, view_context)
-        text = get_value(instance, view_context)
+      def get_value(instance, view_context)
+        text = super
         if text.present? && text.respond_to?(:strftime)
           {:title => text.to_time.iso8601, :datetime => text.getutc.iso8601, :formatted => text.to_time.to_formatted_s(:long) }
         elsif @options[:allow_non_date_values]
@@ -841,9 +830,7 @@ module Devextreme
         option(DataTableFormatters.format_fixed)
       end
 
-      def value(instance, view_context)
-        text = get_value(instance, view_context)
-
+      def extra_link_formatting(instance, view_context, text)
         if link_to?
           {:href => @params[:link_to].call(instance,view_context), :text => view_context.format_number(text, :precision => @options[:precision]), :value => text}
         elsif link_to_content?
@@ -851,6 +838,7 @@ module Devextreme
         else
           text
         end
+        text
       end
 
       def to_csv_text(instance, view_context)
@@ -866,9 +854,8 @@ module Devextreme
         option(DataTableFormatters.format_percentage)
       end
 
-      def value(instance, view_context)
-        text = get_value(instance, view_context)
-
+      def get_value(instance, view_context)
+        text = super
         view_context.as_percentage(text, :precision => @options.dig(:format, :precision))
       end
     end
@@ -886,12 +873,6 @@ module Devextreme
         option(:allow_sorting => false)
       end
 
-      def value(instance, view_context)
-        text = get_value(instance, view_context)
-        text = extra_link_formatting(instance, view_context, text)
-        text
-      end
-
       def get_value(instance, view_context)
         if value_as_lambda?
           @value.call(instance, view_context)
@@ -907,13 +888,11 @@ module Devextreme
         option(DataTableFormatters.format_date)
       end
 
-      def value(instance, view_context)
-        text = get_value(instance, view_context)
-
+      def get_value(instance, view_context)
+        text = super
         if text
           text = text.strftime(Date::DATE_FORMATS[:default])
         end
-
         text
       end
 
@@ -930,9 +909,8 @@ module Devextreme
         option(DataTableFormatters.format_time)
       end
 
-      def value(instance, view_context)
-        text = get_value(instance, view_context)
-
+      def get_value(instance, view_context)
+        text = super
         if text.is_a? Time
           text = text.to_time
         end
@@ -949,7 +927,7 @@ module Devextreme
         option(:allow_sorting => false)
       end
 
-      def value(instance, view_context)
+      def get_value(instance, view_context)
         {
           :image  => view_context.icon_class(image).join(' '),
           :title  => instance[name.to_s]
@@ -979,7 +957,7 @@ module Devextreme
         option(:allow_sorting => false)
       end
 
-      def value(instance, view_context)
+      def get_value(instance, view_context)
         text = super
         {
           :text  => text,
