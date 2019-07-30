@@ -672,6 +672,25 @@ module Devextreme
         get_value(instance, view_context)
       end
 
+      protected
+
+      def extra_link_formatting(instance, view_context, text)
+        if link_to?
+          text = {:href => @params[:link_to].call(instance, view_context), :text => text}
+          text.merge!(:target => '_blank') if @params[:new_tab]
+        elsif link_to_content?
+          text = {:content => @params[:link_to_content].call(instance, view_context), :text => text}
+        end
+        text
+      end
+
+      def extra_css_formatting(instance, text)
+        if cell_css_class
+          text = {:cell_css_class => cell_css_class.call(instance), :text => text}
+        end
+        text
+      end
+
       private
 
       def extract_arguments!(options = nil, value = nil)
@@ -709,34 +728,27 @@ module Devextreme
     class ColumnText < Column
       def value(instance, view_context)
         text = get_value(instance, view_context).to_s
-
-        if link_to?
-          text = {:href => @params[:link_to].call(instance, view_context), :text => text}
-          text.merge!(:target => '_blank') if @params[:new_tab]
-        elsif link_to_content?
-          text = {:content => @params[:link_to_content].call(instance,view_context), :text => text}
-        end
-
-        if cell_css_class
-          text = { :cell_css_class => cell_css_class.call(instance), :text => text}
-        end
-
+        text = extra_text_formatting(instance, view_context, text)
         text
       end
 
       def to_csv_text(instance, view_context)
         "\"#{get_value(instance, view_context)}\""
       end
+
+      protected
+
+      def extra_text_formatting(instance, view_context, text)
+        text = extra_link_formatting(instance, view_context, text)
+        text = extra_css_formatting(instance, text)
+        text
+      end
     end
 
     class ColumnAsOf < Column
       def value(instance, view_context)
         text = instance.as_of(@options[:date]).send(@name) if instance.respond_to? @name
-
-        if link_to?
-          text = {:href => @params[:link_to].call(instance, view_context), :text => text}
-        end
-
+        text = extra_link_formatting(instance, view_context, text)
         text
       end
     end
@@ -876,13 +888,7 @@ module Devextreme
 
       def value(instance, view_context)
         text = get_value(instance, view_context)
-
-        if link_to?
-          text = {:href => @params[:link_to].call(instance, view_context), :text => text}
-          text.merge!(:target => '_blank') if @params[:new_tab]
-        elsif link_to_content?
-          text = {:content => @params[:link_to_content].call(instance,view_context), :text => text}
-        end
+        text = extra_link_formatting(instance, view_context, text)
         text
       end
 
