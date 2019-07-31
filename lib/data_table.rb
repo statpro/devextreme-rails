@@ -857,7 +857,7 @@ module Devextreme
       def value(instance, view_context)
         text = get_value(instance, view_context)
 
-        view_context.as_percentage(text, :precision => @options[:precision])
+        view_context.as_percentage(text, :precision => @options.dig(:format, :precision))
       end
     end
 
