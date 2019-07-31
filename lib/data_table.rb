@@ -636,12 +636,20 @@ module Devextreme
         @value.respond_to? :call
       end
 
+      # returns the value that will be displayed in the grid.
+      # gets transformed and formatted depending on the column type.
       def value(instance, view_context)
         text = get_value(instance, view_context)
 
         return text unless text
 
+        text = transform(instance, view_context, text)
         text = extra_text_formatting(instance, view_context, text)
+        text
+      end
+
+      # override this method if you want to transform the value in any way before displaying on the grid.
+      def transform(instance, view_context, text)
         text
       end
 
@@ -655,6 +663,7 @@ module Devextreme
         to_csv_text(instance, view_context)
       end
 
+      # returns the raw value with no transformations. N.B. You shouldn't override this method
       def get_value(instance, view_context)
         if value_as_lambda?
           @value.call(instance, view_context)
@@ -727,8 +736,8 @@ module Devextreme
     end
 
     class ColumnText < Column
-      def get_value(instance, view_context)
-        super(instance, view_context).to_s
+      def transform(_instance, _view_context, text)
+        text.to_s
       end
 
       def to_csv_text(instance, view_context)
@@ -737,7 +746,7 @@ module Devextreme
     end
 
     class ColumnAsOf < Column
-      def get_value(instance, view_context)
+      def transform(instance, view_context, text)
         instance.as_of(@options[:date]).send(@name) if instance.respond_to? @name
       end
     end
@@ -774,8 +783,7 @@ module Devextreme
         option(DataTableFormatters.format_timeago)
       end
 
-      def get_value(instance, view_context)
-        text = super
+      def transform(instance, view_context, text)
         if text.present? && text.respond_to?(:strftime)
           {:title => text.to_time.iso8601, :datetime => text.getutc.iso8601, :formatted => text.to_time.to_formatted_s(:long) }
         elsif @options[:allow_non_date_values]
@@ -854,8 +862,7 @@ module Devextreme
         option(DataTableFormatters.format_percentage)
       end
 
-      def get_value(instance, view_context)
-        text = super
+      def transform(instance, view_context, text)
         view_context.as_percentage(text, :precision => @options.dig(:format, :precision))
       end
     end
@@ -873,7 +880,7 @@ module Devextreme
         option(:allow_sorting => false)
       end
 
-      def get_value(instance, view_context)
+      def transform(instance, view_context, text)
         if value_as_lambda?
           @value.call(instance, view_context)
         else
@@ -888,8 +895,7 @@ module Devextreme
         option(DataTableFormatters.format_date)
       end
 
-      def get_value(instance, view_context)
-        text = super
+      def transform(instance, view_context, text)
         if text
           text = text.strftime(Date::DATE_FORMATS[:default])
         end
@@ -909,8 +915,7 @@ module Devextreme
         option(DataTableFormatters.format_time)
       end
 
-      def get_value(instance, view_context)
-        text = super
+      def transform(instance, view_context, text)
         if text.is_a? Time
           text = text.to_time
         end
@@ -927,7 +932,7 @@ module Devextreme
         option(:allow_sorting => false)
       end
 
-      def get_value(instance, view_context)
+      def transform(instance, view_context, text)
         {
           :image  => view_context.icon_class(image).join(' '),
           :title  => instance[name.to_s]
@@ -957,8 +962,7 @@ module Devextreme
         option(:allow_sorting => false)
       end
 
-      def get_value(instance, view_context)
-        text = super
+      def transform(instance, view_context, text)
         {
           :text  => text,
           :label  => @label_lambda.call(instance)
