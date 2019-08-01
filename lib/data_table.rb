@@ -640,10 +640,6 @@ module Devextreme
       # gets transformed and formatted depending on the column type.
       def value(instance, view_context)
         text = get_value(instance, view_context)
-
-        return text unless text
-
-        text = transform(instance, view_context, text)
         text = extra_text_formatting(instance, view_context, text)
         text
       end
@@ -679,6 +675,7 @@ module Devextreme
       protected
 
       def extra_text_formatting(instance, view_context, text)
+        text = transform(instance, view_context, text)
         text = extra_link_formatting(instance, view_context, text)
         text = extra_css_formatting(instance, text)
         text
