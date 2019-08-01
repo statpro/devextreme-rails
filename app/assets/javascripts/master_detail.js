@@ -7,14 +7,13 @@ $.fn.extend({
   }
 });
 
-$('.grow').one('webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend',
-  function() {
-    level1Width = level1.width();
-    thisGridL1.dxDataGrid({
-      width: level1Width
-    });
-    thisGridL1.css('overflow', 'none');
+$('.grow').one('webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend', function() {
+  level1Width = level1.width();
+  thisGridL1.dxDataGrid({
+    width: level1Width
   });
+  thisGridL1.css('overflow', 'none');
+});
 
 function unregister_resize_2() {
   if (typeof(_resize_level_2_grid) != 'undefined') {
@@ -38,6 +37,8 @@ function show_level_1(data_to_show) {
   reset_column_picker("level_1_grid");
   unregister_resize_2();
   unregister_resize_3();
+  remove_level_1_back();
+  remove_level_2_back();
 }
 
 function show_level_2(data_to_show) {
@@ -47,7 +48,7 @@ function show_level_2(data_to_show) {
   level2.addClass('span9 grow dx-back-hidden').html(data_to_show).removeClass('hidden');
   level3.addClass('hidden ').removeClass('span6');
   reset_grid(thisGridL1, 'level_2');
-  level_back('#level_1');
+  level_1_back();
 
   var thisGridL2 = $('#level_2_grid');
   if (thisGridL2.length > 0) {
@@ -56,6 +57,7 @@ function show_level_2(data_to_show) {
     reset_column_picker("level_2_grid");
   }
   unregister_resize_3();
+  remove_level_2_back();
 }
 
 function show_level_3(data_to_show, level_3_grid_id ) {
@@ -66,7 +68,7 @@ function show_level_3(data_to_show, level_3_grid_id ) {
   $('.back-return').css('visibility', 'visible').animateCss('fadeIn');
   reset_grid(thisGridL1, 'level_3');
   reset_grid($('#level_2_grid'), 'level_3');
-  level_back('#level_2');
+  level_2_back();
 
   level_3_grid_id = level_3_grid_id || 'level_3_grid';
   var thisGridL3 = $('#' + level_3_grid_id);
@@ -77,16 +79,48 @@ function show_level_3(data_to_show, level_3_grid_id ) {
   }
 }
 
-function level_back(level) {
-  var selBtn = $('[data-md-level="' + level + '"]');
-  var lvlSel = $( level );
+function unhide_back_button_level_1() {
+  $('[data-md-level="#level_1"]').removeClass('hidden').animateCss('fadeIn');
+}
 
-  lvlSel.mouseenter(function() {
-    selBtn.removeClass('hidden').animateCss('fadeIn');
-  });
-  lvlSel.mouseleave(function() {
-    selBtn.addClass('hidden');
-  });
+function hide_back_button_level_1() {
+  $('[data-md-level="#level_1"]').addClass('hidden');
+}
+
+function unhide_back_button_level_2() {
+  $('[data-md-level="#level_2"]').removeClass('hidden').animateCss('fadeIn');
+}
+
+function hide_back_button_level_2() {
+  $('[data-md-level="#level_2"]').addClass('hidden');
+}
+
+function level_1_back() {
+  var lvlSel = $( '#level_1' );
+
+  lvlSel.mouseenter(unhide_back_button_level_1);
+  lvlSel.mouseleave(hide_back_button_level_1);
+}
+
+function level_2_back() {
+  var lvlSel = $( '#level_2' );
+
+  lvlSel.mouseenter(unhide_back_button_level_2);
+  lvlSel.mouseleave(hide_back_button_level_2);
+}
+
+function remove_level_1_back() {
+  var lvlSel = $( '#level_1' );
+
+  lvlSel.off('mouseenter', unhide_back_button_level_1);
+  lvlSel.off('mouseleave', hide_back_button_level_1);
+}
+
+function remove_level_2_back() {
+  var lvlSel = $( '#level_2' );
+
+  lvlSel.off('mouseenter', unhide_back_button_level_2);
+  lvlSel.off('mouseleave', hide_back_button_level_2);
 }
 
 function clickBack(btn, level) {

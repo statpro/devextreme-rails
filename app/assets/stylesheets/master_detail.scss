@@ -31,7 +31,7 @@
 
   .dx-md-return {
     display: block;
-    position: relative;
+    position: absolute;
     top: 6px;
     right: -11px;
     height: 35px;
@@ -47,10 +47,7 @@
   }
 
   #level_1 {
-    .dxDataGrid-holder{
-      position: relative;
-      top: -35px;
-    }
+    position: relative;
 
     .dxDataGrid-container{
       overflow: hidden !important;
@@ -72,13 +69,11 @@
   }
 
   #level_2 {
+    position: relative;
+
     .dxDataGrid-container {
       overflow: hidden !important;
       width: 100% !important;
-    }
-    .dxDataGrid-holder{
-      position: relative;
-      top: -35px;
     }
     .batch-set, *.batch-set {
       cursor: default !important;
@@ -99,4 +94,9 @@
 .v-scroll {
   height: 100%;
   overflow-y: auto !important;
+}
+
+.hidden {
+  display: none !important;
+  visibility: hidden !important;
 }
