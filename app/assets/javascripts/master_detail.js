@@ -16,6 +16,18 @@ $('.grow').one('webkitTransitionEnd otransitionend oTransitionEnd msTransitionEn
     thisGridL1.css('overflow', 'none');
   });
 
+function unregister_resize_2() {
+  if (typeof(_resize_level_2_grid) != 'undefined') {
+    $(window).off('resize', _resize_level_2_grid);
+  }
+}
+
+function unregister_resize_3() {
+  if (typeof(_resize_level_3_grid) != 'undefined') {
+    $(window).off('resize', _resize_level_3_grid);
+  }
+}
+
 function show_level_1(data_to_show) {
   var current_download_location = $('.tabbable').find('.download_button').attr('href');
   $('.download_button').attr('data-href', current_download_location);
@@ -24,6 +36,8 @@ function show_level_1(data_to_show) {
   level3.removeClass('span6').addClass('hidden').animateCss('fadeInLeft');
   reset_refresh("level_1_grid");
   reset_column_picker("level_1_grid");
+  unregister_resize_2();
+  unregister_resize_3();
 }
 
 function show_level_2(data_to_show) {
@@ -41,6 +55,7 @@ function show_level_2(data_to_show) {
     reset_refresh("level_2_grid");
     reset_column_picker("level_2_grid");
   }
+  unregister_resize_3();
 }
 
 function show_level_3(data_to_show, level_3_grid_id ) {
