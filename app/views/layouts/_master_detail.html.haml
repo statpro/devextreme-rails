@@ -1,0 +1,9 @@
+.row-fluid.master-detail-grids
+  #level_1.master-detail-grid.hidden
+    = render :partial => 'data_tables/buttons/back_button', :locals => {:level => '#level_1', :button => 'btn-return-l1'}
+    = yield
+  #level_2.master-detail-grid.hidden
+  #level_3.master-detail-grid.hidden
+
+:javascript
+  initMasterDetail();
