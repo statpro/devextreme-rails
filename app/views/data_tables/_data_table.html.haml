@@ -33,9 +33,10 @@
 
 :javascript
 
-  $(window).resize(function() {
+  function _resize_#{container_id}() {
     ItemResize($("##{ container_id }"), #{height_number}, #{width_number});
-  });
+  }
+  $(window).on('resize', _resize_#{container_id});
 
   $(function() {
     var dataGrid = $("##{ container_id }");

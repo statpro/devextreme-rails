@@ -1,0 +1,102 @@
+.master-detail-grids{
+
+  .dxDataGrid-container {
+    padding: 9px;
+  }
+
+  .dxDataGrid {
+    margin: 0;
+  }
+
+  overflow: hidden !important;
+
+  .span9 {
+    padding-right: 20px !important;
+    margin-right: 0px;
+  }
+
+  .master-detail-grid.span12 {
+    padding-right: 20px !important;
+  }
+
+  .dxDataGrid-container{
+    width: auto !important;
+  }
+
+  .dx-back-hidden{
+    & > .dx-md-return{
+      left: -4000px;
+    }
+  }
+
+  .dx-md-return {
+    display: block;
+    position: absolute;
+    top: 6px;
+    right: -11px;
+    height: 35px;
+    z-index: 1;
+    background: rgba(255,255,255,0.6);
+    -webkit-animation-duration: 0.2s !important;
+    -moz-animation-duration: 0.2s;
+    animation-duration: 0.2s;
+  }
+
+  .back-return-l1 {
+    float: right !important;
+  }
+
+  #level_1 {
+    position: relative;
+
+    .dxDataGrid-container{
+      overflow: hidden !important;
+      width: 100% !important;
+    }
+
+    #level_1_grid{
+      width: auto;
+    }
+
+    .back-return {
+      position: relative;
+      z-index: 1;
+      top: 40px;
+      right: -10px;
+      float: right;
+      visibility: hidden;
+    }
+  }
+
+  #level_2 {
+    position: relative;
+
+    .dxDataGrid-container {
+      overflow: hidden !important;
+      width: 100% !important;
+    }
+    .batch-set, *.batch-set {
+      cursor: default !important;
+    }
+  }
+
+  .grow {
+    -webkit-transition: width .7s ease-in-out;
+    -moz-transition: all .7s ease-in-out;
+    -ms-transition: all .7s ease-in-out;
+    -o-transition: all .7s ease-in-out;
+    -webkit-transition: all .7s ease-in-out;
+    transition: all .7s;
+  }
+
+}
+
+.v-scroll {
+  height: 100%;
+  overflow-y: auto !important;
+}
+
+.hidden {
+  display: none !important;
+  visibility: hidden !important;
+}
