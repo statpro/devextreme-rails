@@ -89,7 +89,7 @@ module Devextreme
           :selection => {
             :mode => 'multiple',
             :allow_select_all => false,
-            :show_check_boxes_mode => 'always'
+            :show_check_boxes_mode => 'onClick'
           },
           #
           # DO NOT EVER REMOVE!!!!
