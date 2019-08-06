@@ -488,7 +488,7 @@ var column_template_exports_portfolio_filters = function(container, options, pop
       .attr("modal-data", function () {
         return $(info).html().toString();
 		  })
-		  .attr("onClick", "showModal(event)")
+		  .attr("onClick", "event.stopPropagation(); showModal(event);")
 		  .appendTo(container);
     }
   }
