@@ -56,12 +56,7 @@
 - if reset_layout_visible
   - user_grid_layout = { :controller_class_name => self.controller_name, :action_name => self.action_name, :grid_name => data_table.class.name }
   %li
-    = link_to user_grid_layouts_reset_layout_path(:container_id => container_id, :user_grid_layout => user_grid_layout),
-              :method => :put,
-              :remote => true,
-              :data => { :confirm => 'Are you sure you want to reset your column layout?' },
-              :class => 'btn btn-default as_tooltip',
-              :title => t(:reset, :scope => :data_tables) do
+    %a.btn.as_tooltip{:type => 'button', :id => "btn_grid_reset_#{container_id}", :data => { :container_id => container_id, :user_grid_layout => user_grid_layout}, :title => t(:reset, :scope => :data_tables)}
       = icon_tag('undo')
       %span
         = t(:reset, :scope => :data_tables)
@@ -100,7 +95,7 @@
         var data = {
           name: 'container_id',
           value: "#{ container_id }"
-        }
+        };
 
         search_params.push(data);
 
@@ -131,6 +126,28 @@
     $("#btn_refresh_#{ container_id }").on("click", function() {
       var dataGrid = getDataGrid("#" + $(this).data('container-id'));
       dataGrid.refresh();
+    });
+
+    $("#btn_grid_reset_#{ container_id }").on("click", function() {
+      self = $(this);
+      alertify.confirm('Are you sure you want to reset your column layout?', function(e){
+        if(e){
+          self.removeAttr('data-confirm');
+          $.ajax({
+            url: '#{user_grid_layouts_reset_layout_path}/',
+            type: 'PUT',
+            dataType: 'script',
+            data: {
+              container_id: self.data('container-id'),
+              user_grid_layout: {
+                controller_class_name: self.data('user-grid-layout-controller-class-name'),
+                action_name: self.data('user-grid-layout-action-name'),
+                grid_name: self.data('user-grid-layout-grid-name')
+              }
+            }
+          });
+        }
+      });
     });
   });
 
