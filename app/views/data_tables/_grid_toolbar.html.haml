@@ -132,7 +132,6 @@
       self = $(this);
       alertify.confirm('Are you sure you want to reset your column layout?', function(e){
         if(e){
-          self.removeAttr('data-confirm');
           $.ajax({
             url: '#{user_grid_layouts_reset_layout_path}/',
             type: 'PUT',

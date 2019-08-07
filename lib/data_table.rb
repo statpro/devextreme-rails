@@ -21,6 +21,7 @@ module Devextreme
       attr_reader :columns,
                   :method,
                   :options,
+                  :data_options,
                   :actions,
                   :label_decorators,
                   :summaries,
@@ -101,6 +102,11 @@ module Devextreme
 
         }
 
+        @data_options = {
+          :controller_name => proc { |vc| vc.controller_name },
+          :action_name => proc { |vc| vc.action_name },
+          :grid_name => self.class.name
+        }
         @actions = []
         @label_decorators = []
         @summaries = []
@@ -266,6 +272,10 @@ module Devextreme
 
       def option(option)
         @options.deep_merge!(option)
+      end
+
+      def data_option(option)
+        @data_options.deep_merge!(option)
       end
 
       def action_builder(name, &block)

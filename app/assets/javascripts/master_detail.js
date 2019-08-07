@@ -34,6 +34,7 @@ function show_level_1(data_to_show) {
   level2.removeClass('span3 span6').addClass('hidden').animateCss('fadeInRight');
   level3.removeClass('span6').addClass('hidden').animateCss('fadeInLeft');
   reset_refresh("level_1_grid");
+  reset_grid_state("level_1_grid");
   reset_column_picker("level_1_grid");
   unregister_resize_2();
   unregister_resize_3();
@@ -41,7 +42,7 @@ function show_level_1(data_to_show) {
   remove_level_2_back();
 }
 
-function show_level_2(data_to_show, controller, action, data_table) {
+function show_level_2(data_to_show) {
   var new_download_location = $(data_to_show).find('.download_button').attr('href');
   $('.download_button').attr('href', new_download_location).attr('data-href', new_download_location);
   level1.removeClass('span12 dx-back-hidden').addClass('span3 grow');
@@ -54,14 +55,14 @@ function show_level_2(data_to_show, controller, action, data_table) {
   if (thisGridL2.length > 0) {
     reset_grid(thisGridL2, 'level_2');
     reset_refresh("level_2_grid");
-    reset_grid_state("level_2_grid", controller, action, data_table);
+    reset_grid_state("level_2_grid");
     reset_column_picker("level_2_grid");
   }
   unregister_resize_3();
   remove_level_2_back();
 }
 
-function show_level_3(data_to_show, level_3_grid_id, controller, action, data_table ) {
+function show_level_3(data_to_show, level_3_grid_id) {
   level1.removeClass('span3').addClass('span2 grow');
   level2.removeClass('span9 dx-back-hidden').addClass('span3 grow ');
   level3.removeClass('hidden').addClass('span7 grow ').html(data_to_show);
@@ -76,7 +77,7 @@ function show_level_3(data_to_show, level_3_grid_id, controller, action, data_ta
   if (thisGridL3.length > 0) {
     reset_grid(thisGridL3, 'level_3');
     reset_refresh(level_3_grid_id);
-    reset_grid_state(level_3_grid_id, controller, action, data_table);
+    reset_grid_state(level_3_grid_id);
     reset_column_picker(level_3_grid_id);
   }
 }
@@ -161,24 +162,27 @@ function reset_refresh(grid_continer_id){
   $('#btn_refresh_level_1_grid').data("container-id", grid_continer_id);
 }
 
-function reset_grid_state(grid_continer_id, controller, action, grid){
+function reset_grid_state(grid_continer_id){
   var reset_button = $('#btn_grid_reset_level_1_grid');
+  var dataGrid = $("#" + grid_continer_id);
   reset_button.data("container-id", grid_continer_id);
-  reset_button.data("user-grid-layout-controller-class-name", controller);
-  reset_button.data("user-grid-layout-action-name", action);
-  reset_button.data("user-grid-layout-grid-name", grid);
+  reset_button.data("user-grid-layout-controller-class-name", dataGrid.data("controller_name"));
+  reset_button.data("user-grid-layout-action-name", dataGrid.data("action_name"));
+  reset_button.data("user-grid-layout-grid-name", dataGrid.data("grid_name"));
 }
 
 function reset_column_picker(grid_container_id){
   $('#btn_col_chooser_level_1_grid').data("container-id", grid_container_id);
 }
 
-function factory_reset_grid(grid){
-  var dataGrid = grid;
-
-  dataGrid.dxDataGrid({
-    columns: grid.data("default-json")
-  });
+function factory_reset_grid(dataGrid){
+  if (dataGrid.data("default-state-json") !== undefined) {
+    dataGrid.dxDataGrid('instance').state(dataGrid.data("default-state-json"));
+  } else {
+    dataGrid.dxDataGrid({
+      columns: dataGrid.data("default-json")
+    });
+  }
 
   dataGrid.dxDataGrid('instance').clearSelection();
 }
