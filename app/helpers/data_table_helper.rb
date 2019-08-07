@@ -72,6 +72,10 @@ module DataTableHelper
     columns_json << hash_to_json(data_table.action_column) unless data_table.actions.blank?
     columns_json = columns_json.map{|c| "{#{c}}"}.join(',')
 
+    data_options_json = data_table.data_options.each do |k, v|
+      data_table.data_options[k] = (v.respond_to?(:call) ? v.call(self) : v)
+    end.to_json
+
     compact_view = data_table.options.delete(:compact_view)
     compact_view_json = compact_view ? compact_view.to_json : [].to_json
 
@@ -124,7 +128,9 @@ module DataTableHelper
               :disable_state_storing => disable_state_storing,
               :filter_form_id => filter_form_id,
               :requireTotalRowCountIndicator => requireTotalRowCountIndicator,
-              :options => options})
+              :options => options,
+              :data_options_json => data_options_json
+            })
   end
 
   private

@@ -43,9 +43,13 @@
 
     var compact_view_json = #{compact_view_json};
     var columns_json = [#{columns_json}];
+    var data_options_json = #{data_options_json};
 
     dataGrid.data("compact-view", compact_view_json);
     dataGrid.data("default-json", columns_json);
+    for (var i in data_options_json) {
+      dataGrid.data(i, data_options_json[i]);
+    }
 
     // FIXME: this isn't a specific enough jQuery selector when filter_form_id == "form"
     //   since if there is more than one form, it will include them all
@@ -207,6 +211,9 @@
           $.ajax({
             type: "PUT",
             url: user_grid_layouts_save_layout_path,
+            success: function(e) {
+              dataGrid.data('default-state-json', gridState)
+            },
             data: {
               user_grid_layout: {
                 controller_class_name: '#{ self.controller_name}',
