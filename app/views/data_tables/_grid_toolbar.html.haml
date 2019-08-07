@@ -108,7 +108,7 @@
       var keys = dataGrid.getSelectedRowKeys();
       var value_count = keys.length > 0 ? keys.length : dataGrid.totalCount();
 
-      $(this).data('confirm', 'Are you sure you want to delete ' + value_count + ' selected row(s)?');
+      $(this).data('confirm', '#{t(:delete, :scope => [:data_tables, :dialog])}'.replace('{0}', value_count));
 
     });
 
@@ -120,7 +120,7 @@
       var ids_input = $("#new_purge_data_helper").find('input[name="ids[]"]');
       ids_input.val(keys.join());
 
-      $('.purge_data_form .confirm_message').text('Are you sure you want to purge ' + value_count + ' selected row(s)?');
+      $('.purge_data_form .confirm_message').text('#{t(:purge, :scope => [:data_tables, :dialog])}'.replace('{0}', value_count));
     });
 
     $("#btn_refresh_#{ container_id }").on("click", function() {
@@ -130,10 +130,10 @@
 
     $("#btn_grid_reset_#{ container_id }").on("click", function() {
       self = $(this);
-      alertify.confirm('Are you sure you want to reset your column layout?', function(e){
+      alertify.confirm('#{t(:reset, :scope => [:data_tables, :dialog])}', function(e){
         if(e){
           $.ajax({
-            url: '#{user_grid_layouts_reset_layout_path}/',
+            url: '#{user_grid_layouts_reset_layout_path}',
             type: 'PUT',
             dataType: 'script',
             data: {
