@@ -92,6 +92,12 @@ module Devextreme
             :allow_select_all => false,
             :show_check_boxes_mode => 'onClick'
           },
+          :state_storing => {
+            :ignore_column_option_names => [],
+            :enabled => true,
+            :saving_timeout => 500,
+            :type => 'custom'
+          },
           #
           # DO NOT EVER REMOVE!!!!
           # This stops the grid from reloading twice.
