@@ -92,6 +92,7 @@ module Devextreme
             :allow_select_all => false,
             :show_check_boxes_mode => 'onClick'
           },
+          :state_timeout => 500,
           #
           # DO NOT EVER REMOVE!!!!
           # This stops the grid from reloading twice.
