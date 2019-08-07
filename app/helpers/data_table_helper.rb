@@ -18,10 +18,9 @@ module DataTableHelper
     selection_changed = options.delete(:selection_changed)
     master_detail = options.delete(:master_detail)
 
-    state_storing = options.delete(:disable_state_storing)
-    disable_state_storing = state_storing.presence ? state_storing : false
-
-    state_timeout = data_table.options.delete(:state_timeout)
+    state_storing = data_table.options.delete(:state_storing)
+    disable_state_storing = !state_storing.fetch(:enabled, true)
+    state_storing_json = hash_to_json(state_storing)
 
     bulk_actions = (options[:bulk_actions] || data_table.options[:bulk_actions])
     bulk_actions_visible = bulk_actions.presence ? bulk_actions : true
@@ -132,7 +131,7 @@ module DataTableHelper
               :requireTotalRowCountIndicator => requireTotalRowCountIndicator,
               :options => options,
               :data_options_json => data_options_json,
-              :state_timeout => state_timeout
+              :state_storing_json => state_storing_json
             })
   end
 

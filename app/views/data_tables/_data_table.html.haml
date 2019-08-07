@@ -172,9 +172,7 @@
         }
       },
       stateStoring: {
-        ignoreColumnOptionNames: [],
-        enabled: #{!disable_state_storing},
-        type: 'custom',
+        #{state_storing_json},
         customLoad: function() {
 
           var custom_layout = #{ columns_layout.to_json};
@@ -189,7 +187,6 @@
 
           return custom_layout;
         },
-        savingTimeout: #{state_timeout},
         customSave: function (gridState) {
           // removing everything we dont need
           delete gridState.pageIndex;
