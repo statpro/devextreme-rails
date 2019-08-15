@@ -46,7 +46,10 @@ module Devextreme
           },
           :remoteOperations => {
             :groupPaging => true,
-            :grouping => false
+            :grouping => false,
+            :filtering => true,
+            :sorting => true,
+            :paging => true
           },
           :hover_state_enabled => false,
           :filter_row => {
