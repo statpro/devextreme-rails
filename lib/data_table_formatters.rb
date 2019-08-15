@@ -4,31 +4,31 @@ module Devextreme
     class << self
 
       def format_percentage(precision = 3)
-        {:format => { :type => 'fixedPoint', :precision => precision}, :css_class => 'numeric-column', :alignment => 'right'}
+        {:format => { :type => 'fixedPoint', :precision => precision}, :alignment => 'right'}
       end
 
       def format_fixed(precision = 2)
-        {:format => { :type => 'fixedPoint', :precision => precision}, :css_class => 'numeric-column', :alignment => 'right'}
+        {:format => { :type => 'fixedPoint', :precision => precision}, :alignment => 'right'}
       end
 
       def format_date(format = 'MMM dd, yyyy')
-        {:format => format, :data_type => 'date', :css_class => 'date-column'}
+        {:format => format, :data_type => 'date'}
       end
 
       def format_time(format = 'shortTime')
-        {:format => format, :data_type => 'date', :css_class => 'time-column'}
+        {:format => format, :data_type => 'date'}
       end
 
       def format_timeago
-        {:data_type => 'date', :cell_template => :column_template_timeago, :css_class => 'time-ago-column'}.merge(grouping_disable)
+        {:data_type => 'date', :cell_template => :column_template_timeago}.merge(grouping_disable)
       end
 
       def format_timeago2
-        {:data_type => 'date', :cell_template => :column_template_timeago2, :css_class => 'time-ago-column'}.merge(grouping_disable)
+        {:data_type => 'date', :cell_template => :column_template_timeago2}.merge(grouping_disable)
       end
 
       def format_timestamp
-        {:data_type => 'date', :cell_template => :column_template_timestamp, :css_class => 'time-ago-column'}.merge(grouping_disable)
+        {:data_type => 'date', :cell_template => :column_template_timestamp}.merge(grouping_disable)
       end
 
       def format_hidden
@@ -56,7 +56,7 @@ module Devextreme
       end
 
       def format_bool
-        {:data_type => 'boolean', :show_editor_always => false, :false_text => 'No', :true_text => 'Yes', :css_class => 'boolean-column'}.merge(filter_disable)
+        {:data_type => 'boolean', :show_editor_always => false, :false_text => 'No', :true_text => 'Yes'}.merge(filter_disable)
       end
 
       def format_background_task_info
