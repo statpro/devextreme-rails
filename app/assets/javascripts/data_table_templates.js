@@ -531,6 +531,10 @@ var column_header_template_precision = function(itemData, itemIndex, itemElement
   )
 };
 
+var hide_grouping_column_name_group_cell_template = function(cellElement, cell){
+  cellElement.text(cell.displayValue);
+};
+
 function handlePrecisionUpdate(e){
   var grid = $('#' + e.data.container_id).dxDataGrid('instance');
   var new_precision = parseInt($('#precisionInput').val(), 10);
