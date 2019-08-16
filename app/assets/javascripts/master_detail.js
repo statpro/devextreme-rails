@@ -15,15 +15,12 @@ $('.grow').one('webkitTransitionEnd otransitionend oTransitionEnd msTransitionEn
   thisGridL1.css('overflow', 'none');
 });
 
-function unregister_resize_2() {
-  if (typeof(_resize_level_2_grid) != 'undefined') {
-    $(window).off('resize', _resize_level_2_grid);
-  }
-}
-
-function unregister_resize_3() {
-  if (typeof(_resize_level_3_grid) != 'undefined') {
-    $(window).off('resize', _resize_level_3_grid);
+function unregister_resize($grid) {
+  if (typeof($grid) != 'undefined') {
+    var fn_resize_grid = window["_resize_" + $grid.attr('id')]
+    if (typeof (fn_resize_grid) != 'undefined') {
+      $(window).off('resize', fn_resize_grid);
+    }
   }
 }
 
@@ -36,8 +33,8 @@ function show_level_1(data_to_show) {
   reset_refresh("level_1_grid");
   reset_grid_state("level_1_grid");
   reset_column_picker("level_1_grid");
-  unregister_resize_2();
-  unregister_resize_3();
+  unregister_resize(thisGridL2);
+  unregister_resize(thisGridL3);
   remove_level_1_back();
   remove_level_2_back();
 }
@@ -51,14 +48,14 @@ function show_level_2(data_to_show) {
   reset_grid(thisGridL1, 'level_2');
   level_1_back();
 
-  var thisGridL2 = $('#level_2_grid');
+  thisGridL2 = $('#level_2_grid');
   if (thisGridL2.length > 0) {
     reset_grid(thisGridL2, 'level_2');
     reset_refresh("level_2_grid");
     reset_grid_state("level_2_grid");
     reset_column_picker("level_2_grid");
   }
-  unregister_resize_3();
+  unregister_resize(thisGridL3);
   remove_level_2_back();
 }
 
@@ -69,11 +66,11 @@ function show_level_3(data_to_show, level_3_grid_id) {
   $('#level_3 .dx-datagrid').animateCss('fadeIn');
   $('.back-return').css('visibility', 'visible').animateCss('fadeIn');
   reset_grid(thisGridL1, 'level_3');
-  reset_grid($('#level_2_grid'), 'level_3');
+  reset_grid(thisGridL2, 'level_3');
   level_2_back();
 
   level_3_grid_id = level_3_grid_id || 'level_3_grid';
-  var thisGridL3 = $('#' + level_3_grid_id);
+  thisGridL3 = $('#' + level_3_grid_id);
   if (thisGridL3.length > 0) {
     reset_grid(thisGridL3, 'level_3');
     reset_refresh(level_3_grid_id);
@@ -189,6 +186,8 @@ function factory_reset_grid(dataGrid){
 
 function initMasterDetail() {
   thisGridL1 = $('#level_1_grid');
+  thisGridL2 = undefined;
+  thisGridL3 = undefined;
   level1 = $('#level_1');
   level2 = $('#level_2');
   level3 = $('#level_3');
@@ -207,10 +206,6 @@ function initMasterDetail() {
       //keep original functionality if there is no level 1 setup in the datatable.
       factory_reset_grid(thisGridL1)
     }
-  });
-
-  $('body').on('toggle', '.dx-select-checkbox', function () {
-    $('#level_2_grid').dxDataGrid('instance').clearSelection();
   });
 
   this.showErrorDialog = function() {
