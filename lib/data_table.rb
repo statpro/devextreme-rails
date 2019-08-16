@@ -625,6 +625,11 @@ module Devextreme
         # default ':allow_grouping => false'
         option(DataTableFormatters.grouping_disable)
 
+        # hide group column name if hide_grouping_column_name = true
+        if @options.delete(:hide_grouping_column_name)
+          option(DataTableFormatters.hide_grouping_column_name)
+        end
+
       end
 
       def option(option)

@@ -115,6 +115,10 @@ module Devextreme
         {:allow_grouping => false}
       end
 
+      def hide_grouping_column_name
+        {:group_cell_template => :hide_grouping_column_name_group_cell_template}
+      end
+
       def summary_sum(precision = 2)
         {:summaryType => 'sum'}
       end
