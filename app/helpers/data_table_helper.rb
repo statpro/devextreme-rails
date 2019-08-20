@@ -59,10 +59,10 @@ module DataTableHelper
 
     columns_json = data_table.columns.map do |column|
       col_data = [
-        "dataField: '#{data_table.base_query.table_name}.#{column.name.join('.') rescue column.name.to_s}'",
-        "dataFieldWithoutTable: '#{column.name.to_s}'",
+        "dataField: \"#{data_table.base_query.table_name}.#{column.name.join('.') rescue column.name.to_s}\"",
+        "dataFieldWithoutTable: \"#{column.name.to_s}\"",
         "dataFieldExtraValue: \"#{column.extra_value.to_s}\"",
-        "caption: '#{column.caption}'",
+        "caption: \"#{column.caption}\"",
         "allowHiding: true"
       ]
 
@@ -87,11 +87,11 @@ module DataTableHelper
 
       if summary.is_a?(Devextreme::DataTable::SummaryCustom)
         if (custom_summary_function = summary.options.delete(:custom_summary_function)).present?
-          custom_summary_functions << "#{custom_summary_function}(options,'#{summary.name}');"
+          custom_summary_functions << "#{custom_summary_function}(options,\"#{summary.name}\");"
         end
 
         if (custom_summary_value = summary.options.delete(:custom_summary_value)).present?
-          custom_summary_functions << "genericCustomSummary(options,'#{summary.name}','#{custom_summary_value}');"
+          custom_summary_functions << "genericCustomSummary(options,\"#{summary.name}\",\"#{custom_summary_value}\");"
         end
       end
 
@@ -143,7 +143,7 @@ module DataTableHelper
       if k == :cell_template
         "#{k.to_s.camelize(:lower)}: #{v}"
       elsif v.is_a?(String)
-        "#{k.to_s.camelize(:lower)}: '#{v}'"
+        "#{k.to_s.camelize(:lower)}: \"#{v}\""
       elsif v.is_a?(Hash)
         "#{k.to_s.camelize(:lower)}: {#{hash_to_json(v)}}"
       elsif v.is_a?(Array)
