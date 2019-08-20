@@ -901,7 +901,7 @@ module Devextreme
         option(:allow_sorting => false)
       end
 
-      def get_value(instance, view_context, text)
+      def get_value(instance, view_context)
         if value_as_lambda?
           @value.call(instance, view_context)
         else
