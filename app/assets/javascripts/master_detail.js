@@ -172,16 +172,21 @@ function reset_column_picker(grid_container_id){
   $('#btn_col_chooser_level_1_grid').data("container-id", grid_container_id);
 }
 
-function factory_reset_grid(dataGrid){
-  if (dataGrid.data("default-state-json") !== undefined) {
-    dataGrid.dxDataGrid('instance').state(dataGrid.data("default-state-json"));
+function factory_reset_grid(grid){
+  if (grid.data("default-state-json") !== undefined) {
+    grid.dxDataGrid('instance').state(grid.data("default-state-json"));
   } else {
-    dataGrid.dxDataGrid({
-      columns: dataGrid.data("default-json")
+    grid.dxDataGrid({
+      columns: grid.data("default-json")
     });
   }
 
-  dataGrid.dxDataGrid('instance').clearSelection();
+  var dataGrid = grid.dxDataGrid('instance');
+  dataGrid.clearSelection();
+  window.setTimeout(function(){
+    dataGrid.updateDimensions();
+    dataGrid.repaint();
+  }, 1000);
 }
 
 function initMasterDetail() {
