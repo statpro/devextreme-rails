@@ -917,6 +917,7 @@ module Devextreme
       end
 
       def transform(instance, view_context, text)
+        text = Date.parse(text) if text.is_a?(String)
         if text
           text = text.strftime(Date::DATE_FORMATS[:default])
         end
