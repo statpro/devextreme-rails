@@ -22,8 +22,9 @@ module DataTableHelper
     disable_state_storing = !state_storing.fetch(:enabled, true)
     state_storing_json = hash_to_json(state_storing)
 
-    bulk_actions = (options[:bulk_actions] || data_table.options[:bulk_actions])
-    bulk_actions_visible = bulk_actions.presence ? bulk_actions : true
+    bulk_actions_visible = options.fetch(:bulk_actions, data_table.options.fetch(:bulk_actions, true))
+
+    xls_download_visible = options.fetch(:xls_download_visible, data_table.options.fetch(:xls_download_visible, false))
 
     functions = ''
 
@@ -123,6 +124,7 @@ module DataTableHelper
               :group_panel_visible => group_panel_visible,
               :column_picker_visible => column_picker_visible,
               :download_visible => download_visible,
+              :xls_download_visible => xls_download_visible,
               :has_s3_download => has_s3_download,
               :reset_layout_visible => reset_layout_visible,
               :converted_load_options => url_params.to_json,

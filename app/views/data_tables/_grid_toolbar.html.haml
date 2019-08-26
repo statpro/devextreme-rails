@@ -9,12 +9,12 @@
 
 - if download_visible
   -# bit of a HACK since some data tables don't specify a source, use url_for
-  - download_params = params.merge(:format => :csv, :is_master_detail => (options[:is_master_detail] || false)).permit!
-  - s3_params = params.merge(:format => :s3, :is_master_detail => (options[:is_master_detail] || false)).permit!
+  - download_params = params.merge(:is_master_detail => (options[:is_master_detail] || false)).permit!
+  - csv_download_params = download_params.merge(:format => :csv).permit!
   %li
     #temp-wtf.hidden
       = tag :input, :id => "#{container_id}-total_count"
-    = link_to data_table.url(self, download_params),
+    = link_to data_table.url(self, csv_download_params),
       :class => [:hidden],
       :title => t(:download, :scope => :data_tables),
       :id => "#{container_id}-csv_download",
@@ -46,6 +46,18 @@
         return false;
       }
 
+  - if xls_download_visible
+    - xls_download_params = download_params.merge(:format => :xls).permit!
+    %li
+      = link_to data_table.url(self, xls_download_params),
+                :class => [:btn, :download_button, :as_tooltip],
+                :title => t(:download_xls, :scope => :data_tables),
+                :id => "#{container_id}-xls_download",
+                :target => "_blank" do
+        = icon_tag('file-excel-o')
+        %span
+          = t(:download_xls, :scope => :data_tables)
+
 - if column_picker_visible
   %li
     %a.btn.as_tooltip{:type => 'button', :id => "btn_col_chooser_#{container_id}", :data => { :container_id => container_id}, :title => t(:configure, :scope => :data_tables)}
@@ -60,11 +72,6 @@
       = icon_tag('undo')
       %span
         = t(:reset, :scope => :data_tables)
-
-
-
-- other_body_content do
-  = render :partial => 'data_tables/download_modal', :locals => { :url => data_table.url(self, s3_params), :container_id => container_id } if download_visible
 
 :javascript
   $(function(){
