@@ -917,17 +917,21 @@ module Devextreme
       end
 
       def transform(instance, view_context, text)
-        text = Date.parse(text) if text.is_a?(String)
-        if text
-          text = text.strftime(Date::DATE_FORMATS[:default])
-        end
-        text
+        safe_parse(text, Date::DATE_FORMATS[:default])
       end
 
       def to_csv_text(instance, view_context)
         value = get_value(instance, view_context)
         # this will produce '23-JAN-2014'
-        value.strftime(DEFAULT_EXPORT_DATE_FORMAT)
+        safe_parse(value, DEFAULT_EXPORT_DATE_FORMAT)
+      end
+
+      private
+
+      def safe_parse(value, format)
+        value = Date.parse(value) if value.present? && value.is_a?(String)
+        value = value.strftime(format) if value
+        value
       end
     end
 
