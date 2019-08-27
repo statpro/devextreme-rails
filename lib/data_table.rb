@@ -124,6 +124,20 @@ module Devextreme
         @highlights = []
       end
 
+      def download_file_name(view_context)
+        filename = nil
+        if options[:download_filename].present?
+          filename = options[:download_filename]
+        else
+          klass = self.base_query.class
+          if klass.respond_to?(:model_name)
+            # try default to a nice name else rescue nil
+            filename = klass.model_name.human(:count => 2) rescue nil
+          end
+        end
+        filename || view_context.controller_name.titleize
+      end
+
       def define_columns(&block)
         builder = ColumnBuilder.new(@t_scope)
         yield builder if block_given?
@@ -917,17 +931,21 @@ module Devextreme
       end
 
       def transform(instance, view_context, text)
-        text = Date.parse(text) if text.is_a?(String)
-        if text
-          text = text.strftime(Date::DATE_FORMATS[:default])
-        end
-        text
+        safe_parse(text, Date::DATE_FORMATS[:default])
       end
 
       def to_csv_text(instance, view_context)
         value = get_value(instance, view_context)
         # this will produce '23-JAN-2014'
-        value.strftime(DEFAULT_EXPORT_DATE_FORMAT)
+        safe_parse(value, DEFAULT_EXPORT_DATE_FORMAT)
+      end
+
+      private
+
+      def safe_parse(value, format)
+        value = Date.parse(value) if value.present? && value.is_a?(String)
+        value = value.strftime(format) if value
+        value
       end
     end
 

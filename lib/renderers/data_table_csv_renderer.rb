@@ -6,7 +6,7 @@ module Devextreme
     if options[:filename].present?
       filename = options[:filename]
     elsif model.is_a?(DataTable::Base)
-      filename = model.base_query.first ? model.base_query.first.class.model_name.human(:count => 2) : self.controller_name.titleize
+      filename = model.download_file_name(self)
     else
       raise ArgumentError "Invalid model: #{model.class}"
     end
