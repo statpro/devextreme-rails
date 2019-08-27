@@ -124,6 +124,20 @@ module Devextreme
         @highlights = []
       end
 
+      def download_file_name(view_context)
+        filename = nil
+        if options[:download_filename].present?
+          filename = options[:download_filename]
+        else
+          klass = self.base_query.class
+          if klass.respond_to?(:model_name)
+            # try default to a nice name else rescue nil
+            filename = klass.model_name.human(:count => 2) rescue nil
+          end
+        end
+        filename || view_context.controller_name.titleize
+      end
+
       def define_columns(&block)
         builder = ColumnBuilder.new(@t_scope)
         yield builder if block_given?
