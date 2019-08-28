@@ -85,35 +85,35 @@
 
             if(data.total_count != undefined) {
               d.resolve(data.items, { totalCount: data.total_count });
-
               $("##{container_id}-total_count").val(data.total_count);
             } else {
               d.resolve(data.items);
+            }
 
-              if (#{requireTotalRowCountIndicator}) {
+            if (#{requireTotalRowCountIndicator}) {
+              var totalCount = "Row count: " + $("##{container_id}-total_count").val();
 
-                var totalCount = "Row count: " + $("##{container_id}-total_count").val();
+              var loadpanel = $("##{container_id}-row_count").dxLoadPanel({
+                visible: false,
+                showIndicator: false,
+                message: totalCount,
+                showPane: true,
+                height: 30,
+                width: 150,
+                shading: false,
+                position: { of: $('##{container_id} .dx-scrollable-container'), at: 'right top', offset: '-75, 20' },
+                closeOnOutsideClick: false,
+                onShown: function(){
+                  setTimeout(function () {
+                      loadpanel.hide();
+                      $("##{container_id}-row_count").css('display', 'none' );
+                  }, 2500 )
+                }
+              }).dxLoadPanel("instance");
 
-                var loadpanel = $("##{container_id}-row_count").dxLoadPanel({
-                  visible: false,
-                  showIndicator: false,
-                  message: totalCount,
-                  showPane: true,
-                  height: 30,
-                  width: 150,
-                  shading: false,
-                  position: { of: $('##{container_id} .dx-scrollable-container'), at: 'right top', offset: '-75, 20' },
-                  closeOnOutsideClick: false,
-                  onShown: function(){
-                    setTimeout(function () {
-                        loadpanel.hide();
-                        $("##{container_id}-row_count").css('display', 'none' );
-                    }, 2500 )
-                  }
-                }).dxLoadPanel("instance");
-
+              setTimeout(function () {
                 loadpanel.show();
-              }
+              }, 500 )
             }
           });
 
