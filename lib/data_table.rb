@@ -875,9 +875,9 @@ module Devextreme
 
       def extra_link_formatting(instance, view_context, text)
         if link_to?
-          {:href => @params[:link_to].call(instance,view_context), :text => view_context.format_number(text, :precision => @options[:precision]), :value => text}
+          text = {:href => @params[:link_to].call(instance,view_context), :text => view_context.format_number(text, :precision => @options[:precision]), :value => text}
         elsif link_to_content?
-          {:content => @params[:link_to_content].call(instance,view_context), :text => view_context.format_number(text, :precision => @options[:precision]), :value => text}
+          text = {:content => @params[:link_to_content].call(instance,view_context), :text => view_context.format_number(text, :precision => @options[:precision]), :value => text}
         else
           text
         end
