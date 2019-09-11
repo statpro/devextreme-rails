@@ -129,7 +129,7 @@ module Devextreme
         if options[:download_filename].present?
           filename = options[:download_filename]
         else
-          klass = self.base_query.class
+          klass = self.base_query.klass
           if klass.respond_to?(:model_name)
             # try default to a nice name else rescue nil
             filename = klass.model_name.human(:count => 2) rescue nil
