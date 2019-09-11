@@ -497,11 +497,11 @@ module Devextreme
         end
       end
 
-      def get_resultset_and_count(params)
+      def get_resultset_and_count(params, options = {})
 
         query = self.query!(params)
         query.offset = params.fetch('skip', 0).to_i
-        unless params.fetch(:no_limit, false)
+        unless options.fetch(:no_limit, false)
           query.limit = params.fetch('take', 1000) # putting hard limit unless no_limit to prevent issues (not ideal of course)
         end
 
@@ -560,7 +560,7 @@ module Devextreme
           header << cols.collect{|c| c.caption}.join(',')
         end
 
-        resultset, _ = get_resultset_and_count(params)
+        resultset, _ = get_resultset_and_count(params, options)
 
         resultset.each do |instance|
           rows << cols.collect do |c|
@@ -581,7 +581,7 @@ module Devextreme
         # TODO: refactor to use `send_data` so that the data is streamed to the browser instead
         #
 
-        resultset, _ = get_resultset_and_count(params)
+        resultset, _ = get_resultset_and_count(params, options)
 
         DataTableXlsGenerator.new(self, view_context, resultset, options).run
 
