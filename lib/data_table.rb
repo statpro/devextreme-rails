@@ -187,110 +187,249 @@ module Devextreme
         end
       end
 
+      # Create a variable for the altered query
+      # The reason for this is so that i dont have the pass this (query) all over the place
+      # Possible additions:
+      # sorters
+      # joiners
+      # where's
+      attr_accessor :sorted_and_filtered_query
       def query!(params)
-        apply_sorting(@base_query, params)
+        @sorted_and_filtered_query = @base_query.arel.dup # convert to AREL
+        apply_sorting(params)
+        apply_filter!(params)
+        @sorted_and_filtered_query
       end
 
-      private def apply_sorting(query, params)
+      private def apply_sorting(params)
 
         sort_params = params.fetch('sortOptions', {})
-        query = query.arel.dup # convert to AREL
 
         # got any?
-        return query if sort_params.blank?
+        return if sort_params.blank?
 
         sort_params = JSON.parse(sort_params)
 
-        query.orders.clear
+        @sorted_and_filtered_query.orders.clear
 
         sort_params.each do |sorter|
 
           order_desc = sorter['desc'] == true
           table, attribute, assoc_attribute = sorter['selector'].split('.')
 
-          arel_table = tables[table][:arel_table]
-          arel_klass = tables[table][:arel_klass]
+          arel_col = get_arel_column(table, attribute, assoc_attribute)
+          next unless arel_col
 
-          # got one?
-          unless arel_table
-            ::Rails.logger.warn "'#{table}' table not found. Is the query for '#{arel_table.name}' correct?"
-            next
-          end
+          @sorted_and_filtered_query = @sorted_and_filtered_query.order(order_desc ? arel_col.desc : arel_col.asc)
 
-          # basic column, or association?
-          if arel_klass.columns.collect(&:name).include?(attribute)
-            arel_col = arel_table[attribute]
+        end
+      end
 
-          elsif assoc_attribute
+      def get_arel_column(table, attribute, assoc_attribute)
+        arel_col = nil
+        arel_table = tables[table][:arel_table]
+        arel_klass = tables[table][:arel_klass]
 
-            #
-            # NOTE: this only works to 1 level of association
-            #  and `sorter['selector']` will have 3 parts
-            #
-            # reflect on the belongs to associations
-            #  and attempt to find the column.
-            #
-            # E.g.
-            #
-            #   total_asset_series.currency.code
-            #
+        # got one?
+        unless arel_table
+          ::Rails.logger.warn "'#{table}' table not found. Is the query for '#{arel_table.name}' correct?"
+          return nil
+        end
 
-            associations = arel_klass.reflect_on_all_associations(:belongs_to).inject({}) {|list, assoc|
-              list[assoc.name.to_s] = assoc
-              list
-            }
+        # basic column, or association?
+        if arel_klass.columns.collect(&:name).include?(attribute)
+          arel_col = arel_table[attribute]
 
-            if associations.key?(attribute)
+        elsif assoc_attribute
 
-              # get the association
-              association = associations[attribute]
+          #
+          # NOTE: this only works to 1 level of association
+          #  and `sorter['selector']` will have 3 parts
+          #
+          # reflect on the belongs to associations
+          #  and attempt to find the column.
+          #
+          # E.g.
+          #
+          #   total_asset_series.currency.code
+          #
 
-              # can't handle polymorphic associations
-              # since it would need to join on more than
-              # one model
-              next if association.polymorphic?
+          associations = arel_klass.reflect_on_all_associations(:belongs_to).inject({}) {|list, assoc|
+            list[assoc.name.to_s] = assoc
+            list
+          }
 
-              # get the table of the associated class
-              assoc_arel_table = association.klass.arel_table
-              assoc_arel_engine = association.klass.arel_engine
+          if associations.key?(attribute)
 
-              # table already joined in base query?
-              includes_table = query.join_sources.any? do |join|
-                join.left.name == assoc_arel_table.name ||
+            # get the association
+            association = associations[attribute]
+
+            # can't handle polymorphic associations
+            # since it would need to join on more than
+            # one model
+            return nil if association.polymorphic?
+
+            # get the table of the associated class
+            assoc_arel_table = association.klass.arel_table
+            assoc_arel_engine = association.klass.arel_engine
+
+            # table already joined in base query?
+            includes_table = @sorted_and_filtered_query.join_sources.any? do |join|
+              join.left.name == assoc_arel_table.name ||
                   join.right.each {|object|
                     object.is_a?(Arel::Table) && object.name == assoc_arel_table.name
                   }
-              end
-
-              unless includes_table
-                query = query.join(assoc_arel_table)
-                          .on(arel_table[association.foreign_key].eq(
-                            assoc_arel_table[association.association_primary_key]))
-              end
-
-              if assoc_arel_engine.columns.collect(&:name).include?(assoc_attribute)
-                arel_col = assoc_arel_table[assoc_attribute]
-              else
-                # associated column doesn't exist, ignore error and continue
-                ::Rails.logger.warn "Associated column '#{assoc_attribute}' not found. Is the query for '#{assoc_arel_table.name}' correct?"
-                next
-              end
-            else
-              # relation doesn't exist, ignore error and continue
-              ::Rails.logger.warn "No 'belongs_to' association for '#{attribute}' found. Is the query for '#{arel_table.name}' correct?"
-              next
             end
 
+            unless includes_table
+              @sorted_and_filtered_query = @sorted_and_filtered_query.join(assoc_arel_table)
+                          .on(arel_table[association.foreign_key].eq(
+                              assoc_arel_table[association.association_primary_key]))
+            end
+
+            if assoc_arel_engine.columns.collect(&:name).include?(assoc_attribute)
+              arel_col = assoc_arel_table[assoc_attribute]
+            else
+              # associated column doesn't exist, ignore error and continue
+              ::Rails.logger.warn "Associated column '#{assoc_attribute}' not found. Is the query for '#{assoc_arel_table.name}' correct?"
+              return nil
+            end
           else
-            # column doesn't exist, ignore error and continue
-            ::Rails.logger.warn "Column '#{attribute}' not found. Is the query for '#{arel_table.name}' correct?"
-            next
+            # relation doesn't exist, ignore error and continue
+            ::Rails.logger.warn "No 'belongs_to' association for '#{attribute}' found. Is the query for '#{arel_table.name}' correct?"
+            return nil
           end
 
-          query = query.order(order_desc ? arel_col.desc : arel_col.asc)
+        else
+          # column doesn't exist, ignore error and continue
+          ::Rails.logger.warn "Column '#{attribute}' not found. Is the query for '#{arel_table.name}' correct?"
+          return nil
+        end
+
+        arel_col
+      end
+
+      private def apply_filter!(params)
+        # filtering
+        filter_options = params.fetch('filterOptions', {})
+
+        return if filter_options.blank?
+
+        filter_options = JSON.parse(filter_options)
+        conditions = build_filter_conditions(filter_options)
+        @sorted_and_filtered_query = @sorted_and_filtered_query.where(
+          add_arel_conditions(conditions)
+        )
+      end
+
+      # Example filters:
+      # [["vComposites.ShortName", "contains", "comp"],
+      #  "or",
+      #  [["vComposites.ShortName", "contains", "adm"], "and", ["vComposites.InceptionDate", ">=", "1800/01/02"]]]
+      def build_filter_conditions(filters)
+        conditions = []
+
+        return build_arel_conditions(filters) if filters.dimension == 1
+
+        filters.each_slice(2).each do |filter, condition|
+
+          if filter.dimension > 1
+            conditions << build_filter_conditions(filter)
+            conditions << condition if condition
+          else
+            conditions = build_arel_conditions(filter, condition, conditions)
+          end
 
         end
-        query
+
+        conditions
+      end
+
+      # Calling .to_sql on arel conditions:
+      # ["[vComposites].[ShortName] LIKE N'%comp%'",
+      #  "or",
+      #  ["[vComposites].[ShortName] LIKE N'%adm%'", "and", "[vComposites].[InceptionDate] >= '01-01-1800 00:00:00.0'"]]
+      def add_arel_conditions(conditions)
+        arel_conditions = conditions.shift
+        while conditions.any?
+          operator, right_condition = conditions.shift(2)
+
+          if arel_conditions.is_a?(Array)
+            arel_conditions = Arel::Nodes::Grouping.new(add_arel_conditions(arel_conditions))
+          end
+
+          if right_condition.is_a?(Array)
+            right_condition = Arel::Nodes::Grouping.new(add_arel_conditions(right_condition))
+          end
+
+          arel_conditions = arel_conditions.send(
+              operator,
+              right_condition
+          )
+        end
+        arel_conditions
+      end
+
+      # Example filter:
+      # ["vComposites.ShortName", "contains", "comp"]
+      # will produce an arel statement:
+      # "[vComposites].[ShortName] LIKE N'%comp%'"
+      def build_arel_conditions(filter, condition = nil, conditions = [])
+        column, operator, expr = filter
+
+        table, attribute, assoc_attribute = column.split('.')
+
+        data_table_column = @columns.detect do |c|
+          if assoc_attribute
+            c.name == [attribute, assoc_attribute].map(&:to_sym)
+          else
+            c.name == attribute.to_sym
+          end
+        end
+
+        arel_col = get_arel_column(table, attribute, assoc_attribute)
+        return [] unless arel_col
+
+        if is_date_column = [Devextreme::DataTable::ColumnDate, Devextreme::DataTable::ColumnTimeago].any? { |k| data_table_column.is_a? k }
+          expr = DateTime.parse(expr)
+        end
+
+        operation = case operator
+                      when "="
+                        arel_col.eq(expr)
+                      when "<>"
+                        arel_col.not_eq(expr)
+                      when "<"
+                        expr = expr.end_of_day if is_date_column
+                        arel_col.lt(expr)
+                      when ">"
+                        expr = expr.beginning_of_day if is_date_column
+                        arel_col.gt(expr)
+                      when "<="
+                        expr = expr.end_of_day if is_date_column
+                        arel_col.lteq(expr)
+                      when ">="
+                        expr = expr.beginning_of_day if is_date_column
+                        arel_col.gteq(expr)
+                      when "contains"
+                        arel_col.matches("%#{expr}%", nil, true)
+                      when "notcontains"
+                        arel_col.does_not_match("%#{expr}%", nil, true)
+                      when "startswith"
+                        arel_col.matches("#{expr}%", nil, true)
+                      when "endswith"
+                        arel_col.matches("%#{expr}", nil, true)
+                      when "between"
+                        arel_col.between(expr)
+                      else
+                        raise ArgumentError, "Unsupported operator #{operator}."
+                    end
+        if operation
+          conditions << operation
+          conditions << condition if condition
+        end
+
+        conditions
       end
 
       def option(option)
