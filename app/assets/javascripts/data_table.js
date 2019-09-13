@@ -8,8 +8,18 @@ function ItemResize(dataGrid, height, width) {
     dataGrid.height( parseInt(height)-dgMargin );
   }
 }
+
 function genericCustomSummary(opt, name, value) {
   if (opt.name === name && opt.summaryProcess === "start") {
     opt.totalValue = value;
   }
+}
+
+function getDataGrid(container_id) {
+  return $(container_id).dxDataGrid('instance');
+}
+
+function getSelectedRowKeys(container_id) {
+  var dataGrid = getDataGrid(container_id);
+  return dataGrid.getSelectedRowKeys();
 }
