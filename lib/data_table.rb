@@ -1114,7 +1114,7 @@ module Devextreme
       def transform(instance, view_context, text)
         {
           :image  => view_context.icon_class(image).join(' '),
-          :title  => instance[name.to_s]
+          :title  => instance.send(name)
         }
       end
     end
@@ -1128,7 +1128,7 @@ module Devextreme
 
         @sorter = enum_helper
         @filterer = enum_helper
-        super name, t_scope, options, proc { |instance| enum_module.display_for(instance[name]) }
+        super name, t_scope, options, proc { |instance| enum_module.display_for(instance.send(name)) }
       end
     end
 
