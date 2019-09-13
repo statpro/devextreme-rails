@@ -87,7 +87,8 @@ module Devextreme
         if columns.present?
           @data_table.columns.each do |column|
             user_column = columns.detect{|c| c['dataField'].split('.').last == column.name.to_s} || {'visible' => false}
-            column.options.merge!(:user_visible => user_column['visible'], :user_visible_index => user_column['visibleIndex'])
+            # Call reverse_merge! on column to not override explicit options already set for the column
+            column.options.reverse_merge!(:user_visible => user_column['visible'], :user_visible_index => user_column['visibleIndex'])
           end
         end
 
