@@ -156,12 +156,3 @@
       });
     });
   });
-
-  function getDataGrid(container_id) {
-    return $(container_id).dxDataGrid('instance');
-  }
-
-  function getSelectedRowKeys(container_id) {
-    var dataGrid = getDataGrid(container_id);
-    return dataGrid.getSelectedRowKeys();
-  }
