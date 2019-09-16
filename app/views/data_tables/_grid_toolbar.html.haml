@@ -35,7 +35,7 @@
         var enabled = #{has_s3_download ? 'true' : 'false' };
 
         window.location = $('##{container_id}-csv_download').attr('href');
-        var total_count = $('##{container_id}').dxDataGrid('instance').totalCount();
+        var total_count = getDataGrid('##{container_id}').totalCount();
 
         if(total_count > 999  && enabled) {
           $("##{container_id}-download_modal").modal({backdrop: false}).modal('show');
