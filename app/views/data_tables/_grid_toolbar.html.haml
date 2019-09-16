@@ -12,8 +12,6 @@
   - download_params = params.merge(:is_master_detail => (options[:is_master_detail] || false)).permit!
   - csv_download_params = download_params.merge(:format => :csv).permit!
   %li
-    #temp-wtf.hidden
-      = tag :input, :id => "#{container_id}-total_count"
     = link_to data_table.url(self, csv_download_params),
       :class => [:hidden],
       :title => t(:download, :scope => :data_tables),
@@ -36,9 +34,8 @@
 
         var enabled = #{has_s3_download ? 'true' : 'false' };
 
-        var total_count_string = $("##{container_id}-total_count").val();
         window.location = $('##{container_id}-csv_download').attr('href');
-        var total_count = parseInt(total_count_string);
+        var total_count = getDataGrid('##{container_id}').totalCount();
 
         if(total_count > 999  && enabled) {
           $("##{container_id}-download_modal").modal({backdrop: false}).modal('show');
