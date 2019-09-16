@@ -84,7 +84,6 @@
         request.done(function (data) {
           if(data.total_count != undefined) {
             d.resolve(data.items, { totalCount: data.total_count });
-            $("##{container_id}-total_count").val(data.total_count);
           } else {
             d.resolve(data.items);
           }
@@ -133,12 +132,10 @@
       #{ options_json },
       onContentReady: function(e){
         if (#{requireTotalRowCountIndicator}) {
-          var totalCount = "Row count: " + $("##{container_id}-total_count").val();
-
           var loadpanel = $("##{container_id}-row_count").dxLoadPanel("instance");
           loadpanel.option({
             showIndicator: false,
-            message: totalCount,
+            message: "Row count: " + e.component.totalCount(),
             position: { of: $('##{container_id} .dx-scrollable-container'), at: 'right top', offset: '-75, 20' }
           });
 
@@ -157,7 +154,7 @@
 
           // Handle data table highlight_row
           if (row_info_data.hasOwnProperty('_highlight_row')) {
-            highlight_row_data = JSON.parse(row_info_data._highlight_row)
+            highlight_row_data = JSON.parse(row_info_data._highlight_row);
 
             if (highlight_row_data.highlight_row) {
               rowInfo.rowElement.addClass(highlight_row_data.highlight_row_class);
