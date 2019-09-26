@@ -25,8 +25,7 @@ function unregister_resize($grid) {
 }
 
 function show_level_1(data_to_show) {
-  var current_download_location = $('.tabbable').find('.download_button').attr('href');
-  $('.download_button').attr('data-href', current_download_location);
+  $('#selected_container_id').val('level_1_grid');
   level1.addClass('span12 grow dx-back-hidden').html(data_to_show).removeClass('hidden');
   level2.removeClass('span3 span6').addClass('hidden').animateCss('fadeInRight');
   level3.removeClass('span6').addClass('hidden').animateCss('fadeInLeft');
@@ -40,8 +39,7 @@ function show_level_1(data_to_show) {
 }
 
 function show_level_2(data_to_show) {
-  var new_download_location = $(data_to_show).find('.download_button').attr('href');
-  $('.download_button').attr('href', new_download_location).attr('data-href', new_download_location);
+  $('#selected_container_id').val('level_2_grid');
   level1.removeClass('span12 dx-back-hidden').addClass('span3 grow');
   level2.addClass('span9 grow dx-back-hidden').html(data_to_show).removeClass('hidden');
   level3.addClass('hidden ').removeClass('span6');
@@ -126,11 +124,7 @@ function remove_level_2_back() {
 function clickBack(btn, level) {
 
   $('body').on('click', btn, function() {
-    var downLoadBtn = $('.download_button');
-    var old_link = downLoadBtn.attr('data-href');
-    downLoadBtn.attr('href', old_link);
     level();
-
     $('.dx-md-return').addClass('hidden');
   });
 }
