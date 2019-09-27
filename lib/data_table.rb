@@ -128,12 +128,14 @@ module Devextreme
         filename = nil
         if options[:download_filename].present?
           filename = options[:download_filename]
-        else
+        elsif self.base_query.is_a?(ActiveRecord::Relation)
           klass = self.base_query.klass
           if klass.respond_to?(:model_name)
             # try default to a nice name else rescue nil
             filename = klass.model_name.human(:count => 2) rescue nil
           end
+        elsif self.base_query.respond_to?(:human)
+          filename = self.base_query.human
         end
         filename || view_context.controller_name.titleize
       end
