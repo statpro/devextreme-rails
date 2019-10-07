@@ -96,7 +96,7 @@
       alertify.confirm('#{t(:reset, :scope => [:data_tables, :dialog])}', function(e){
         if(e){
           $.ajax({
-            url: '#{user_grid_layouts_reset_layout_path}',
+            url: dataGrid.data('reset_layout_url'),
             type: 'PUT',
             dataType: 'script',
             data: {

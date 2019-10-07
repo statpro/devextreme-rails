@@ -114,7 +114,8 @@ module Devextreme
         @data_options = {
           :controller_name => proc { |vc| vc.controller_name },
           :action_name => proc { |vc| vc.action_name },
-          :grid_name => self.class.name
+          :grid_name => self.class.name,
+          :reset_layout_url => proc { |vc| vc.user_grid_layouts_reset_layout_path }
         }
         @actions = []
         @label_decorators = []
