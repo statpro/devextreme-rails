@@ -56,6 +56,7 @@
     %a.btn.as_tooltip{:type => 'button',
                       :id => "btn_grid_reset_#{container_id}",
                       :title => t(:reset, :scope => :data_tables),
+                      :data => {:reset_layout_message => t(:reset, :scope => [:data_tables, :dialog])},
                       :onclick => "initiate_grid_reset('#{container_id}')"}
       = icon_tag('undo')
       %span
@@ -98,7 +99,7 @@
       container_id = getSelectedContainerId(container_id);
       var $dataGrid = $('#' + container_id);
 
-      alertify.confirm('#{t(:reset, :scope => [:data_tables, :dialog])}', function(e){
+      alertify.confirm($('#btn_grid_reset_' + container_id).data('reset-layout-message'), function(e){
         if(e){
           $.ajax({
             url: $dataGrid.data('reset_layout_url'),
