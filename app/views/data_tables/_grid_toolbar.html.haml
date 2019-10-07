@@ -2,11 +2,13 @@
 = render partial: 'data_tables/extra_grid_toolbar', locals: local_assigns rescue nil
 
 = hidden_field_tag :selected_container_id, container_id
+= hidden_field_tag :is_master_detail, false
 
 %li
   %button.btn.as_tooltip{:type => 'button',
                          :id => "btn_refresh_#{container_id}",
-                         :title => t(:refresh, :scope => :data_tables)}
+                         :title => t(:refresh, :scope => :data_tables),
+                         :onclick => "refresh_grid('#{container_id}')"}
     = icon_tag('refresh')
     %span
       = t(:refresh, :scope => :data_tables)
@@ -21,7 +23,7 @@
               :title => t(:download, :scope => :data_tables),
               :id => "btn_csv_download_#{container_id}",
               :target => "_blank",
-              :onclick => "download_file(event, 'csv', #{has_s3_download ? 'true' : 'false' })" do
+              :onclick => "download_file(event, 'csv', '#{container_id}', #{has_s3_download ? 'true' : 'false' })" do
       = icon_tag('download')
       %span
         = t(:download, :scope => :data_tables)
@@ -34,7 +36,7 @@
                 :title => t(:download_xls, :scope => :data_tables),
                 :id => "btn_xls_download_#{container_id}",
                 :target => "_blank",
-                :onclick => "download_file(event, 'xls', #{has_s3_download ? 'true' : 'false' })" do
+                :onclick => "download_file(event, 'xls', '#{container_id}', #{has_s3_download ? 'true' : 'false' })" do
         = icon_tag('file-excel-o')
         %span
           = t(:download_xls, :scope => :data_tables)
@@ -43,7 +45,8 @@
   %li
     %a.btn.as_tooltip{:type => 'button',
                       :id => "btn_col_chooser_#{container_id}",
-                      :title => t(:configure, :scope => :data_tables)}
+                      :title => t(:configure, :scope => :data_tables),
+                      :onclick => "show_column_chooser('#{container_id}')"}
       = icon_tag('cogs')
       %span
         = t(:configure, :scope => :data_tables)
@@ -52,15 +55,16 @@
   %li
     %a.btn.as_tooltip{:type => 'button',
                       :id => "btn_grid_reset_#{container_id}",
-                      :title => t(:reset, :scope => :data_tables)}
+                      :title => t(:reset, :scope => :data_tables),
+                      :onclick => "initiate_grid_reset('#{container_id}')"}
       = icon_tag('undo')
       %span
         = t(:reset, :scope => :data_tables)
 
 :javascript
   $(function(){
-    function download_file(event, type, allow_large_files) {
-      var container_id = $('#selected_container_id').val();
+    function download_file(event, type, container_id, allow_large_files) {
+      container_id = getSelectedContainerId(container_id);
 
       /* This links to the -xls_download and -csv_download buttons, depending on type */
       var file_location = $('#' + container_id + '-' + type + '_download').attr('href');
@@ -80,35 +84,41 @@
       return false;
     }
 
-    $("#btn_col_chooser_#{ container_id }").on("click", function() {
-      var dataGrid = getDataGrid("#" + $('#selected_container_id').val());
+    function show_column_chooser(container_id) {
+      var dataGrid = getDataGrid('#' + getSelectedContainerId(container_id));
       dataGrid.showColumnChooser();
-    });
+    }
 
-    $("#btn_refresh_#{ container_id }").on("click", function() {
-      var dataGrid = getDataGrid("#" + $('#selected_container_id').val());
+    function refresh_grid(container_id) {
+      var dataGrid = getDataGrid('#' + getSelectedContainerId(container_id));
       dataGrid.refresh();
-    });
+    }
 
-    $("#btn_grid_reset_#{ container_id }").on("click", function() {
-      var container_id = $('#selected_container_id').val();
-      var dataGrid = $('#' + container_id);
+    function initiate_grid_reset(container_id) {
+      container_id = getSelectedContainerId(container_id);
+      var $dataGrid = $('#' + container_id);
+
       alertify.confirm('#{t(:reset, :scope => [:data_tables, :dialog])}', function(e){
         if(e){
           $.ajax({
-            url: dataGrid.data('reset_layout_url'),
+            url: $dataGrid.data('reset_layout_url'),
             type: 'PUT',
             dataType: 'script',
             data: {
               container_id: container_id,
               user_grid_layout: {
-                controller_class_name: dataGrid.data('controller_name'),
-                action_name: dataGrid.data('action_name'),
-                grid_name: dataGrid.data('grid_name')
+                controller_class_name: $dataGrid.data('controller_name'),
+                action_name: $dataGrid.data('action_name'),
+                grid_name: $dataGrid.data('grid_name')
               }
             }
           });
         }
       });
-    });
+    }
+
+    function getSelectedContainerId(default_container_id) {
+      var is_master_detail = JSON.parse($('#is_master_detail').val().toLowerCase());
+      return (is_master_detail === true) ? $('#selected_container_id').val() : default_container_id;
+    }
   });

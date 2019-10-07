@@ -25,6 +25,7 @@ function unregister_resize($grid) {
 
 function show_level_1(data_to_show) {
   $('#selected_container_id').val('level_1_grid');
+  $('#is_master_detail').val(true);
   level1.addClass('span12 grow dx-back-hidden').html(data_to_show).removeClass('hidden');
   level2.removeClass('span3 span6').addClass('hidden').animateCss('fadeInRight');
   level3.removeClass('span6').addClass('hidden').animateCss('fadeInLeft');
@@ -36,6 +37,7 @@ function show_level_1(data_to_show) {
 
 function show_level_2(data_to_show) {
   $('#selected_container_id').val('level_2_grid');
+  $('#is_master_detail').val(true);
   level1.removeClass('span12 dx-back-hidden').addClass('span3 grow');
   level2.addClass('span9 grow dx-back-hidden').html(data_to_show).removeClass('hidden');
   level3.addClass('hidden ').removeClass('span6');
@@ -53,6 +55,7 @@ function show_level_2(data_to_show) {
 function show_level_3(data_to_show, level_3_grid_id) {
   level_3_grid_id = level_3_grid_id || 'level_3_grid';
   $('#selected_container_id').val(level_3_grid_id);
+  $('#is_master_detail').val(true);
   level1.removeClass('span3').addClass('span2 grow');
   level2.removeClass('span9 dx-back-hidden').addClass('span3 grow ');
   level3.removeClass('hidden').addClass('span7 grow ').html(data_to_show);
