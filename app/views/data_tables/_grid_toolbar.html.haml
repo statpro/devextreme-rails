@@ -4,7 +4,9 @@
 = hidden_field_tag :selected_container_id, container_id
 
 %li
-  %button.btn.as_tooltip{:type => 'button', :id => "btn_refresh_#{container_id}", :data => { :container_id => container_id}, :title => t(:refresh, :scope => :data_tables)}
+  %button.btn.as_tooltip{:type => 'button',
+                         :id => "btn_refresh_#{container_id}",
+                         :title => t(:refresh, :scope => :data_tables)}
     = icon_tag('refresh')
     %span
       = t(:refresh, :scope => :data_tables)
@@ -58,15 +60,18 @@
 
 - if column_picker_visible
   %li
-    %a.btn.as_tooltip{:type => 'button', :id => "btn_col_chooser_#{container_id}", :data => { :container_id => container_id}, :title => t(:configure, :scope => :data_tables)}
+    %a.btn.as_tooltip{:type => 'button',
+                      :id => "btn_col_chooser_#{container_id}",
+                      :title => t(:configure, :scope => :data_tables)}
       = icon_tag('cogs')
       %span
         = t(:configure, :scope => :data_tables)
 
 - if reset_layout_visible
-  - user_grid_layout = { :controller_class_name => self.controller_name, :action_name => self.action_name, :grid_name => data_table.class.name }
   %li
-    %a.btn.as_tooltip{:type => 'button', :id => "btn_grid_reset_#{container_id}", :data => { :container_id => container_id, :user_grid_layout => user_grid_layout}, :title => t(:reset, :scope => :data_tables)}
+    %a.btn.as_tooltip{:type => 'button',
+                      :id => "btn_grid_reset_#{container_id}",
+                      :title => t(:reset, :scope => :data_tables)}
       = icon_tag('undo')
       %span
         = t(:reset, :scope => :data_tables)
@@ -75,66 +80,18 @@
   $(function(){
 
     $("#btn_col_chooser_#{ container_id }").on("click", function() {
-      var dataGrid = getDataGrid("#" + $(this).data('container-id'));
+      var dataGrid = getDataGrid("#" + $('#selected_container_id').val());
       dataGrid.showColumnChooser();
     });
 
-    // use the class to match the link
-    // bind to the ajax:before event
-    // and add the data for the request to the
-    // data-params attribute of the link in question
-
-    $(".delete_selected_items_#{ container_id }").on("ajax:before", function() {
-      var keys = getSelectedRowKeys("##{ container_id }");
-
-      if (keys.length > 0) {
-        $(this).data('params', {
-          ids: keys,
-          container_id: "#{ container_id }"
-        });
-      }
-      else {
-        // FIXME: this isn't a specific enough jQuery selector when filter_form_id == "form"
-        //   since if there is more than one form, it will include them all
-        var search_params = $("#{filter_form_id}.auto-submit").serializeArray();
-        var data = {
-          name: 'container_id',
-          value: "#{ container_id }"
-        };
-
-        search_params.push(data);
-
-        $(this).data('params', search_params);
-      }
-
-
-    }).on('click', function() {
-      var dataGrid = getDataGrid("##{ container_id }");
-      var keys = dataGrid.getSelectedRowKeys();
-      var value_count = keys.length > 0 ? keys.length : dataGrid.totalCount();
-
-      $(this).data('confirm', '#{t(:delete, :scope => [:data_tables, :dialog])}'.replace('{0}', value_count));
-
-    });
-
-    // Set the selected ids on the hidden 'ids' field
-    $('.purge_data_button').on('click', function(){
-      var dataGrid = getDataGrid("##{ container_id }");
-      var keys = dataGrid.getSelectedRowKeys();
-      var value_count = keys.length > 0 ? keys.length : dataGrid.totalCount();
-      var ids_input = $("#new_purge_data_helper").find('input[name="ids[]"]');
-      ids_input.val(keys.join());
-
-      $('.purge_data_form .confirm_message').text('#{t(:purge, :scope => [:data_tables, :dialog])}'.replace('{0}', value_count));
-    });
-
     $("#btn_refresh_#{ container_id }").on("click", function() {
-      var dataGrid = getDataGrid("#" + $(this).data('container-id'));
+      var dataGrid = getDataGrid("#" + $('#selected_container_id').val());
       dataGrid.refresh();
     });
 
     $("#btn_grid_reset_#{ container_id }").on("click", function() {
-      self = $(this);
+      var container_id = $('#selected_container_id').val();
+      var dataGrid = $('#' + container_id);
       alertify.confirm('#{t(:reset, :scope => [:data_tables, :dialog])}', function(e){
         if(e){
           $.ajax({
@@ -142,11 +99,11 @@
             type: 'PUT',
             dataType: 'script',
             data: {
-              container_id: self.data('container-id'),
+              container_id: container_id,
               user_grid_layout: {
-                controller_class_name: self.data('user-grid-layout-controller-class-name'),
-                action_name: self.data('user-grid-layout-action-name'),
-                grid_name: self.data('user-grid-layout-grid-name')
+                controller_class_name: dataGrid.data('controller_name'),
+                action_name: dataGrid.data('action_name'),
+                grid_name: dataGrid.data('grid_name')
               }
             }
           });
