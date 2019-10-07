@@ -21,13 +21,13 @@
       :title => t(:download, :scope => :data_tables),
       :id => "#{container_id}-csv_download",
       :target => "_blank",
-      :onclick => "csv_downloaded(#{has_s3_download ? 'true' : 'false' })" do
+      :onclick => "csv_downloaded(event, #{has_s3_download ? 'true' : 'false' })" do
       = icon_tag('download')
       %span
         = t(:download, :scope => :data_tables)
 
     :javascript
-      function csv_downloaded(allow_large_files = false) {
+      function csv_downloaded(event, allow_large_files = false) {
         var container_id = $('#selected_container_id').val();
         window.location = $('#' + container_id + '-csv_download').attr('href');
         var total_count = getDataGrid('#' + container_id).totalCount();
@@ -35,6 +35,8 @@
         if(total_count > 999  && allow_large_files) {
           $('#' + container_id + '-download_modal').modal({backdrop: false}).modal('show');
         }
+        if (event)
+          event.preventDefault();
         return false;
       }
 
@@ -46,15 +48,17 @@
                 :title => t(:download_xls, :scope => :data_tables),
                 :id => "#{container_id}-xls_download",
                 :target => "_blank",
-                :onclick => "xls_downloaded()" do
+                :onclick => "xls_downloaded(event)" do
         = icon_tag('file-excel-o')
         %span
           = t(:download_xls, :scope => :data_tables)
 
       :javascript
-        function xls_downloaded() {
+        function xls_downloaded(event) {
           var container_id = $('#selected_container_id').val();
           window.location = $('#' + container_id + '-xls_download').attr('href');
+          if (event)
+            event.preventDefault();
           return false;
         }
 
