@@ -17,28 +17,14 @@
   - csv_download_params = download_params.merge(:format => :csv).permit!
   %li
     = link_to data_table.url(self, csv_download_params),
-      :class => [:btn, :download_button, :as_tooltip],
-      :title => t(:download, :scope => :data_tables),
-      :id => "#{container_id}-csv_download",
-      :target => "_blank",
-      :onclick => "csv_downloaded(event, #{has_s3_download ? 'true' : 'false' })" do
+              :class => [:btn, :download_button, :as_tooltip],
+              :title => t(:download, :scope => :data_tables),
+              :id => "btn_csv_download_#{container_id}",
+              :target => "_blank",
+              :onclick => "download_file(event, 'csv', #{has_s3_download ? 'true' : 'false' })" do
       = icon_tag('download')
       %span
         = t(:download, :scope => :data_tables)
-
-    :javascript
-      function csv_downloaded(event, allow_large_files = false) {
-        var container_id = $('#selected_container_id').val();
-        window.location = $('#' + container_id + '-csv_download').attr('href');
-        var total_count = getDataGrid('#' + container_id).totalCount();
-
-        if(total_count > 999  && allow_large_files) {
-          $('#' + container_id + '-download_modal').modal({backdrop: false}).modal('show');
-        }
-        if (event)
-          event.preventDefault();
-        return false;
-      }
 
   - if xls_download_visible
     - xls_download_params = download_params.merge(:format => :xls).permit!
@@ -46,21 +32,12 @@
       = link_to data_table.url(self, xls_download_params),
                 :class => [:btn, :download_button, :as_tooltip],
                 :title => t(:download_xls, :scope => :data_tables),
-                :id => "#{container_id}-xls_download",
+                :id => "btn_xls_download_#{container_id}",
                 :target => "_blank",
-                :onclick => "xls_downloaded(event)" do
+                :onclick => "download_file(event, 'xls', #{has_s3_download ? 'true' : 'false' })" do
         = icon_tag('file-excel-o')
         %span
           = t(:download_xls, :scope => :data_tables)
-
-      :javascript
-        function xls_downloaded(event) {
-          var container_id = $('#selected_container_id').val();
-          window.location = $('#' + container_id + '-xls_download').attr('href');
-          if (event)
-            event.preventDefault();
-          return false;
-        }
 
 - if column_picker_visible
   %li
@@ -82,6 +59,26 @@
 
 :javascript
   $(function(){
+    function download_file(event, type, allow_large_files) {
+      var container_id = $('#selected_container_id').val();
+
+      /* This links to the -xls_download and -csv_download buttons, depending on type */
+      var file_location = $('#' + container_id + '-' + type + '_download').attr('href');
+      /* This check is here in case there is no download button found */
+      if (file_location && file_location.length > 0) {
+        window.location = file_location;
+        var total_count = getDataGrid('#' + container_id).totalCount();
+
+        if(total_count > 999  && allow_large_files) {
+          $('#' + container_id + '-download_modal').modal({backdrop: false}).modal('show');
+        }
+      }
+
+      if (event)
+        event.preventDefault();
+
+      return false;
+    }
 
     $("#btn_col_chooser_#{ container_id }").on("click", function() {
       var dataGrid = getDataGrid("#" + $('#selected_container_id').val());
