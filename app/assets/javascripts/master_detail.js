@@ -8,15 +8,15 @@ $.fn.extend({
 });
 
 $('.grow').one('webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend', function() {
-  thisGridL1.dxDataGrid({
-    width: level1.width()
+  $thisGridL1.dxDataGrid({
+    width: $level1.width()
   });
-  thisGridL1.css('overflow', 'none');
+  $thisGridL1.css('overflow', 'none');
 });
 
 function unregister_resize($grid) {
   if (typeof($grid) != 'undefined') {
-    var fn_resize_grid = window["_resize_" + $grid.attr('id')];
+    var fn_resize_grid = window["_resize_" + $grid.attr('id')]
     if (typeof (fn_resize_grid) != 'undefined') {
       $(window).off('resize', fn_resize_grid);
     }
@@ -26,11 +26,11 @@ function unregister_resize($grid) {
 function show_level_1(data_to_show) {
   $('#selected_container_id').val('level_1_grid');
   $('#is_master_detail').val(true);
-  level1.addClass('span12 grow dx-back-hidden').html(data_to_show).removeClass('hidden');
-  level2.removeClass('span3 span6').addClass('hidden').animateCss('fadeInRight');
-  level3.removeClass('span6').addClass('hidden').animateCss('fadeInLeft');
-  unregister_resize(thisGridL2);
-  unregister_resize(thisGridL3);
+  $level1.addClass('span12 grow dx-back-hidden').html(data_to_show).removeClass('hidden');
+  $level2.removeClass('span3 span6').addClass('hidden').animateCss('fadeInRight');
+  $level3.removeClass('span6').addClass('hidden').animateCss('fadeInLeft');
+  unregister_resize($thisGridL2);
+  unregister_resize($thisGridL3);
   remove_level_back('level_1');
   remove_level_back('level_2');
 }
@@ -38,17 +38,17 @@ function show_level_1(data_to_show) {
 function show_level_2(data_to_show) {
   $('#selected_container_id').val('level_2_grid');
   $('#is_master_detail').val(true);
-  level1.removeClass('span12 dx-back-hidden').addClass('span3 grow');
-  level2.addClass('span9 grow dx-back-hidden').html(data_to_show).removeClass('hidden');
-  level3.addClass('hidden ').removeClass('span6');
-  reset_grid(thisGridL1, 'level_2');
+  $level1.removeClass('span12 dx-back-hidden').addClass('span3 grow');
+  $level2.addClass('span9 grow dx-back-hidden').html(data_to_show).removeClass('hidden');
+  $level3.addClass('hidden ').removeClass('span6');
+  reset_grid($thisGridL1, 'level_2');
   level_back('level_1');
 
-  thisGridL2 = $('#level_2_grid');
-  if (thisGridL2.length > 0) {
-    reset_grid(thisGridL2, 'level_2');
+  $thisGridL2 = $('#level_2_grid');
+  if ($thisGridL2.length > 0) {
+    reset_grid($thisGridL2, 'level_2');
   }
-  unregister_resize(thisGridL3);
+  unregister_resize($thisGridL3);
   remove_level_back('level_2');
 }
 
@@ -56,18 +56,18 @@ function show_level_3(data_to_show, level_3_grid_id) {
   level_3_grid_id = level_3_grid_id || 'level_3_grid';
   $('#selected_container_id').val(level_3_grid_id);
   $('#is_master_detail').val(true);
-  level1.removeClass('span3').addClass('span2 grow');
-  level2.removeClass('span9 dx-back-hidden').addClass('span3 grow ');
-  level3.removeClass('hidden').addClass('span7 grow ').html(data_to_show);
+  $level1.removeClass('span3').addClass('span2 grow');
+  $level2.removeClass('span9 dx-back-hidden').addClass('span3 grow ');
+  $level3.removeClass('hidden').addClass('span7 grow ').html(data_to_show);
   $('#level_3 .dx-datagrid').animateCss('fadeIn');
   $('.back-return').css('visibility', 'visible').animateCss('fadeIn');
-  reset_grid(thisGridL1, 'level_3');
-  reset_grid(thisGridL2, 'level_3');
+  reset_grid($thisGridL1, 'level_3');
+  reset_grid($thisGridL2, 'level_3');
   level_back('level_2');
 
-  thisGridL3 = $('#' + level_3_grid_id);
-  if (thisGridL3.length > 0) {
-    reset_grid(thisGridL3, 'level_3');
+  $thisGridL3 = $('#' + level_3_grid_id);
+  if ($thisGridL3.length > 0) {
+    reset_grid($thisGridL3, 'level_3');
   }
 }
 
@@ -80,17 +80,17 @@ function hide_back_button(event) {
 }
 
 function level_back(level_id) {
-  var lvlSel = $('#' + level_id);
+  var $lvlSel = $('#' + level_id);
 
-  lvlSel.mouseenter(unhide_back_button);
-  lvlSel.mouseleave(hide_back_button);
+  $lvlSel.mouseenter(unhide_back_button);
+  $lvlSel.mouseleave(hide_back_button);
 }
 
 function remove_level_back(level_id) {
-  var lvlSel = $('#' + level_id);
+  var $lvlSel = $('#' + level_id);
 
-  lvlSel.off('mouseenter', unhide_back_button);
-  lvlSel.off('mouseleave', hide_back_button);
+  $lvlSel.off('mouseenter', unhide_back_button);
+  $lvlSel.off('mouseleave', hide_back_button);
 }
 
 function clickBack(btn, level) {
@@ -101,12 +101,12 @@ function clickBack(btn, level) {
   });
 }
 
-function reset_grid(grid, level){
-  var dataGrid = grid.dxDataGrid('instance');
+function reset_grid($grid, level){
+  var dataGrid = $grid.dxDataGrid('instance');
   try {
-    if(grid.data("compact-view") && (grid.data("compact-view")[level] || []).length > 0) {
-      $.each(grid.data("compact-view")[level], function(i, item) {
-        grid.dxDataGrid('columnOption', item.name, item.property, item.value);
+    if($grid.data("compact-view") && ($grid.data("compact-view")[level] || []).length > 0) {
+      $.each($grid.data("compact-view")[level], function(i, item) {
+        $grid.dxDataGrid('columnOption', item.name, item.property, item.value);
       });
     }
   }
@@ -121,16 +121,16 @@ function reset_grid(grid, level){
   }
 }
 
-function factory_reset_grid(grid){
-  if (grid.data("default-state-json") !== undefined) {
-    grid.dxDataGrid('instance').state(grid.data("default-state-json"));
+function factory_reset_grid($grid){
+  if ($grid.data("default-state-json") !== undefined) {
+    $grid.dxDataGrid('instance').state($grid.data("default-state-json"));
   } else {
-    grid.dxDataGrid({
+    $grid.dxDataGrid({
       columns: grid.data("default-json")
     });
   }
 
-  var dataGrid = grid.dxDataGrid('instance');
+  var dataGrid = $grid.dxDataGrid('instance');
   dataGrid.clearSelection();
   window.setTimeout(function(){
     dataGrid.updateDimensions();
@@ -139,26 +139,26 @@ function factory_reset_grid(grid){
 }
 
 function initMasterDetail() {
-  thisGridL1 = $('#level_1_grid');
-  thisGridL2 = undefined;
-  thisGridL3 = undefined;
-  level1 = $('#level_1');
-  level2 = $('#level_2');
-  level3 = $('#level_3');
-  allLevels = $('#level_1, #level_2, #level_3');
-  allLevels.css('overflow', 'none');
+  $thisGridL1 = $('#level_1_grid');
+  $thisGridL2 = undefined;
+  $thisGridL3 = undefined;
+  $level1 = $('#level_1');
+  $level2 = $('#level_2');
+  $level3 = $('#level_3');
+  $allLevels = $('#level_1, #level_2, #level_3');
+  $allLevels.css('overflow', 'none');
   show_level_1();
 
   clickBack('.btn-return-l1', show_level_1);
   clickBack('.btn-return-l2', show_level_2);
 
   $('body').on('click', '.btn-return-l1', function () {
-    if (thisGridL1.data("compact-view") && (thisGridL1.data("compact-view")['level_1'] || []).length > 0) {
-      reset_grid(thisGridL1, 'level_1');
-      thisGridL1.dxDataGrid('instance').clearSelection();
+    if ($thisGridL1.data("compact-view") && ($thisGridL1.data("compact-view")['level_1'] || []).length > 0) {
+      reset_grid($thisGridL1, 'level_1');
+      $thisGridL1.dxDataGrid('instance').clearSelection();
     } else {
       //keep original functionality if there is no level 1 setup in the datatable.
-      factory_reset_grid(thisGridL1)
+      factory_reset_grid($thisGridL1)
     }
   });
 
