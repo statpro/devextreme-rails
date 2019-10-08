@@ -23,7 +23,7 @@
               :title => t(:download, :scope => :data_tables),
               :id => "btn_csv_download_#{container_id}",
               :target => "_blank",
-              :onclick => "download_file(event, 'csv', '#{container_id}', #{has_s3_download ? 'true' : 'false' })" do
+              :onclick => "download_file(event, 'csv', '#{container_id}', #{has_s3_download || false})" do
       = icon_tag('download')
       %span
         = t(:download, :scope => :data_tables)
@@ -36,7 +36,7 @@
                 :title => t(:download_xls, :scope => :data_tables),
                 :id => "btn_xls_download_#{container_id}",
                 :target => "_blank",
-                :onclick => "download_file(event, 'xls', '#{container_id}', #{has_s3_download ? 'true' : 'false' })" do
+                :onclick => "download_file(event, 'xls', '#{container_id}', #{has_s3_download || false})" do
         = icon_tag('file-excel-o')
         %span
           = t(:download_xls, :scope => :data_tables)
