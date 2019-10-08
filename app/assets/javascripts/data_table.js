@@ -25,7 +25,6 @@ function getSelectedRowKeys(container_id) {
 }
 
 function download_file(event, type, container_id, allow_large_files) {
-  debugger;
   container_id = getSelectedContainerId(container_id);
 
   /* This links to the -xls_download and -csv_download buttons, depending on type */
