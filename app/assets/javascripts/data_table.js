@@ -28,7 +28,7 @@ function download_file(event, type, container_id, allow_large_files) {
   container_id = getSelectedContainerId(container_id);
 
   /* This links to the -xls_download and -csv_download buttons, depending on type */
-  var file_location = $('#' + container_id + '-' + type + '_download').attr('href');
+  var file_location = $('#btn_' + type + '_download_' + container_id).attr('href');
   /* This check is here in case there is no download button found */
   if (file_location && file_location.length > 0) {
     window.location = file_location;
