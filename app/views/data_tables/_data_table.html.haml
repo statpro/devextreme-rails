@@ -117,18 +117,15 @@
     var gridDataSourceConfiguration = { store: dataSource };
     dataGrid.dxDataGrid({
       dataSource: gridDataSourceConfiguration,
-
-      columns:
-          columns_json,
-        summary: {
-          totalItems: [
-            #{ summaries_json }
-          ],
-          calculateCustomSummary: function (options) {
-            #{ custom_summary_functions }
-          }
+      columns: columns_json,
+      summary: {
+        totalItems: [
+          #{ summaries_json }
+        ],
+        calculateCustomSummary: function (options) {
+          #{ custom_summary_functions }
         }
-      ,
+      },
       #{ options_json },
       onContentReady: function(e){
         if (#{requireTotalRowCountIndicator}) {
