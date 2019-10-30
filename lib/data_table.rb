@@ -213,6 +213,8 @@ module Devextreme
 
         sort_params = JSON.parse(sort_params)
 
+        existing_sort = @sorted_and_filtered_query.orders.dup
+
         @sorted_and_filtered_query.orders.clear
 
         sort_params.each do |sorter|
@@ -226,6 +228,8 @@ module Devextreme
           @sorted_and_filtered_query = @sorted_and_filtered_query.order(order_desc ? arel_col.desc : arel_col.asc)
 
         end
+
+        @sorted_and_filtered_query = @sorted_and_filtered_query.order(existing_sort) if existing_sort.present?
       end
 
       def get_arel_column(table, attribute, assoc_attribute)
