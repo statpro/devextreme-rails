@@ -872,8 +872,14 @@ module Devextreme
       end
 
       def extra_css_formatting(instance, text)
-        if cell_css_class
+        if cell_css_class && cell_css_class.is_a?(Hash) && cell_css_class[:value].respond_to?(:call)
+          text = {:cell_css_class => cell_css_class[:value].call(instance), :text => text, :ignore_nulls => cell_css_class[:ignore_nulls]}
+        elsif cell_css_class.is_a? Hash
+          text = {:cell_css_class => cell_css_class[:value], :text => text, :ignore_nulls => cell_css_class[:ignore_nulls]}
+        elsif cell_css_class.respond_to?(:call)
           text = {:cell_css_class => cell_css_class.call(instance), :text => text}
+        elsif cell_css_class.is_a? String
+          text = {:cell_css_class => cell_css_class, :text => text}
         end
         text
       end
