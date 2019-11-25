@@ -1106,9 +1106,11 @@ module Devextreme
     end
 
     class ColumnIcon < Column
-      attr_reader :image
+      attr_reader :image, :on_click_fn, :link
       def initialize(name, t_scope, image, options = nil, value = nil)
         @image = image
+        @on_click_fn = options && options.delete(:on_click_fn)
+        @link = options && options.delete(:link)
         super name, t_scope, options, value
         option(DataTableFormatters.format_icon)
         option(:allow_sorting => false)
@@ -1117,7 +1119,9 @@ module Devextreme
       def transform(instance, view_context, text)
         {
           :image  => view_context.icon_class(image).join(' '),
-          :title  => instance.send(name)
+          :title  => instance.send(name),
+          :on_click => on_click_fn.respond_to?(:call) ? on_click_fn.call(instance, view_context) : on_click_fn,
+          :data_href => link.respond_to?(:call) ? link.call(instance, view_context) : link
         }
       end
     end
