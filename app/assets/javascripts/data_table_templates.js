@@ -117,7 +117,7 @@ var column_template_icon = function(container, options){
       .addClass(options.value.image);
 
     if (options.value.on_click) {
-      icon.attr('onClick', 'showInvestigation(this)');
+      icon.attr('onClick', options.value.on_click);
       icon.hover(function() {
         $(this).css('cursor', 'pointer');
       });
