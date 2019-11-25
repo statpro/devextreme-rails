@@ -145,7 +145,7 @@
           var row_info_data = rowInfo.data['#{ data_table.base_query.table_name }'];
 
           // Handle rules highlighted_result
-          if (row_info_data.id == #{ highlighted_result_is_text ? "'#{highlighted_result}'" : highlighted_result.to_i }){
+          if (row_info_data.id == #{ highlighted_result_is_text ? "'#{highlighted_result}'" : highlighted_result.to_i } && #{highlighted_result.present?}){
             rowInfo.rowElement.addClass('highlighted_result');
           }
 
