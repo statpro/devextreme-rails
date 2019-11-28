@@ -170,23 +170,14 @@ var column_template_cell_content = function(container, options){
   if (options.value){
     container.addClass(options.value.cell_css_class).text(safe_text(options.value.text));
 
-    if (!options.value.text) {
-      var new_cell_background_color_class = "";
+    if (!options.value.text && !options.value.ignore_nulls && options.value.cell_css_class != "") {
       var color = $(container).css('background-color');
+      var new_cell_background_color_class = (color == 'transparent' ? "dx-cell-error-odd" : "dx-cell-error-even");
 
-      if(color == 'transparent') {
-        new_cell_background_color_class = "dx-cell-error-odd";
-      }
-      else {
-        new_cell_background_color_class = "dx-cell-error-even";
-      }
-
-      if(options.value.cell_css_class != "")
-        container.addClass(new_cell_background_color_class)
+      container.addClass(new_cell_background_color_class);
     }
   }
 };
-
 
 var column_template_linkto_content = function(container, options){
   if (options.value && options.value.content){
