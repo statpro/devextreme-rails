@@ -16,6 +16,7 @@ module DataTableHelper
     has_s3_download = options.delete(:has_s3_download)
 
     selection_changed = options.delete(:selection_changed)
+    row_expanding = options.delete(:row_expanding)
     master_detail = options.delete(:master_detail)
 
     state_storing = data_table.options.delete(:state_storing)
@@ -55,6 +56,15 @@ module DataTableHelper
     functions += <<-JS
       }
     JS
+
+    if row_expanding
+      functions += <<-JS
+      ,
+       onRowExpanding: function (e) {
+         #{row_expanding}(e);
+       }
+      JS
+    end
 
     options_json = hash_to_json(data_table.options)
 
