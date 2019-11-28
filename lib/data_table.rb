@@ -1117,11 +1117,20 @@ module Devextreme
       end
 
       def transform(instance, view_context, text)
+        click = on_click_fn.respond_to?(:call) ? on_click_fn.call(instance, view_context) : on_click_fn
+        # If a function name is specified, then handle it by calling the function with 'this' as a parameter.
+        click = "#{click.to_s.camelize(:lower)}(this)" if click.is_a?(Symbol) || (click.present? && !%w{) ;}.include?(click[-1]))
+        # Allow title to be either the field value, a specified tooltip, or the name of the field.
+        title = instance.send(name) if instance.respond_to?(name)
+        title ||= options.delete(:tooltip) || name
+        title = I18n.t(title, :scope => :tooltips) if title.is_a?(Symbol)
         {
           :image  => view_context.icon_class(image).join(' '),
-          :title  => instance.send(name),
-          :on_click => on_click_fn.respond_to?(:call) ? on_click_fn.call(instance, view_context) : on_click_fn,
-          :data_href => link.respond_to?(:call) ? link.call(instance, view_context) : link
+          :title  => title,
+          :on_click => click,
+          :data_options => {
+            :href => link.respond_to?(:call) ? link.call(instance, view_context) : link
+          }
         }
       end
     end

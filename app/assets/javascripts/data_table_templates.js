@@ -111,23 +111,25 @@ var column_template_checkbox = function(container, options){
 
 var column_template_icon = function(container, options){
   if (options.value.title && options.value.title.length > 0){
-    var icon = $('<i />')
+    var $icon = $('<i />')
       .attr('rel', 'tooltip')
       .attr('title', options.value.title)
       .addClass(options.value.image);
 
     if (options.value.on_click) {
-      icon.attr('onClick', options.value.on_click);
-      icon.hover(function() {
+      $icon.attr('onClick', options.value.on_click);
+      $icon.hover(function() {
         $(this).css('cursor', 'pointer');
       });
     }
 
-    if (options.value.data_href) {
-      icon.attr('data-href', options.value.data_href);
+    if (options.value.data_options) {
+      for(var i in options.value.data_options) {
+        $icon.data(i, options.value.data_options[i])
+      }
     }
 
-    icon.appendTo(container);
+    $icon.appendTo(container);
   }
 };
 
