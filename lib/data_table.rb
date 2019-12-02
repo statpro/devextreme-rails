@@ -1112,12 +1112,13 @@ module Devextreme
     end
 
     class ColumnIcon < Column
-      attr_reader :image, :on_click_fn, :link
+      attr_reader :image, :on_click_fn, :link, :tooltip
       def initialize(name, t_scope, image, options = nil, value = nil)
-        @image = image
-        @on_click_fn = options && options.delete(:on_click_fn)
-        @link = options && options.delete(:link)
         super name, t_scope, options, value
+        @image = image
+        @on_click_fn = @options && @options.delete(:on_click_fn)
+        @link = @options && @options.delete(:link)
+        @tooltip = @options.delete(:tooltip)
         option(DataTableFormatters.format_icon)
         option(:allow_sorting => false)
       end
@@ -1128,7 +1129,7 @@ module Devextreme
         click = "#{click.to_s.camelize(:lower)}(this)" if click.is_a?(Symbol) || (click.present? && !%w{) ;}.include?(click[-1]))
         # Allow title to be either the field value, a specified tooltip, or the name of the field.
         title = instance.send(name) if instance.respond_to?(name)
-        title ||= options.delete(:tooltip) || name
+        title ||= tooltip || name
         title = I18n.t(title, :scope => :tooltips) if title.is_a?(Symbol)
         {
           :image  => view_context.icon_class(image).join(' '),
