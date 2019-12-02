@@ -7884,3 +7884,7 @@ input.dx-hidden {
 .dx-deferrendering:not(.dx-pending-rendering) .dx-visible-while-pending-rendering {
   display: none !important;
 }
+
+.dx-datagrid-table .dx-row .dx-command-expand.dx-datagrid-group-space {
+  padding-top: 0px !important;
+}
