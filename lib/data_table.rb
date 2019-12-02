@@ -1114,8 +1114,8 @@ module Devextreme
     class ColumnIcon < Column
       attr_reader :image, :on_click_fn, :link, :tooltip
       def initialize(name, t_scope, image, options = nil, value = nil)
-        @image = image
         super name, t_scope, options, value
+        @image = image
         @on_click_fn = @options && @options.delete(:on_click_fn)
         @link = @options && @options.delete(:link)
         @tooltip = @options.delete(:tooltip)
