@@ -652,9 +652,7 @@ module Devextreme
           query = query.order("(SELECT NULL)") if query.orders.empty?
         end
 
-        # NB: need to provide binds if $* variables are in the SQL
-        sql = query.to_sql
-        resultset = @base_query.model.find_by_sql(sql, (sql =~ parameter_binding_character ? (query.bind_values + @base_query.bound_attributes) : []))
+        resultset = @base_query.model.find_by_sql(query)
 
         # avoid n+1's
         begin
@@ -670,15 +668,8 @@ module Devextreme
           query.orders.clear
           query.offset = nil
           query.limit = nil
-          sql = query.project(Arel.star.count).to_sql
 
-          # NB: need to provide binds
-          count_result = @base_query.model.connection.exec_query(
-              sql,
-              'SQL',
-              (sql =~ parameter_binding_character ? (query.bind_values + @base_query.bound_attributes) : [])
-          )
-          count_result.rows.flatten.first.to_i  # handles cases when there is a group by
+          @base_query.model.find_by_sql(query.project(Arel.star.count.as('row_count'))).first.row_count
         end
 
         return resultset, total_count
