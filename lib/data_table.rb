@@ -149,6 +149,21 @@ module Devextreme
           builder.columns << ColumnInteger.new(:id, @t_scope, :visible => false, :showInColumnChooser => false, :downloadable => false)
         end
 
+        # Add hidden columns for sorting by calculated value
+        builder.columns.each do |column|
+          if column.options.fetch(:calculate_sort_value, false) == true
+            new_column = column.dup
+            new_column.instance_variable_set(:@name, "#{new_column.name}_calculate_sort_value".to_sym)
+            new_column.instance_variable_set(:@params, {:link_to => nil, :link_to_content => nil, :new_tab => nil, :cell_css_class => nil, :remote => nil})
+            new_column.instance_variable_set(:@options, {:visible => false, :showInColumnChooser => false, :downloadable => false, :user_visible => false})
+            new_column.instance_variable_set(:@value, proc { |i, vc| i.send(column.name) })
+
+            builder.columns << new_column
+
+            column.options[:calculate_sort_value] = "#{base_query.table_name}.#{column.name}_calculate_sort_value"
+          end
+        end
+
         @columns = builder.columns
       end
 
