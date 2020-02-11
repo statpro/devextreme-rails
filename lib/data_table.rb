@@ -157,9 +157,10 @@ module Devextreme
             new_column.instance_variable_set(:@params, {:link_to => nil, :link_to_content => nil, :new_tab => nil, :cell_css_class => nil, :remote => nil})
             new_column.instance_variable_set(:@options, {:visible => false, :showInColumnChooser => false, :downloadable => false, :user_visible => false})
             new_column.instance_variable_set(:@value, proc { |i, vc| i.send(column.name) })
+
             builder.columns << new_column
 
-            column.options[:calculate_sort_value] = "#{@t_scope.to_s.camelcase}.#{column.name}_calculate_sort_value"
+            column.options[:calculate_sort_value] = "#{base_query.table_name}.#{column.name}_calculate_sort_value"
           end
         end
 
