@@ -1,5 +1,5 @@
 -# fixme: is there a better way?
-= render partial: 'data_tables/extra_grid_toolbar', locals: local_assigns rescue nil
+= render partial: 'data_tables/grid_toolbar_pre', locals: local_assigns rescue nil
 
 = hidden_field_tag :selected_container_id, container_id
 = hidden_field_tag :is_master_detail, false
@@ -61,3 +61,5 @@
       = icon_tag('undo')
       %span
         = t(:reset, :scope => :data_tables)
+
+= render partial: 'data_tables/grid_toolbar_post', locals: local_assigns rescue nil
