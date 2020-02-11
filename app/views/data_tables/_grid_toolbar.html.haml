@@ -1,13 +1,13 @@
 -# fixme: is there a better way?
-= render partial: 'data_tables/extra_grid_toolbar', locals: local_assigns rescue nil
+= render :partial => 'data_tables/grid_toolbar_pre', :locals => local_assigns rescue nil
 
 = hidden_field_tag :selected_container_id, container_id
 = hidden_field_tag :is_master_detail, false
 
 %li
-  %button.btn.as_tooltip{:type => 'button',
-                         :id => "btn_refresh_#{container_id}",
-                         :title => t(:refresh, :scope => :data_tables),
+  %button.btn.as_tooltip{:type    => 'button',
+                         :id      => "btn_refresh_#{container_id}",
+                         :title   => t(:refresh, :scope => :data_tables),
                          :onclick => "refresh_grid('#{container_id}')"}
     = icon_tag('refresh')
     %span
@@ -19,10 +19,10 @@
   - csv_download_params = download_params.merge(:format => :csv).permit!
   %li
     = link_to data_table.url(self, csv_download_params),
-              :class => [:btn, :download_button, :as_tooltip],
-              :title => t(:download, :scope => :data_tables),
-              :id => "btn_csv_download_#{container_id}",
-              :target => "_blank",
+              :class   => [:btn, :download_button, :as_tooltip],
+              :title   => t(:download, :scope => :data_tables),
+              :id      => "btn_csv_download_#{container_id}",
+              :target  => '_blank',
               :onclick => "download_file(event, 'csv', '#{container_id}', #{has_s3_download || false})" do
       = icon_tag('download')
       %span
@@ -32,10 +32,10 @@
     - xls_download_params = download_params.merge(:format => :xls).permit!
     %li
       = link_to data_table.url(self, xls_download_params),
-                :class => [:btn, :download_button, :as_tooltip],
-                :title => t(:download_xls, :scope => :data_tables),
-                :id => "btn_xls_download_#{container_id}",
-                :target => "_blank",
+                :class   => [:btn, :download_button, :as_tooltip],
+                :title   => t(:download_xls, :scope => :data_tables),
+                :id      => "btn_xls_download_#{container_id}",
+                :target  => '_blank',
                 :onclick => "download_file(event, 'xls', '#{container_id}', #{has_s3_download || false})" do
         = icon_tag('file-excel-o')
         %span
@@ -43,9 +43,9 @@
 
 - if column_picker_visible
   %li
-    %a.btn.as_tooltip{:type => 'button',
-                      :id => "btn_col_chooser_#{container_id}",
-                      :title => t(:configure, :scope => :data_tables),
+    %a.btn.as_tooltip{:type    => 'button',
+                      :id      => "btn_col_chooser_#{container_id}",
+                      :title   => t(:configure, :scope => :data_tables),
                       :onclick => "show_column_chooser('#{container_id}')"}
       = icon_tag('cogs')
       %span
@@ -53,11 +53,13 @@
 
 - if reset_layout_visible
   %li
-    %a.btn.as_tooltip{:type => 'button',
-                      :id => "btn_grid_reset_#{container_id}",
-                      :title => t(:reset, :scope => :data_tables),
-                      :data => {:reset_layout_message => t(:reset, :scope => [:data_tables, :dialog])},
+    %a.btn.as_tooltip{:type    => 'button',
+                      :id      => "btn_grid_reset_#{container_id}",
+                      :title   => t(:reset, :scope => :data_tables),
+                      :data    => {:reset_layout_message => t(:reset, :scope => [:data_tables, :dialog])},
                       :onclick => "initiate_grid_reset('#{container_id}')"}
       = icon_tag('undo')
       %span
         = t(:reset, :scope => :data_tables)
+
+= render :partial => 'data_tables/grid_toolbar_post', :locals => local_assigns rescue nil
