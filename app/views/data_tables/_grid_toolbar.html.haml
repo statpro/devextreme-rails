@@ -1,5 +1,5 @@
 -# fixme: is there a better way?
-= render partial: 'data_tables/extra_grid_toolbar', locals: local_assigns rescue nil
+= render partial: 'data_tables/grid_toolbar_pre', locals: local_assigns rescue nil
 
 %li
   %button.btn.as_tooltip{:type => 'button', :id => "btn_refresh_#{container_id}", :data => { :container_id => container_id}, :title => t(:refresh, :scope => :data_tables)}
@@ -72,6 +72,8 @@
       = icon_tag('undo')
       %span
         = t(:reset, :scope => :data_tables)
+
+= render partial: 'data_tables/grid_toolbar_post', locals: local_assigns rescue nil
 
 :javascript
   $(function(){
