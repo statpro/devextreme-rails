@@ -667,8 +667,10 @@ module Devextreme
           query = query.order("(SELECT NULL)") if query.orders.empty?
         end
 
-        resultset = @base_query.model.unscoped.from(
-          @base_query.arel_table.create_table_alias(query, @base_query.model.table_name)
+        # Need to run off the base class for STI model.
+        # Activerecord will add the default scope back for STI models
+        resultset = @base_query.model.base_class.unscoped.from(
+          @base_query.arel_table.create_table_alias(query, @base_query.model.base_class.table_name)
         )
 
         # avoid n+1's
@@ -689,10 +691,12 @@ module Devextreme
           count_query.offset = nil
           count_query.limit = nil
 
-          row_count_result = @base_query.model.unscoped.from(
+          # Need to run off the base class for STI model.
+          # Activerecord will add the default scope back for STI models
+          row_count_result = @base_query.model.base_class.unscoped.from(
             @base_query.arel_table.create_table_alias(
               count_query.project(Arel.star.count.as('row_count')
-            ), @base_query.model.table_name)
+            ), @base_query.model.base_class.table_name)
           ).to_a
 
           row_count_result.first.row_count
