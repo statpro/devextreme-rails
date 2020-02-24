@@ -681,14 +681,15 @@ module Devextreme
         require_count = params.fetch('requireTotalCount', 'false') == 'true'
 
         total_count = if require_count
-          query.projections.clear
-          query.orders.clear
-          query.offset = nil
-          query.limit = nil
+          count_query = query.dup
+          count_query.projections.clear
+          count_query.orders.clear
+          count_query.offset = nil
+          count_query.limit = nil
 
           row_count_result = @base_query.model.unscoped.from(
             @base_query.arel_table.create_table_alias(
-              query.project(Arel.star.count.as('row_count')
+              count_query.project(Arel.star.count.as('row_count')
             ), @base_query.model.table_name)
           ).to_a
 
