@@ -681,6 +681,8 @@ module Devextreme
         require_count = params.fetch('requireTotalCount', 'false') == 'true'
 
         total_count = if require_count
+          # Need to dup the arel object
+          # Changing attributes on the arel object will alter the query used for getting the 'resultset'
           count_query = query.dup
           count_query.projections.clear
           count_query.orders.clear
