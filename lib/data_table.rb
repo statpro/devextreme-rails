@@ -618,34 +618,7 @@ module Devextreme
 
             # actions
             if self.actions
-              actions = self.actions.map do |action|
-                # shitty! methods are too coupled, need to inject an instance of action
-                action = action[:builder].call({}, instance, view_context) if action[:builder]
-
-                # Skip action when not setup using action_builder
-                # e.g. /app/data_tables/exchange_rate_value_data_table.rb line 18
-                next if action.blank?
-
-                is_visible = if action[:visible_lambda]
-                               action[:visible_lambda].call(instance)
-                             else
-                               instance.respond_to?(:system_record?) && action[:name] != :show ? !instance.system_record? : true
-                             end
-
-                next if !is_visible
-                css_class = action[:css_class] || ''
-                data = {
-                  :name   => action[:name],
-                  :url    => action[:value].call(instance, view_context),
-                  :method => action[:method].to_s,
-                  :image  => view_context.icon_class(action[:image]).join(' '),
-                  :title  => action[:title] || I18n.translate(action[:name], :scope => [:data_tables, :actions]),
-                  :data   => action[:data],
-                  :css_class => css_class
-                }
-                data.merge!(:rel => "nofollow") if action[:method] == :delete
-                data
-              end.reject(&:blank?)
+              actions = self.actions.map { |action| build_action(action, instance, view_context) }.reject(&:blank?)
               json._actions actions.to_json
             end
           end
@@ -703,6 +676,40 @@ module Devextreme
         end
 
         return resultset, total_count
+      end
+
+      def build_action(action, instance, view_context)
+        # shitty! methods are too coupled, need to inject an instance of action
+        action = action[:builder].call({}, instance, view_context) if action[:builder]
+
+        # Skip action when not setup using action_builder
+        # e.g. /app/data_tables/exchange_rate_value_data_table.rb line 18
+        return nil if action.blank?
+
+        is_visible = if action[:visible_lambda]
+                       action[:visible_lambda].call(instance)
+                     else
+                       instance.respond_to?(:system_record?) && action[:name] != :show ? !instance.system_record? : true
+                     end
+
+        return nil if !is_visible
+
+        build_action_hash(action, instance, view_context)
+      end
+
+      def build_action_hash(action, instance, view_context)
+        css_class = action[:css_class] || ''
+        data = {
+          :name   => action[:name],
+          :url    => action[:value].call(instance, view_context),
+          :method => action[:method].to_s,
+          :image  => view_context.icon_class(action[:image]).join(' '),
+          :title  => action[:title] || I18n.translate(action[:name], :scope => [:data_tables, :actions]),
+          :data   => action[:data],
+          :css_class => css_class
+        }
+        data.merge!(:rel => "nofollow") if action[:method] == :delete
+        data
       end
 
       def to_csv(view_context, params, options)

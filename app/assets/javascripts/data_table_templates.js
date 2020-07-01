@@ -329,7 +329,7 @@ var column_template_actions = function(container, options){
     var button = $('<a />')
       .attr('href', actions[0].url)
       .attr('title', actions[0].title)
-      .addClass('btn btn-micro as_tooltip grid-btn')
+      .addClass(actions[0].css_class + ' btn btn-micro as_tooltip grid-btn')
       .appendTo(group);
 
     set_data_properties(button, actions[0].data);
@@ -359,24 +359,23 @@ var column_template_actions = function(container, options){
         .addClass('dropdown-menu')
         .appendTo(group);
 
-      for (i = 1; i < actions.length; i++) {
+      for (var i = 1; i < actions.length; i++) {
         var list_item = $('<li />').appendTo(dropdown);
 
-		var link = $('<a />')
-			.addClass(actions[i].css_class + ' grid-btn-actions')
-			.attr('href', actions[i].url)
-			.appendTo(list_item);
+        var link = $('<a />')
+          .addClass(actions[i].css_class + ' grid-btn-actions')
+          .attr('href', actions[i].url)
+          .appendTo(list_item);
 
-      if (actions[i].rel) {
-        link.attr('rel', actions[i].rel);
-      }
+        if (actions[i].rel) {
+          link.attr('rel', actions[i].rel);
+        }
 
-      set_data_properties(link, actions[i].data);
+        set_data_properties(link, actions[i].data);
 
-      $('<i />').addClass(actions[i].image).appendTo(link);
+        $('<i />').addClass(actions[i].image).appendTo(link);
 
-      link.append(actions[i].title);
-
+        link.append(actions[i].title);
       }
     }
   }
