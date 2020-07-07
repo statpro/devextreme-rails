@@ -238,6 +238,16 @@
           var footerHeight = $('footer').height();
           return screenHeight - footerHeight;
         }
+      },
+
+      repaintChangesOnly: true,
+      onCellPrepared: function(e) {
+        if(e.rowType === "data") {
+          var data_cell_css_class = e.data['#{data_table.base_query.table_name}'][e.column.dataFieldWithoutTable + '_cell_css_class'];
+          if(data_cell_css_class != undefined) {
+            e.cellElement.addClass(data_cell_css_class)
+          }
+        }
       }
     });
 
