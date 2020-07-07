@@ -164,7 +164,7 @@ module Devextreme
           end
 
           if column.cell_css_class.present?
-            new_column = ColumnText.new("#{column.name}_cell_css_class".to_sym, @t_scope, {:visible => false, :showInColumnChooser => false, :downloadable => false, :user_visible => false}, column.cell_css_class.dup)
+            new_column = ColumnText.new("#{column.name}_cell_css_class".to_sym, @t_scope, {:visible => false, :showInColumnChooser => false, :downloadable => false, :user_visible => false, :caption => "#{column.name}_cell_css_class"}, column.cell_css_class.dup)
 
             builder.columns << new_column
           end
