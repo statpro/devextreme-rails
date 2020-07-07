@@ -162,6 +162,12 @@ module Devextreme
 
             column.options[:calculate_sort_value] = "#{base_query.table_name}.#{column.name}_calculate_sort_value"
           end
+
+          if column.cell_css_class.present?
+            new_column = ColumnText.new("#{column.name}_cell_css_class".to_sym, @t_scope, {:visible => false, :showInColumnChooser => false, :downloadable => false, :user_visible => false}, column.cell_css_class.dup)
+
+            builder.columns << new_column
+          end
         end
 
         @columns = builder.columns
@@ -869,7 +875,9 @@ module Devextreme
 
       # returns the raw value with no transformations. N.B. You shouldn't override this method
       def get_value(instance, view_context)
-        if value_as_lambda?
+        if @value.is_a? String
+          @value
+        elsif value_as_lambda?
           @value.call(instance, view_context)
         else
           instance.send(@name)
@@ -899,16 +907,7 @@ module Devextreme
         text
       end
 
-      def extra_css_formatting(instance, text)
-        if cell_css_class && cell_css_class.is_a?(Hash) && cell_css_class[:value].respond_to?(:call)
-          text = {:cell_css_class => cell_css_class[:value].call(instance), :text => text, :ignore_nulls => cell_css_class[:ignore_nulls]}
-        elsif cell_css_class.is_a? Hash
-          text = {:cell_css_class => cell_css_class[:value], :text => text, :ignore_nulls => cell_css_class[:ignore_nulls]}
-        elsif cell_css_class.respond_to?(:call)
-          text = {:cell_css_class => cell_css_class.call(instance), :text => text}
-        elsif cell_css_class.is_a? String
-          text = {:cell_css_class => cell_css_class, :text => text}
-        end
+      def extra_css_formatting(_instance, text)
         text
       end
 
@@ -935,7 +934,6 @@ module Devextreme
 
         option(DataTableFormatters.format_linkto) if @params[:link_to]
         option(DataTableFormatters.format_linkto_content) if @params[:link_to_content]
-        option(DataTableFormatters.format_cell_content) if @params[:cell_css_class]
 
         @extra_value = @options.delete(:extra_value) || ''
       end
@@ -1092,8 +1090,8 @@ module Devextreme
       end
 
       def get_value(instance, view_context)
-        if value_as_lambda?
-          @value.call(instance, view_context)
+        if @value
+          super
         else
           instance.send(@name.first).send(@name.last)
         end
