@@ -146,7 +146,7 @@ module Devextreme
         yield builder if block_given?
 
         if builder.columns.select{ |col| col.name == :id}.empty?
-          builder.columns << ColumnInteger.new(:id, @t_scope, :visible => false, :showInColumnChooser => false, :downloadable => false)
+          builder.columns << ColumnInteger.new(:id, @t_scope, :visible => false, :showInColumnChooser => false, :downloadable => false, :user_visible => false)
         end
 
         # Add hidden columns for sorting by calculated value
