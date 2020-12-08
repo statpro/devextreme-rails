@@ -246,6 +246,13 @@
           var data_cell_css_class = e.data['#{data_table.base_query.table_name}'][e.column.dataFieldWithoutTable + '_cell_css_class'];
           if(data_cell_css_class != undefined) {
             e.cellElement.addClass(data_cell_css_class)
+
+            if (!e.data['#{data_table.base_query.table_name}'][e.column.dataFieldWithoutTable] && data_cell_css_class != "") {
+              var color = $(e.cellElement).css('background-color');
+              var new_cell_background_color_class = (color == 'transparent' ? "dx-cell-error-odd" : "dx-cell-error-even");
+
+              e.cellElement.addClass(new_cell_background_color_class);
+            }
           }
         }
       }
