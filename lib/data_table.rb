@@ -646,11 +646,17 @@ module Devextreme
           query = query.order("(SELECT NULL)") if query.orders.empty?
         end
 
-        # Need to run off the base class for STI model.
-        # Activerecord will add the default scope back for STI models
-        resultset = @base_query.model.base_class.unscoped.from(
-          @base_query.arel_table.create_table_alias(query, @base_query.model.base_class.table_name)
-        )
+        resultset = if ::Rails::VERSION::MINOR == 1
+                      # NB: need to provide binds if $* variables are in the SQL
+                      sql = query.to_sql
+                      @base_query.model.find_by_sql(sql, (sql =~ parameter_binding_character ? (query.bind_values + @base_query.bound_attributes) : []))
+                    else
+                      # Need to run off the base class for STI model.
+                      # Activerecord will add the default scope back for STI models
+                      @base_query.model.base_class.unscoped.from(
+                        @base_query.arel_table.create_table_alias(query, @base_query.model.base_class.table_name)
+                      )
+                    end
 
         # avoid n+1's
         begin
@@ -662,24 +668,36 @@ module Devextreme
         require_count = params.fetch('requireTotalCount', 'false') == 'true'
 
         total_count = if require_count
-          # Need to dup the arel object
-          # Changing attributes on the arel object will alter the query used for getting the 'resultset'
-          count_query = query.dup
-          count_query.projections.clear
-          count_query.orders.clear
-          count_query.offset = nil
-          count_query.limit = nil
+                        # Need to dup the arel object
+                        # Changing attributes on the arel object will alter the query used for getting the 'resultset'
+                        count_query = query.dup
+                        count_query.projections.clear
+                        count_query.orders.clear
+                        count_query.offset = nil
+                        count_query.limit = nil
 
-          # Need to run off the base class for STI model.
-          # Activerecord will add the default scope back for STI models
-          row_count_result = @base_query.model.base_class.unscoped.from(
-            @base_query.arel_table.create_table_alias(
-              count_query.project(Arel.star.count.as('row_count')
-            ), @base_query.model.base_class.table_name)
-          ).to_a
+                        if ::Rails::VERSION::MINOR == 1
+                          sql = count_query.project(Arel.star.count).to_sql
 
-          row_count_result.first.row_count
-        end
+                          # NB: need to provide binds
+                          count_result = @base_query.model.connection.exec_query(
+                            sql,
+                            'SQL',
+                            (sql =~ parameter_binding_character ? (count_query.bind_values + @base_query.bound_attributes) : [])
+                          )
+                          count_result.rows.flatten.first.to_i  # handles cases when there is a group by
+                        else
+                          # Need to run off the base class for STI model.
+                          # Activerecord will add the default scope back for STI models
+                          row_count_result = @base_query.model.base_class.unscoped.from(
+                            @base_query.arel_table.create_table_alias(
+                              count_query.project(Arel.star.count.as('row_count')
+                              ), @base_query.model.base_class.table_name)
+                          ).to_a
+
+                          row_count_result.first.row_count
+                        end
+                      end
 
         return resultset, total_count
       end
@@ -1038,6 +1056,14 @@ module Devextreme
 
       def text(instance, view_context)
         "\"#{super}\""
+      end
+
+      def to_csv_text(instance, view_context)
+        # RFC-4180, paragraph "If double-quotes are used to enclose fields,
+        # then a double-quote appearing inside a field must be escaped by preceding it with another double quote."
+        # https://tools.ietf.org/html/rfc4180
+        val = get_value(instance, view_context)
+        val.each { |k, v| val[k] = "\"#{v.strip.gsub('"', '""')}\"" if v.is_a? String }
       end
     end
 
