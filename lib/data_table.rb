@@ -1057,14 +1057,6 @@ module Devextreme
       def text(instance, view_context)
         "\"#{super}\""
       end
-
-      def to_csv_text(instance, view_context)
-        # RFC-4180, paragraph "If double-quotes are used to enclose fields,
-        # then a double-quote appearing inside a field must be escaped by preceding it with another double quote."
-        # https://tools.ietf.org/html/rfc4180
-        val = get_value(instance, view_context)
-        val.each { |k, v| val[k] = "\"#{v.strip.gsub('"', '""')}\"" if v.is_a? String }
-      end
     end
 
     class ColumnDecimal < Column
