@@ -24,7 +24,7 @@ function getSelectedRowKeys(container_id) {
   return dataGrid.getSelectedRowKeys();
 }
 
-function getSelectedRowsAsParams(container_id, filter_form_id = '') {
+function getSelectedRowsAsParams(container_id, filter_form_id) {
   var keys = getSelectedRowKeys("#" + container_id);
 
   var params = {};
@@ -36,9 +36,13 @@ function getSelectedRowsAsParams(container_id, filter_form_id = '') {
     };
   }
   else {
+    // Only want to default filter_form_ito blank string if it is undefined or null, not other falsy values.
+    if (filter_form_id === undefined || filter_form_id == null) {
+      filter_form_id = ''
+    }
     // FIXME: this isn't a specific enough jQuery selector when filter_form_id == "form"
     //   since if there is more than one form, it will include them all
-    var search_params = $("" + filter_form_id + ".auto-submit").serializeArray();
+    var search_params = $("" + filter_form_id  + ".auto-submit").serializeArray();
     var data = {
       name: 'container_id',
       value: container_id
