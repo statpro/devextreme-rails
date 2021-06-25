@@ -126,7 +126,7 @@ function factory_reset_grid($grid){
     $grid.dxDataGrid('instance').state($grid.data("default-state-json"));
   } else {
     $grid.dxDataGrid({
-      columns: grid.data("default-json")
+      columns: $grid.data("default-json")
     });
   }
 
