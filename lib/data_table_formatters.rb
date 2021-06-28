@@ -3,12 +3,16 @@ module Devextreme
 
     class << self
 
+      def format_text
+        {:data_type => 'string'}
+      end
+
       def format_percentage(precision = 3)
-        {:format => { :type => 'fixedPoint', :precision => precision}, :alignment => 'right'}
+        {:format => { :type => 'fixedPoint', :precision => precision}, :alignment => 'right', :data_type => 'number'}
       end
 
       def format_fixed(precision = 2)
-        {:format => { :type => 'fixedPoint', :precision => precision}, :alignment => 'right'}
+        {:format => { :type => 'fixedPoint', :precision => precision}, :alignment => 'right', :data_type => 'number'}
       end
 
       def format_date(format = 'MMM dd, yyyy')

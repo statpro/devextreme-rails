@@ -52,9 +52,17 @@ module Devextreme
             :paging => true
           },
           :hover_state_enabled => false,
+          :header_filter => {
+            :visible => false,
+          },
           :filter_row => {
+            :visible => false,
+            :show_operation_chooser => true
+          },
+          :filter_panel => {
             :visible => false
           },
+          :filter_sync_enabled => false, # Used to sync the filter row and the filter builder,
           :search_panel => {
             :visible => false
           },
