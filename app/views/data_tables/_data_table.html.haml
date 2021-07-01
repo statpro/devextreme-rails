@@ -13,11 +13,10 @@
                                                                 :options => options }
 
 .clearfix
-.dxDataGrid-holder{:id => "#{container_id}-holder"}
+.dxDataGrid-holder{:id => "#{container_id}-holder", :style=> "height: inherit;"}
   - height_style = (height.present?) ? "height: #{height};" : ""
   - width_style = (width.present?) ? "width: #{width};" : ""
-  - height_number = (height.present?) ? height.gsub('px', '') : 'null'
-  - width_number = (width.present?) ? width.gsub('px', '') : 'null'
+
   .dxDataGrid-container.well.well-small{:id => "#{container_id}-container", :style => height_style + width_style}
     .dxDataGrid{:id => "#{container_id}"}
     .row-count{:id => "#{container_id}-row_count"}
@@ -35,7 +34,7 @@
 :javascript
 
   function _resize_#{container_id}() {
-    ItemResize($("##{ container_id }"), #{height_number}, #{width_number});
+    ItemResize($("##{ container_id }"), "#{height}", "#{width}");
   }
   $(window).on('resize', _resize_#{container_id});
 
@@ -230,9 +229,10 @@
         }
       },
       height: function() {
-        if (#{height_number}) {
+        if ("#{height}") {
           var dgMargin = dataGrid.outerHeight(true)-dataGrid.outerHeight();
-          return #{height_number} - dgMargin;
+          var containerHeight = $("##{container_id}-container").height();
+          return containerHeight - dgMargin;
         } else {
           var screenHeight = $('.navbar-fixed-bottom').offset().top - $('##{container_id}-holder').parent().offset().top;
           var footerHeight = $('footer').height();

@@ -1,3 +1,10 @@
+/**
+ *
+ * @param dataGrid
+ * @param height E.g 50%, 50vh, 500px
+ * @param width E.g 60%, 60vw, 600px
+ * @constructor
+ */
 function ItemResize(dataGrid, height, width) {
   if (!(height || width)){
     var screenHeight = $('.navbar-fixed-bottom').offset().top - $('#' + dataGrid.attr('id') + '-holder').offset().top;
@@ -5,7 +12,10 @@ function ItemResize(dataGrid, height, width) {
     dataGrid.height( screenHeight - footerHeight );
   } else {
     var dgMargin = dataGrid.outerHeight(true)-dataGrid.outerHeight();
-    dataGrid.height( parseInt(height)-dgMargin );
+    // Sets the height in its orignal value E.g 50%, 50vh, 500px
+    dataGrid.height(height);
+    // Gets the height in pixels then subtracts the dgMargin
+    dataGrid.height( parseInt(dataGrid.height())-dgMargin );
   }
 }
 
