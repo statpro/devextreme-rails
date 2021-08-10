@@ -32,7 +32,6 @@
 #dialog_container
 
 :javascript
-
   function _resize_#{container_id}() {
     ItemResize($("##{ container_id }"), "#{height}", "#{width}");
   }
@@ -231,8 +230,9 @@
       height: function() {
         if ("#{height}") {
           var dgMargin = dataGrid.outerHeight(true)-dataGrid.outerHeight();
-          var containerHeight = $("##{container_id}-container").height();
-          return containerHeight - dgMargin;
+          var containerHeight = $("##{container_id}-container").css('height');
+
+          return 'calc(' + containerHeight + ' - ' + dgMargin + 'px)';
         } else {
           var screenHeight = $('.navbar-fixed-bottom').offset().top - $('##{container_id}-holder').parent().offset().top;
           var footerHeight = $('footer').height();

@@ -6,16 +6,14 @@
  * @constructor
  */
 function ItemResize(dataGrid, height, width) {
-  if (!(height || width)){
+  if (!(height || width)) {
     var screenHeight = $('.navbar-fixed-bottom').offset().top - $('#' + dataGrid.attr('id') + '-holder').offset().top;
     var footerHeight = $('footer').height();
-    dataGrid.height( screenHeight - footerHeight );
+    dataGrid.height(screenHeight - footerHeight);
   } else {
-    var dgMargin = dataGrid.outerHeight(true)-dataGrid.outerHeight();
+    var dgMargin = dataGrid.outerHeight(true) - dataGrid.outerHeight();
     // Sets the height in its orignal value E.g 50%, 50vh, 500px
-    dataGrid.height(height);
-    // Gets the height in pixels then subtracts the dgMargin
-    dataGrid.height( parseInt(dataGrid.height())-dgMargin );
+    dataGrid.height('calc(' + height + ' - ' + dgMargin + 'px)');
   }
 }
 
@@ -52,7 +50,7 @@ function getSelectedRowsAsParams(container_id, filter_form_id) {
     }
     // FIXME: this isn't a specific enough jQuery selector when filter_form_id == "form"
     //   since if there is more than one form, it will include them all
-    var search_params = $("" + filter_form_id  + ".auto-submit").serializeArray();
+    var search_params = $("" + filter_form_id + ".auto-submit").serializeArray();
     var data = {
       name: 'container_id',
       value: container_id
@@ -93,8 +91,8 @@ function download_file(event, type, container_id, allow_large_files) {
     window.location = file_location;
     var total_count = getDataGrid('#' + container_id).totalCount();
 
-    if(total_count > 999  && allow_large_files) {
-      $('#' + container_id + '-download_modal').modal({backdrop: false}).modal('show');
+    if (total_count > 999 && allow_large_files) {
+      $('#' + container_id + '-download_modal').modal({ backdrop: false }).modal('show');
     }
   }
 
@@ -119,8 +117,8 @@ function initiate_grid_reset(container_id) {
   container_id = getSelectedContainerId(container_id);
   var $dataGrid = $('#' + container_id);
 
-  alertify.confirm($('#btn_grid_reset_' + container_id).data('reset-layout-message'), function(e){
-    if(e){
+  alertify.confirm($('#btn_grid_reset_' + container_id).data('reset-layout-message'), function (e) {
+    if (e) {
       $.ajax({
         url: $dataGrid.data('reset_layout_url'),
         type: 'PUT',
