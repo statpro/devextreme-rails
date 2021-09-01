@@ -83,28 +83,6 @@ function submit_bulk_action(caller, container_id, fn_callback, confirm_message_s
   }
 }
 
-function download_file(event, type, container_id, allow_large_files) {
-  container_id = getSelectedContainerId(container_id);
-
-  /* This links to the -xls_download and -csv_download buttons, depending on type */
-  var file_location = $('#btn_' + type + '_download_' + container_id).attr('href');
-  /* This check is here in case there is no download button found */
-  if (file_location && file_location.length > 0) {
-    window.location = file_location;
-    var total_count = getDataGrid('#' + container_id).totalCount();
-
-    if(total_count > 999  && allow_large_files) {
-      $('#' + container_id + '-download_modal').modal({backdrop: false}).modal('show');
-    }
-  }
-
-  if (event) {
-    event.preventDefault();
-  }
-
-  return false;
-}
-
 function show_column_chooser(container_id) {
   var dataGrid = getDataGrid('#' + getSelectedContainerId(container_id));
   dataGrid.showColumnChooser();
@@ -141,4 +119,25 @@ function initiate_grid_reset(container_id) {
 function getSelectedContainerId(default_container_id) {
   var is_master_detail = JSON.parse($('#is_master_detail').val().toLowerCase());
   return (is_master_detail === true) ? $('#selected_container_id').val() : default_container_id;
+}
+
+function hide_download_modal(event, container_id) {
+  event.preventDefault();
+
+  // Hide the modal
+  var modal_selector = '#' + container_id + '-download_modal';
+  $(modal_selector).modal('hide');
+
+  // Run the callback if it exists
+  if (typeof hide_download_modal_callback == 'function') {
+    hide_download_modal_callback(event, container_id);
+  }
+}
+
+function show_download_modal(container_id) {
+  container_id = getSelectedContainerId(container_id);
+
+  // Show the modal
+  var modal_selector = '#' + container_id + '-download_modal';
+  $(modal_selector).modal('show');
 }

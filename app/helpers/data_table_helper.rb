@@ -13,8 +13,6 @@ module DataTableHelper
     height = options.delete(:height)
     width = options.delete(:width)
 
-    has_s3_download = options.delete(:has_s3_download)
-
     selection_changed = options.delete(:selection_changed)
     row_expanding = options.delete(:row_expanding)
     master_detail = options.delete(:master_detail)
@@ -25,7 +23,10 @@ module DataTableHelper
 
     bulk_actions_visible = options.fetch(:bulk_actions, data_table.options.fetch(:bulk_actions, true))
 
-    xls_download_visible = options.fetch(:xls_download_visible, data_table.options.fetch(:xls_download_visible, false))
+    download_options = data_table.options.fetch(:download, {})
+    download_visible = options.fetch(:download_visible, download_options.fetch(:visible, true))
+    csv_download_visible = options.fetch(:csv_download_visible, download_options.fetch(:csv_visible, true))
+    xls_download_visible = options.fetch(:xls_download_visible, download_options.fetch(:xls_visible, false))
 
     functions = ''
 
@@ -115,37 +116,38 @@ module DataTableHelper
 
     group_panel_visible = data_table.options[:group_panel][:visible]
     column_picker_visible = (options[:column_picker].nil? || options[:column_picker] == true)
-    download_visible = (options[:download].nil? || options[:download] == true)
     reset_layout_visible = (options[:reset_layout].nil? || options[:reset_layout] == true) && !disable_state_storing
     requireTotalRowCountIndicator = data_table.options[:requireTotalRowCountIndicator] == true
     
-    render( :partial => 'data_tables/data_table',
-            :locals => {
-              :data_table => data_table,
-              :container_id => container_id,
-              :functions => functions,
-              :height => height,
-              :width => width,
-              :options_json => options_json,
-              :columns_json => columns_json,
-              :compact_view_json => compact_view_json,
-              :summaries_json => summaries_json,
-              :custom_summary_functions => custom_summary_functions,
-              :group_panel_visible => group_panel_visible,
-              :column_picker_visible => column_picker_visible,
-              :download_visible => download_visible,
-              :xls_download_visible => xls_download_visible,
-              :has_s3_download => has_s3_download,
-              :reset_layout_visible => reset_layout_visible,
-              :converted_load_options => url_params.to_json,
-              :bulk_actions_visible => bulk_actions_visible,
-              :disable_state_storing => disable_state_storing,
-              :filter_form_id => filter_form_id,
-              :requireTotalRowCountIndicator => requireTotalRowCountIndicator,
-              :options => options,
-              :data_options_json => data_options_json,
-              :state_storing_json => state_storing_json
-            })
+    render(
+      :partial => 'data_tables/data_table',
+      :locals => {
+        :data_table => data_table,
+        :container_id => container_id,
+        :functions => functions,
+        :height => height,
+        :width => width,
+        :options_json => options_json,
+        :columns_json => columns_json,
+        :compact_view_json => compact_view_json,
+        :summaries_json => summaries_json,
+        :custom_summary_functions => custom_summary_functions,
+        :group_panel_visible => group_panel_visible,
+        :column_picker_visible => column_picker_visible,
+        :download_visible => download_visible,
+        :csv_download_visible => csv_download_visible,
+        :xls_download_visible => xls_download_visible,
+        :reset_layout_visible => reset_layout_visible,
+        :converted_load_options => url_params.to_json,
+        :bulk_actions_visible => bulk_actions_visible,
+        :disable_state_storing => disable_state_storing,
+        :filter_form_id => filter_form_id,
+        :requireTotalRowCountIndicator => requireTotalRowCountIndicator,
+        :options => options,
+        :data_options_json => data_options_json,
+        :state_storing_json => state_storing_json
+      }
+    )
   end
 
   private

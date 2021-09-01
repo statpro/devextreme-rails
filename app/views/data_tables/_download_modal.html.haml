@@ -1,0 +1,41 @@
+/ Modal
+.modal.hide.modal.fade.bs-modal{:role => :dialog, :style => 'display: none;', :id => "#{container_id}-download_modal"}
+  .modal-header
+    %button.close{:onclick => "hide_download_modal(event, '#{container_id}')"} ×
+    %h3#myModalLabel Download Options
+  .modal-body
+    .row-fluid
+      .span12
+
+        = render :partial => 'data_tables/download_modal_pre', :locals => local_assigns rescue nil
+
+        %p
+          Download first 1000 rows directly as:
+        %p.inline
+
+          - if csv_download_visible
+            -# bit of a HACK since some data tables don't specify a source, use url_for
+            - download_params = params.merge(:is_master_detail => (options[:is_master_detail] || false)).permit!
+            - csv_download_params = download_params.merge(:format => :csv).permit!
+            = link_to data_table.url(self, csv_download_params),
+                      :class   => [:btn, :download_button, :as_tooltip],
+                      :title   => t(:download_csv, :scope => :data_tables),
+                      :target  => '_blank' do
+              = icon_tag('download')
+              %span
+                = t(:download_csv, :scope => :data_tables)
+
+          - if xls_download_visible
+            - xls_download_params = download_params.merge(:format => :xls).permit!
+            = link_to data_table.url(self, xls_download_params),
+                      :class   => [:btn, :download_button, :as_tooltip],
+                      :title   => t(:download_xls, :scope => :data_tables),
+                      :target  => '_blank' do
+              = icon_tag('file-excel-o')
+              %span
+                = t(:download_xls, :scope => :data_tables)
+
+          = render :partial => 'data_tables/download_modal_post', :locals => local_assigns rescue nil
+
+  .modal-footer
+    %button.btn{:onclick => "hide_download_modal(event, '#{container_id}')"} Close
