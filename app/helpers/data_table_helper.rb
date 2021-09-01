@@ -1,11 +1,10 @@
 module DataTableHelper
-
   # options
   #   grid function calls supported usage
   #   :selection_changed => 'someFunctionToCall'
   def render_data_table(data_table, options = {})
+    raise ArgumentError, 'Data Table does not support arrays' if data_table.base_query.is_a?(Array)
 
-    raise ArgumentError, "Data Table does not support arrays" if data_table.base_query.is_a?(Array)
     container_id = options[:id] || "data-table-#{SecureRandom.uuid}".gsub(/-/, '')
 
     filter_form_id = options[:filter_form_id] || 'form'
@@ -71,12 +70,19 @@ module DataTableHelper
 
     columns_json = data_table.columns.map do |column|
       col_data = [
-        "dataField: \"#{data_table.base_query.table_name}.#{column.name.join('.') rescue column.name.to_s}\"",
-        "dataFieldWithoutTable: \"#{column.name.to_s}\"",
-        "dataFieldExtraValue: \"#{column.extra_value.to_s}\"",
+        "dataField: \"#{data_table.base_query.table_name}.#{begin
+          column.name.join('.')
+        rescue StandardError
+          column.name.to_s
+        end}\"",
+        "dataFieldWithoutTable: \"#{column.name}\"",
+        "dataFieldExtraValue: \"#{column.extra_value}\"",
         "caption: \"#{column.caption}\"",
-        "allowHiding: true"
+        'allowHiding: true'
       ]
+
+      col_data << custom_filter(column, data_table) if column.options[:custom_filter] && !column.options[:headerFilter]
+      column.options.delete(:custom_filter)
 
       col_format = hash_to_json(column.options)
       col_data << col_format unless col_format.blank?
@@ -84,7 +90,7 @@ module DataTableHelper
     end
 
     columns_json << hash_to_json(data_table.action_column) unless data_table.actions.blank?
-    columns_json = columns_json.map{|c| "{#{c}}"}.join(',')
+    columns_json = columns_json.map { |c| "{#{c}}" }.join(',')
 
     data_options_json = data_table.data_options.each do |k, v|
       data_table.data_options[k] = (v.respond_to?(:call) ? v.call(self) : v)
@@ -111,7 +117,7 @@ module DataTableHelper
       sum_data << sum_format unless sum_format.blank?
       sum_data.flatten.join(',')
     end
-    summaries_json = summaries_json.map{|s| "{#{s}}"}.join(',')
+    summaries_json = summaries_json.map { |s| "{#{s}}" }.join(',')
     custom_summary_functions = custom_summary_functions.join('')
 
     group_panel_visible = data_table.options[:group_panel][:visible]
@@ -122,35 +128,99 @@ module DataTableHelper
     render(
       partial: 'data_tables/data_table',
       locals: {
-        data_table: data_table,
-        container_id: container_id,
-        functions: functions,
-        height: height,
-        width: width,
-        options_json: options_json,
-        columns_json: columns_json,
-        compact_view_json: compact_view_json,
-        summaries_json: summaries_json,
-        custom_summary_functions: custom_summary_functions,
-        group_panel_visible: group_panel_visible,
-        column_picker_visible: column_picker_visible,
-        download_visible: download_visible,
-        csv_download_visible: csv_download_visible,
-        xls_download_visible: xls_download_visible,
-        reset_layout_visible: reset_layout_visible,
-        converted_load_options: url_params.to_json,
-        bulk_actions_visible: bulk_actions_visible,
-        disable_state_storing: disable_state_storing,
-        filter_form_id: filter_form_id,
-        requireTotalRowCountIndicator: require_total_row_count_indicator,
-        options: options,
-        data_options_json: data_options_json,
-        state_storing_json: state_storing_json
+        :data_table => data_table,
+        :container_id => container_id,
+        :functions => functions,
+        :height => height,
+        :width => width,
+        :options_json => options_json,
+        :columns_json => columns_json,
+        :compact_view_json => compact_view_json,
+        :summaries_json => summaries_json,
+        :custom_summary_functions => custom_summary_functions,
+        :group_panel_visible => group_panel_visible,
+        :column_picker_visible => column_picker_visible,
+        :download_visible => download_visible,
+        :csv_download_visible => csv_download_visible,
+        :xls_download_visible => xls_download_visible,
+        :reset_layout_visible => reset_layout_visible,
+        :converted_load_options => url_params.to_json,
+        :bulk_actions_visible => bulk_actions_visible,
+        :disable_state_storing => disable_state_storing,
+        :filter_form_id => filter_form_id,
+        :requireTotalRowCountIndicator => require_total_row_count_indicator,
+        :options => options,
+        :data_options_json => data_options_json,
+        :state_storing_json => state_storing_json
       }
     )
   end
 
   private
+
+  # To use this functionality, the following values must be set
+  # - call method in data_table -> store_source to set global store_url
+  # - set store_url on column level as a symbol or proc -> :store_url => proc { |view_context| view_context.url_for(action: :index, controller: :composites) }
+  # - set result mapping keys:
+  #   - set :text_selector  => 'key of choice', default = column.name
+  #   - set :value_selector => 'key of choice', default = column.name
+  # - set custom_filter options on column or data_table
+  # - Example {
+  #           :custom_filter => {
+  #             :params => {
+  #               :query_class  => FinancialQuery.to_s,
+  #               :query_filter => {
+  #                 :class  => FinancialQueryFilter.to_s,
+  #                 :params => {
+  #                   :FinancialType => FinancialType::Composite.to_s
+  #                 }
+  #               }
+  #             }
+  #           },
+  #           :type => 'enum'
+  #         }
+  #       }
+  # @param column Column
+  # @param data_table DataTable
+  def custom_filter(column, data_table)
+    store_url = data_table.store_url(self)
+
+    text_selector = column.options[:custom_filter][:text_selector] || column.name
+    value_selector = column.options[:custom_filter][:value_selector] || column.name
+
+    if column.options[:custom_filter][:store_url]
+      store_url = column.options[:custom_filter][:store_url].respond_to?(:call) ? column.options[:custom_filter][:store_url].call(self) : send(column.options[:custom_filter][:store_url])
+    end
+
+    params = column.options[:custom_filter][:params]
+    params ||= data_table.options[:custom_filter][:params] if data_table.options[:custom_filter]
+
+    json_params = params.respond_to?(:call) ? params.call(self).to_json : params.to_json
+
+    "
+        headerFilter: {
+            dataSource: {
+                paginate: false,
+                map: function (dataItem) {
+                    return {
+                        text: dataItem['#{text_selector}'],
+                        value: dataItem['#{value_selector}']
+                    };
+                },
+                load: function (loadOptions) {
+                  var d = new $.Deferred();
+
+                  var request = $.getJSON('#{store_url}', #{json_params});
+                  request.done(function (data) {
+                      d.resolve(data);
+                  });
+
+                  return d.promise();
+                },
+            }
+        }
+    "
+  end
 
   def hash_to_json(hash_array)
     hash_array.map do |k, v|
@@ -167,5 +237,4 @@ module DataTableHelper
       end
     end.join(',')
   end
-
 end

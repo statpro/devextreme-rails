@@ -28,6 +28,9 @@ module Devextreme
                   :source_url,
                   :source_parents,
                   :source_options,
+                  :store_source_url,
+                  :store_source_parents,
+                  :store_source_options,
                   :highlight_row,
                   :highlight_row_class
 
@@ -553,9 +556,21 @@ module Devextreme
         @source_parents = parents
       end
 
+      # Set path for custom filtering functionality
+      # @param url Symbol or String
+      def store_source(url, *parents)
+        @store_source_options = parents.extract_options!
+        @store_source_url = url.to_sym
+        @store_source_parents = parents
+      end
+
       # if this is called, then overrides source_url, source_parents and source_options
       def source_path(url_path)
         @url = url_path
+      end
+
+      def store_source_path(url_path)
+        @store_url = url_path
       end
 
       def url(view_context, options={})
@@ -568,6 +583,18 @@ module Devextreme
           view_context.url_for(*source_parents, source_options.merge(options))
         else
           view_context.send(source_url, *source_parents, source_options.merge(options))
+        end
+      end
+
+      def store_url(view_context, options={})
+        # return what was provided to store_source_path
+        return @store_url if @store_url
+
+        # otherwise, build the path
+        if store_source_url.nil?
+          view_context.url_for(*store_source_parents, store_source_options.merge(options))
+        else
+          view_context.send(store_source_url, *store_source_parents, store_source_options.merge(options))
         end
       end
 
