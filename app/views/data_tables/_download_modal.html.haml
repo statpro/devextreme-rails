@@ -9,8 +9,6 @@
 
         = render :partial => 'data_tables/download_modal_pre', :locals => local_assigns rescue nil
 
-        %p
-          Download first 1000 rows directly as:
         %p.inline
 
           - if csv_download_visible
