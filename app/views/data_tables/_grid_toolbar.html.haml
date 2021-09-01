@@ -43,3 +43,5 @@
       = icon_tag('undo')
       %span
         = t(:reset, :scope => :data_tables)
+
+= render :partial => 'data_tables/grid_toolbar_post', :locals => local_assigns rescue nil
