@@ -35,7 +35,7 @@
               %span
                 = t(:download_xls, :scope => :data_tables)
 
-          = render :partial => 'data_tables/download_modal_post', :locals => local_assigns rescue nil
+        = render :partial => 'data_tables/download_modal_post', :locals => local_assigns rescue nil
 
   .modal-footer
     %button.btn{:onclick => "hide_download_modal(event, '#{container_id}')"} Close

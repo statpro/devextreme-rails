@@ -16,9 +16,9 @@
 - if download_visible
   %li
     = link_to '#',
-                  :class   => [:btn, :download_button, :as_tooltip],
-                  :title   => t(:download, :scope => :data_tables),
-                  :onclick => "show_download_modal('#{container_id}')" do
+              :class   => [:btn, :download_button, :as_tooltip],
+              :title   => t(:download, :scope => :data_tables),
+              :onclick => "show_download_modal('#{container_id}')" do
       = icon_tag('download')
       %span
         = t(:download, :scope => :data_tables)
