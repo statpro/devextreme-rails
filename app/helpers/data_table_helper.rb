@@ -117,35 +117,35 @@ module DataTableHelper
     group_panel_visible = data_table.options[:group_panel][:visible]
     column_picker_visible = (options[:column_picker].nil? || options[:column_picker] == true)
     reset_layout_visible = (options[:reset_layout].nil? || options[:reset_layout] == true) && !disable_state_storing
-    requireTotalRowCountIndicator = data_table.options[:requireTotalRowCountIndicator] == true
-    
+    require_total_row_count_indicator = data_table.options[:requireTotalRowCountIndicator] == true
+
     render(
-      :partial => 'data_tables/data_table',
-      :locals => {
-        :data_table => data_table,
-        :container_id => container_id,
-        :functions => functions,
-        :height => height,
-        :width => width,
-        :options_json => options_json,
-        :columns_json => columns_json,
-        :compact_view_json => compact_view_json,
-        :summaries_json => summaries_json,
-        :custom_summary_functions => custom_summary_functions,
-        :group_panel_visible => group_panel_visible,
-        :column_picker_visible => column_picker_visible,
-        :download_visible => download_visible,
-        :csv_download_visible => csv_download_visible,
-        :xls_download_visible => xls_download_visible,
-        :reset_layout_visible => reset_layout_visible,
-        :converted_load_options => url_params.to_json,
-        :bulk_actions_visible => bulk_actions_visible,
-        :disable_state_storing => disable_state_storing,
-        :filter_form_id => filter_form_id,
-        :requireTotalRowCountIndicator => requireTotalRowCountIndicator,
-        :options => options,
-        :data_options_json => data_options_json,
-        :state_storing_json => state_storing_json
+      partial: 'data_tables/data_table',
+      locals: {
+        data_table: data_table,
+        container_id: container_id,
+        functions: functions,
+        height: height,
+        width: width,
+        options_json: options_json,
+        columns_json: columns_json,
+        compact_view_json: compact_view_json,
+        summaries_json: summaries_json,
+        custom_summary_functions: custom_summary_functions,
+        group_panel_visible: group_panel_visible,
+        column_picker_visible: column_picker_visible,
+        download_visible: download_visible,
+        csv_download_visible: csv_download_visible,
+        xls_download_visible: xls_download_visible,
+        reset_layout_visible: reset_layout_visible,
+        converted_load_options: url_params.to_json,
+        bulk_actions_visible: bulk_actions_visible,
+        disable_state_storing: disable_state_storing,
+        filter_form_id: filter_form_id,
+        requireTotalRowCountIndicator: require_total_row_count_indicator,
+        options: options,
+        data_options_json: data_options_json,
+        state_storing_json: state_storing_json
       }
     )
   end
