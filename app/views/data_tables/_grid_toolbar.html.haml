@@ -14,32 +14,14 @@
       = t(:refresh, :scope => :data_tables)
 
 - if download_visible
-  -# bit of a HACK since some data tables don't specify a source, use url_for
-  - download_params = params.merge(:is_master_detail => (options[:is_master_detail] || false)).permit!
-  - csv_download_params = download_params.merge(:format => :csv).permit!
   %li
-    = link_to data_table.url(self, csv_download_params),
+    = link_to '#',
               :class   => [:btn, :download_button, :as_tooltip],
               :title   => t(:download, :scope => :data_tables),
-              :id      => "btn_csv_download_#{container_id}",
-              :target  => '_blank',
-              :onclick => "download_file(event, 'csv', '#{container_id}', #{has_s3_download || false})" do
+              :onclick => "show_download_modal('#{container_id}')" do
       = icon_tag('download')
       %span
         = t(:download, :scope => :data_tables)
-
-  - if xls_download_visible
-    - xls_download_params = download_params.merge(:format => :xls).permit!
-    %li
-      = link_to data_table.url(self, xls_download_params),
-                :class   => [:btn, :download_button, :as_tooltip],
-                :title   => t(:download_xls, :scope => :data_tables),
-                :id      => "btn_xls_download_#{container_id}",
-                :target  => '_blank',
-                :onclick => "download_file(event, 'xls', '#{container_id}', #{has_s3_download || false})" do
-        = icon_tag('file-excel-o')
-        %span
-          = t(:download_xls, :scope => :data_tables)
 
 - if column_picker_visible
   %li

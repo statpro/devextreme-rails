@@ -1,16 +1,11 @@
 - toolbar_for = options.delete(:toolbar_name) || :toolbar
 - content_for(toolbar_for) do
 
-  = render :partial => 'data_tables/grid_toolbar', :locals => { :container_id => container_id,
-                                                                :bulk_actions_visible => bulk_actions_visible,
-                                                                :column_picker_visible => column_picker_visible,
-                                                                :download_visible => download_visible,
-                                                                :xls_download_visible => xls_download_visible,
-                                                                :reset_layout_visible => reset_layout_visible,
-                                                                :data_table => data_table,
-                                                                :filter_form_id => filter_form_id,
-                                                                :has_s3_download => has_s3_download,
-                                                                :options => options }
+  = render :partial => 'data_tables/grid_toolbar', :locals => local_assigns
+
+-# This will render the download modal - Can't be in `other_body_content` because of master detail
+- if download_visible
+  = render :partial => 'data_tables/download_modal', :locals => local_assigns
 
 .clearfix
 .dxDataGrid-holder{:id => "#{container_id}-holder", :style=> "height: inherit;"}

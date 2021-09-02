@@ -115,6 +115,11 @@ module Devextreme
           #
           :paging => {
             :pageSize => 25 #AppConfig.small_page_size
+          },
+          :download => {
+            :visible => true,
+            :csv_visible => true,
+            :xls_visible => true
           }
 
         }
