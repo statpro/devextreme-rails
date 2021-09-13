@@ -248,7 +248,7 @@ module Devextreme
         # got any?
         return if sort_params.blank?
 
-        sort_params = JSON.parse(sort_params)
+        sort_params = JSON.parse(sort_params) if sort_params.is_a? String
 
         @sorted_and_filtered_query.orders.clear
 
@@ -355,7 +355,7 @@ module Devextreme
 
         return if filter_options.blank?
 
-        filter_options = JSON.parse(filter_options)
+        filter_options = JSON.parse(filter_options) if filter_options.is_a? String
         conditions = build_filter_conditions(filter_options)
         @sorted_and_filtered_query = @sorted_and_filtered_query.where(
           add_arel_conditions(conditions)
