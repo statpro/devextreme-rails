@@ -60,7 +60,7 @@ module Devextreme
       end
 
       def format_bool
-        {:data_type => 'boolean', :show_editor_always => false, :false_text => 'No', :true_text => 'Yes'}.merge(filter_disable)
+        {:data_type => 'boolean', :show_editor_always => false, :false_text => 'No', :true_text => 'Yes'}
       end
 
       def format_background_task_info

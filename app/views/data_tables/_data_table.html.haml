@@ -72,6 +72,8 @@
           search_params: search_params
         };
 
+        localStorage.setItem('sortValue', params.sortOptions);
+
         $.extend(params, #{ converted_load_options });
 
         var request = $.getJSON("#{ data_table.url(self) }", params);
@@ -175,6 +177,9 @@
           delete gridState.pageSize;
           delete gridState.allowedPageSizes;
           delete gridState.selectedRowKeys;
+          if (localStorage.getItem('sortValue')) {
+            gridState.sortValue = JSON.parse(localStorage.getItem('sortValue'));
+          }
 
           var grid = dataGrid.dxDataGrid('instance');
 
