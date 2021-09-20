@@ -14,8 +14,8 @@ module Devextreme
     options[:columns_layout] = UserGridLayout.get_user_grid_layout(current_user, self.controller_name, self.action_name, model.class.name, model.additional_layout_key)
 
     new_params = params.merge(
-      'filterOptions' => options[:columns_layout]['filterValue'],
-      'sortOptions' => options[:columns_layout]['sortValue']
+      'filterOptions' => options[:columns_layout]['filterOptions'],
+      'sortOptions' => options[:columns_layout]['sortOptions']
     )
 
     send_data(
