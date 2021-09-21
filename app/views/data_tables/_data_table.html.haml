@@ -72,7 +72,8 @@
           search_params: search_params
         };
 
-        localStorage.setItem('sortValue', params.sortOptions);
+        localStorage.setItem('sortOptions', params.sortOptions);
+        localStorage.setItem('filterOptions', params.filterOptions);
 
         $.extend(params, #{ converted_load_options });
 
@@ -177,8 +178,12 @@
           delete gridState.pageSize;
           delete gridState.allowedPageSizes;
           delete gridState.selectedRowKeys;
-          if (localStorage.getItem('sortValue')) {
-            gridState.sortValue = JSON.parse(localStorage.getItem('sortValue'));
+          if (localStorage.getItem('sortOptions')) {
+            gridState.sortOptions = JSON.parse(localStorage.getItem('sortOptions'));
+          }
+
+          if (localStorage.getItem('filterOptions')) {
+            gridState.filterOptions = JSON.parse(localStorage.getItem('filterOptions'));
           }
 
           var grid = dataGrid.dxDataGrid('instance');
