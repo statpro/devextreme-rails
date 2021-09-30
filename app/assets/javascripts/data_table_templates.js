@@ -498,48 +498,42 @@ var column_template_exports_portfolio_filters = function(container, options, pop
   }
 };
 
-var column_template_popup = function(container, options, popup_header) {
+var column_template_popup = function(container, options) {
   if (options.value && options.value.length > 0) {
     var filters = JSON.parse(options.value);
-    var info = $('<div />');
+    var $info = $('<div />');
+    var filter_present;
 
-    var filter_present = false
     // Loop through fields and build rows
-    var rows = filters.rows
-    for (var i = 0; i < rows.length; i++) {
-      var values = rows[i].values;
-
-      if (!Array.isArray(values)) {
-        if(values == null)
-          values = [];
-        else
-          values = [values];
+    filters.rows.forEach(function (row) {
+      if (!row.values) {
+        return;
       }
 
-      // Only render if present
-      if (values.length > 0) {
-        var fields_info = $('<strong />')
-          .html($('<i />')
-            .addClass('fa fa-angle-right')
-            .text(' ' + rows[i].text)
-          )
-          .attr('style', 'color: black;')
-          .appendTo(info);
-
-        var fields_ul = $('<ul />')
-          .attr('style', 'color: black;')
-          .appendTo(fields_info);
-
-        // Loop through array and build list
-        for (var j = 0; j < values.length; j++) {
-          filter_present = true
-          $('<li />')
-            .attr('style', 'color: black;')
-            .text(values[j])
-            .appendTo(fields_ul);
-        }
+      var values = Array.isArray(row.values) ? row.values : [row.values];
+      // Only render if there are values
+      if (values.length <= 0) {
+        return;
       }
-    }
+
+      filter_present = true;
+
+      var $fields_info = $('<strong />').html($('<i />')
+        .addClass('fa fa-angle-right')
+        .attr('style', 'color: black;')
+        .text(' ' + row.text))
+        .appendTo($info);
+
+      var $fields_ul = $('<ul />')
+        .appendTo($fields_info);
+
+      // Loop through values and build list
+      values.forEach(function (value) {
+        $('<li />')
+          .text(value)
+          .appendTo($fields_ul);
+      });
+    });
 
     if (filter_present) {
       $('<span />')
@@ -547,9 +541,7 @@ var column_template_popup = function(container, options, popup_header) {
         .text(filters.cell_text)
         .attr("modal-title", filters.popup_header)
         .attr("type", "button")
-        .attr("modal-data", function () {
-          return $(info).html().toString();
-        })
+        .attr("modal-data", function () { return $info.html().toString(); })
         .attr("onClick", "event.stopPropagation(); showModal(event);")
         .appendTo(container);
     }
