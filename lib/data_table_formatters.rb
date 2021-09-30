@@ -87,6 +87,10 @@ module Devextreme
         {:cell_template => :column_template_exports_portfolio_filters}.merge(grouping_disable)
       end
 
+      def column_template_popup
+        {:cell_template => :column_template_popup}.merge(grouping_disable)
+      end
+
       def format_checkbox
         self.format_bool.merge(:cell_template => :column_template_checkbox)
       end
