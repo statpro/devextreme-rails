@@ -498,6 +498,56 @@ var column_template_exports_portfolio_filters = function(container, options, pop
   }
 };
 
+var column_template_popup = function(container, options) {
+  if (options.value && options.value.length > 0) {
+    var filters = JSON.parse(options.value);
+    var $info = $('<div />');
+    var filter_present;
+
+    // Loop through fields and build rows
+    filters.rows.forEach(function (row) {
+      if (!row.values) {
+        return;
+      }
+
+      var values = Array.isArray(row.values) ? row.values : [row.values];
+      // Only render if there are values
+      if (values.length <= 0) {
+        return;
+      }
+
+      filter_present = true;
+
+      var $fields_info = $('<strong />').html($('<i />')
+        .addClass('fa fa-angle-right')
+        .attr('style', 'color: black;')
+        .text(' ' + row.text))
+        .appendTo($info);
+
+      var $fields_ul = $('<ul />')
+        .appendTo($fields_info);
+
+      // Loop through values and build list
+      values.forEach(function (value) {
+        $('<li />')
+          .text(value)
+          .appendTo($fields_ul);
+      });
+    });
+
+    if (filter_present) {
+      $('<span />')
+        .addClass("label label-info")
+        .text(filters.cell_text)
+        .attr("modal-title", filters.popup_header)
+        .attr("type", "button")
+        .attr("modal-data", function () { return $info.html().toString(); })
+        .attr("onClick", "event.stopPropagation(); showModal(event);")
+        .appendTo(container);
+    }
+  }
+};
+
 var column_header_template_precision = function(itemData, itemIndex, itemElement) {
 
   itemElement.append(
