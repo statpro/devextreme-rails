@@ -504,6 +504,10 @@ var column_template_popup = function(container, options) {
     var $info = $('<div />');
     var filter_present;
 
+    if (!filters.rows) {
+      return;
+    }
+
     // Loop through fields and build rows
     filters.rows.forEach(function (row) {
       if (!row.values) {
