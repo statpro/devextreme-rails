@@ -36,9 +36,9 @@
   $(function() {
     var dataGrid = $("##{ container_id }");
 
-    var compact_view_json = #{compact_view_json};
-    var columns_json = [#{columns_json}];
-    var data_options_json = #{data_options_json};
+    var compact_view_json = #{compact_view_json.html_safe};
+    var columns_json = [#{columns_json.html_safe}];
+    var data_options_json = #{data_options_json.html_safe};
 
     dataGrid.data("compact-view", compact_view_json);
     dataGrid.data("default-json", columns_json);
@@ -75,7 +75,7 @@
         localStorage.setItem('sortOptions', params.sortOptions);
         localStorage.setItem('filterOptions', params.filterOptions);
 
-        $.extend(params, #{ converted_load_options });
+        $.extend(params, #{ converted_load_options.html_safe });
 
         var request = $.getJSON("#{ data_table.url(self) }", params);
         request.done(function (data) {
@@ -86,7 +86,7 @@
           }
         });
 
-        var columns_layout = #{ columns_layout.to_json};
+        var columns_layout = #{ columns_layout.to_json.html_safe};
         if (!#{disable_state_storing} && columns_layout != undefined && columns_layout.columns != undefined && params.skip == 0) {
           var grid = dataGrid.dxDataGrid('instance');
 
@@ -117,13 +117,13 @@
       columns: columns_json,
       summary: {
         totalItems: [
-          #{ summaries_json }
+          #{ summaries_json.html_safe }
         ],
         calculateCustomSummary: function (options) {
-          #{ custom_summary_functions }
+          #{ custom_summary_functions.html_safe }
         }
       },
-      #{ options_json },
+      #{ options_json.html_safe },
       onContentReady: function(e){
         if (#{requireTotalRowCountIndicator}) {
           var loadpanel = $("##{container_id}-row_count").dxLoadPanel("instance");
@@ -136,7 +136,7 @@
           loadpanel.show();
         }
         activateJSPlugins();
-      }#{ functions },
+      }#{ functions.html_safe },
       onRowPrepared: function (rowInfo) {
         if (rowInfo.data && rowInfo.rowType != 'group' && rowInfo.data['#{ data_table.base_query.table_name }'] ) {
           var row_info_data = rowInfo.data['#{ data_table.base_query.table_name }'];
@@ -157,10 +157,10 @@
         }
       },
       stateStoring: {
-        #{state_storing_json},
+        #{state_storing_json.html_safe},
         customLoad: function() {
 
-          var custom_layout = #{ columns_layout.to_json};
+          var custom_layout = #{ columns_layout.to_json.html_safe };
           var grid = dataGrid.dxDataGrid('instance');
           $.each(custom_layout.columns, function( index, value ) {
 
