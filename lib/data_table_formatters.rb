@@ -36,7 +36,7 @@ module Devextreme
       end
 
       def format_hidden
-        {:data_type => 'string',:allow_grouping => false, :visible => false , :css_class => 'hidden'}.merge(grouping_disable)
+        {:data_type => 'string', :visible => false, :show_in_column_chooser => false, :downloadable => false, :user_visible => false , :css_class => 'hidden'}.merge(grouping_disable)
       end
 
       def format_icon
