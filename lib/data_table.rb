@@ -733,13 +733,13 @@ module Devextreme
                         else
                           # Need to run off the base class for STI model.
                           # Activerecord will add the default scope back for STI models
-                          row_count_result = @base_query.model.base_class.unscoped.from(
+                          sql = @base_query.model.base_class.unscoped.from(
                             @base_query.arel_table.create_table_alias(
                               count_query.project(Arel.star.count.as('row_count')
                               ), @base_query.model.base_class.table_name)
-                          ).to_a
+                          ).to_sql
 
-                          row_count_result.first.row_count
+                          @base_query.model.connection.execute(sql).first['row_count']
                         end
                       end
 
