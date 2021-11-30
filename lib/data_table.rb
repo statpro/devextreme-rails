@@ -739,7 +739,7 @@ module Devextreme
                               ), @base_query.model.base_class.table_name)
                           ).to_sql
 
-                          @base_query.model.connection.execute(sql).first['row_count']
+                          @base_query.model.connection.exec_query(sql).first['row_count']
                         end
                       end
 
