@@ -86,41 +86,37 @@ module Devextreme
         output << "<Row></Row>"
       end
 
-      if @query.any?
-        columns = @options.fetch(:columns_layout, {}).fetch('columns', [])
+      columns = @options.fetch(:columns_layout, {}).fetch('columns', [])
 
-        if columns.present?
-          @data_table.columns.each do |column|
-            user_column = columns.detect{|c| c['dataField'].split('.').last == column.name.to_s} || {'visible' => false}
-            # Call reverse_merge! on column to not override explicit options already set for the column
-            column.options.reverse_merge!(:user_visible => user_column['visible'], :user_visible_index => user_column['visibleIndex'])
+      if columns.present?
+        @data_table.columns.each do |column|
+          user_column = columns.detect{|c| c['dataField'].split('.').last == column.name.to_s} || {'visible' => false}
+          # Call reverse_merge! on column to not override explicit options already set for the column
+          column.options.reverse_merge!(:user_visible => user_column['visible'], :user_visible_index => user_column['visibleIndex'])
+        end
+      end
+
+      unless @options.has_key?(:write_headers) && !@options[:write_headers]
+        output << "<Row>"
+        @data_table.each_header.each { |column|
+          output << "<Cell ss:StyleID=\"s1\"><Data ss:Type=\"String\">#{column}</Data></Cell>"
+        }
+        output << "</Row>"
+      end
+
+      @query.each do |instance|
+        output << "<Row>"
+        @data_table.each_row(instance, @view_context).each do |value|
+          if value.is_a?(Hash) && (value.has_key?(:href) || value.has_key?(:content))
+            output << "<Cell><Data ss:Type=\"#{resolve_type(value)}\">#{value[:text]}</Data></Cell>"
+          else
+            output << "<Cell><Data ss:Type=\"#{resolve_type(value)}\">#{value}</Data></Cell>"
           end
         end
-
-        unless @options.has_key?(:write_headers) && !@options[:write_headers]
-          output << "<Row>"
-          @data_table.each_header.each { |column|
-            output << "<Cell ss:StyleID=\"s1\"><Data ss:Type=\"String\">#{column}</Data></Cell>"
-          }
-          output << "</Row>"
-        end
-
-        @query.each do |instance|
-          output << "<Row>"
-          @data_table.each_row(instance, @view_context).each do |value|
-            if value.is_a?(Hash) && (value.has_key?(:href) || value.has_key?(:content))
-              output << "<Cell><Data ss:Type=\"#{resolve_type(value)}\">#{value[:text]}</Data></Cell>"
-            else
-              output << "<Cell><Data ss:Type=\"#{resolve_type(value)}\">#{value}</Data></Cell>"
-            end
-          end
-          output << "</Row>"
-        end
-
+        output << "</Row>"
       end
 
       output << "</Table></Worksheet></Workbook>"
-
     end
 
     # http://msdn.microsoft.com/en-us/library/aa140066%28v=office.10%29
