@@ -690,17 +690,11 @@ module Devextreme
           query = query.order("(SELECT NULL)") if query.orders.empty?
         end
 
-        resultset = if ::Rails::VERSION::MINOR == 1
-                      # NB: need to provide binds if $* variables are in the SQL
-                      sql = query.to_sql
-                      @base_query.model.find_by_sql(sql, (sql =~ parameter_binding_character ? (query.bind_values + @base_query.bound_attributes) : []))
-                    else
-                      # Need to run off the base class for STI model.
-                      # Activerecord will add the default scope back for STI models
-                      @base_query.model.base_class.unscoped.from(
-                        @base_query.arel_table.create_table_alias(query, @base_query.model.base_class.table_name)
-                      )
-                    end
+        # Need to run off the base class for STI model.
+        # Activerecord will add the default scope back for STI models
+        resultset = @base_query.model.base_class.unscoped.from(
+          @base_query.arel_table.create_table_alias(query, @base_query.model.base_class.table_name)
+        )
 
         # avoid n+1's
         begin
@@ -720,27 +714,15 @@ module Devextreme
                         count_query.offset = nil
                         count_query.limit = nil
 
-                        if ::Rails::VERSION::MINOR == 1
-                          sql = count_query.project(Arel.star.count).to_sql
+                        # Need to run off the base class for STI model.
+                        # Activerecord will add the default scope back for STI models
+                        sql = @base_query.model.base_class.unscoped.from(
+                          @base_query.arel_table.create_table_alias(
+                            count_query.project(Arel.star.count.as('row_count')
+                            ), @base_query.model.base_class.table_name)
+                        ).to_sql
 
-                          # NB: need to provide binds
-                          count_result = @base_query.model.connection.exec_query(
-                            sql,
-                            'SQL',
-                            (sql =~ parameter_binding_character ? (count_query.bind_values + @base_query.bound_attributes) : [])
-                          )
-                          count_result.rows.flatten.first.to_i  # handles cases when there is a group by
-                        else
-                          # Need to run off the base class for STI model.
-                          # Activerecord will add the default scope back for STI models
-                          sql = @base_query.model.base_class.unscoped.from(
-                            @base_query.arel_table.create_table_alias(
-                              count_query.project(Arel.star.count.as('row_count')
-                              ), @base_query.model.base_class.table_name)
-                          ).to_sql
-
-                          @base_query.model.connection.exec_query(sql).first['row_count']
-                        end
+                        @base_query.model.connection.exec_query(sql).first['row_count']
                       end
 
         return resultset, total_count
