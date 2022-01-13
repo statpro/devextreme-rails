@@ -54,6 +54,8 @@
 
     var user_grid_layouts_save_layout_path = '#{ disable_state_storing ? '' : user_grid_layouts_save_layout_path}';
 
+    var filter_sort = null;
+
     var dataSource = new DevExpress.data.CustomStore({
       key: '#{ data_table.base_query.table_name }.id',
       load: function(loadOptions) {
@@ -72,8 +74,10 @@
           search_params: search_params
         };
 
-        localStorage.setItem('sortOptions', params.sortOptions);
-        localStorage.setItem('filterOptions', params.filterOptions);
+        filter_sort = {
+          sortOptions: params.sortOptions,
+          filterOptions: params.filterOptions
+        };
 
         $.extend(params, #{ converted_load_options });
 
@@ -178,12 +182,15 @@
           delete gridState.pageSize;
           delete gridState.allowedPageSizes;
           delete gridState.selectedRowKeys;
-          if (localStorage.getItem('sortOptions')) {
-            gridState.sortOptions = JSON.parse(localStorage.getItem('sortOptions'));
-          }
 
-          if (localStorage.getItem('filterOptions')) {
-            gridState.filterOptions = JSON.parse(localStorage.getItem('filterOptions'));
+          if (filter_sort) {
+            if (filter_sort.sortOptions) {
+              gridState.sortOptions = JSON.parse(filter_sort.sortOptions);
+            }
+
+            if (filter_sort.filterOptions) {
+              gridState.filterOptions = JSON.parse(filter_sort.filterOptions);
+            }
           }
 
           var grid = dataGrid.dxDataGrid('instance');
