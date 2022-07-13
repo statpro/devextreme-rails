@@ -946,7 +946,7 @@ module Devextreme
           text = {:href => @params[:link_to].call(instance, view_context), :text => text, :'data_remote' => remote?, :value => text}
           text.merge!(:target => '_blank') if @params[:new_tab]
         elsif link_to_content?
-          text = {:content => @params[:link_to_content].call(instance, view_context), :text => text, :value => text}
+          text = {:content => @params[:link_to_content].call(instance, view_context, @name), :text => text, :value => text}
         end
         text
       end
@@ -1101,9 +1101,9 @@ module Devextreme
 
       def extra_link_formatting(instance, view_context, text)
         if link_to?
-          text = {:href => @params[:link_to].call(instance,view_context), :text => view_context.format_number(text, :precision => @options[:precision]), :value => text}
+          text = {:href => @params[:link_to].call(instance, view_context), :text => view_context.format_number(text, :precision => @options[:precision]), :value => text}
         elsif link_to_content?
-          text = {:content => @params[:link_to_content].call(instance,view_context), :text => view_context.format_number(text, :precision => @options[:precision]), :value => text}
+          text = {:content => @params[:link_to_content].call(instance, view_context, @name), :text => view_context.format_number(text, :precision => @options[:precision]), :value => text}
         else
           text
         end
