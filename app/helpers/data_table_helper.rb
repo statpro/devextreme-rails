@@ -232,6 +232,8 @@ module DataTableHelper
         "#{k.to_s.camelize(:lower)}: {#{hash_to_json(v)}}"
       elsif v.is_a?(Array)
         "#{k.to_s.camelize(:lower)}: #{v.to_json}"
+      elsif v.nil?
+        "#{k.to_s.camelize(:lower)}: null"
       else
         "#{k.to_s.camelize(:lower)}: #{v}"
       end
