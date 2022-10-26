@@ -65,13 +65,16 @@
           format: 'json',
           filterOptions: loadOptions.filter ? JSON.stringify(loadOptions.filter) : "",   //Getting filter options
           sortOptions: loadOptions.sort ? JSON.stringify(loadOptions.sort) : "",  //Getting sort options
+          groupOptions: loadOptions.group ? JSON.stringify(loadOptions.group) : "",  //Getting group options
 
           //skip and take are used for paging
           skip: loadOptions.skip, //A number of records that should be skipped
           take: loadOptions.take, //A number of records that should be taken
 
           requireTotalCount: loadOptions.requireTotalCount,
-          search_params: search_params
+          search_params: search_params,
+          no_limit: (loadOptions.dataField != undefined ? true : false), // When the header filters are trying to populate it's values, there should be no limit
+          dataField: loadOptions.dataField
         };
 
         filter_sort = {

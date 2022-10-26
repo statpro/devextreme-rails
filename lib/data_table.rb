@@ -242,6 +242,7 @@ module Devextreme
         @sorted_and_filtered_query = @base_query.arel.dup # convert to AREL
         apply_sorting(params)
         apply_filter!(params)
+        apply_grouping!(params)
         @sorted_and_filtered_query
       end
 
@@ -265,6 +266,29 @@ module Devextreme
           next unless arel_col
 
           @sorted_and_filtered_query = @sorted_and_filtered_query.order(order_desc ? arel_col.desc : arel_col.asc)
+
+        end
+      end
+
+      private def apply_grouping!(params)
+        group_params = params.fetch('groupOptions', {})
+
+        # got any?
+        return if group_params.blank?
+
+        group_params = JSON.parse(group_params) if group_params.is_a? String
+
+        @sorted_and_filtered_query.projections.clear
+
+        group_params.each do |grouper|
+
+          table, attribute, assoc_attribute = grouper['selector'].split('.')
+
+          arel_col = get_arel_column(table, attribute, assoc_attribute)
+          next unless arel_col
+
+          @sorted_and_filtered_query = @sorted_and_filtered_query.group(arel_col)
+          @sorted_and_filtered_query = @sorted_and_filtered_query.project(arel_col)
 
         end
       end
@@ -635,59 +659,71 @@ module Devextreme
       end
 
       def to_json(view_context, params = {})
-        params['take'] = params.fetch('take', @options[:paging][:pageSize]).to_i
         resultset, total_count = get_resultset_and_count(params)
 
-        Jbuilder.encode do |json|
+        if params.key?(:dataField)
+          request_column = self.columns.detect{ |c| c.name == params[:dataField].split('.').last.to_sym }
+          Jbuilder.encode do |json|
+            json.items(resultset) do |instance|
+              value = request_column.value(instance, view_context) rescue nil
+              json.set! :key, value
+            end
+          end
+        else
+          Jbuilder.encode do |json|
 
-          json.items(resultset) do |instance|
+            json.items(resultset) do |instance|
 
-            json.set!(@base_query.table_name) do
-              self.columns.each do |c|
-                value = c.value(instance, view_context) rescue nil
-                if c.is_a? DataTable::ColumnHidden
-                  json.hidden value
-                elsif c.is_a? DataTable::ColumnLookup
-                  json.set! c.name.first do
-                    json.set! c.name.last, value
+              json.set!(@base_query.table_name) do
+                self.columns.each do |c|
+                  value = c.value(instance, view_context) rescue nil
+                  if c.is_a? DataTable::ColumnHidden
+                    json.hidden value
+                  elsif c.is_a? DataTable::ColumnLookup
+                    json.set! c.name.first do
+                      json.set! c.name.last, value
+                    end
+                  else
+                    json.set! c.name, value
                   end
-                else
-                  json.set! c.name, value
+
+                  highlights_to_set = @highlights.detect do |highlight|
+                    highlight[:callback].call(instance)
+                  end
+
+                  json.set! '_highlight_row', {
+                    :highlight_row_class =>  highlights_to_set[:class],
+                    :highlight_row => highlights_to_set[:callback] }.to_json if highlights_to_set
+
                 end
+              end
 
-                highlights_to_set = @highlights.detect do |highlight|
-                  highlight[:callback].call(instance)
-                end
-
-                json.set! '_highlight_row', {
-                  :highlight_row_class =>  highlights_to_set[:class],
-                  :highlight_row => highlights_to_set[:callback] }.to_json if highlights_to_set
-
+              # actions
+              if self.actions
+                actions = self.actions.map { |action| build_action(action, instance, view_context) }.reject(&:blank?)
+                json._actions actions.to_json
               end
             end
 
-            # actions
-            if self.actions
-              actions = self.actions.map { |action| build_action(action, instance, view_context) }.reject(&:blank?)
-              json._actions actions.to_json
-            end
+            json.total_count(total_count) if total_count
           end
-
-          json.total_count(total_count) if total_count
         end
       end
 
       def get_resultset_and_count(params, options = {})
 
         query = self.query!(params)
-        query.offset = params.fetch('skip', 0).to_i
-        unless options.fetch(:no_limit, false)
-          query.limit = params.fetch('take', 1000) # putting hard limit unless no_limit to prevent issues (not ideal of course)
+
+        no_limit = options.fetch(:no_limit, false) || params.fetch(:no_limit, false).to_b
+
+        unless no_limit
+          query.offset = params.fetch('skip', 0).to_i
+          query.limit = params.fetch('take', 1000).to_i # putting hard limit unless no_limit to prevent issues (not ideal of course)
         end
 
         # NB: TODO message about OFFSET in SQL Server requiring an ORDER
-        if is_connection_sql_server?
-          query = query.order("(SELECT NULL)") if query.orders.empty?
+        if is_connection_sql_server? && query.orders.empty? && !no_limit
+          query = query.order("(SELECT NULL)")
         end
 
         # Need to run off the base class for STI model.
