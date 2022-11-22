@@ -377,6 +377,12 @@ module Devextreme
         arel_col
       end
 
+      #
+      # Unary filter
+      # Supported operators: binary operators, "!".
+      #
+      # See: https://js.devexpress.com/Documentation/ApiReference/Data_Layer/CustomStore/LoadOptions/#filter
+      #
       private def apply_filter!(params)
         # filtering
         filter_options = params.fetch('filterOptions', {})
@@ -384,10 +390,29 @@ module Devextreme
         return if filter_options.blank?
 
         filter_options = JSON.parse(filter_options) if filter_options.is_a? String
+
+        # Binary filter
+        # ie. [ "dataField", "=", 3 ]
+        # Unary filter
+        # ie. [ "!", [ "dataField", "=", 3 ] ]
+        if filter_options.first&.is_a?(String)
+          unary_condition = filter_options.shift
+          filter_options.flatten!(1) if filter_options.dimension > 1
+        end
+
         conditions = build_filter_conditions(filter_options)
-        @sorted_and_filtered_query = @sorted_and_filtered_query.where(
-          add_arel_conditions(conditions)
-        )
+
+        if unary_condition.present?
+          @sorted_and_filtered_query = @sorted_and_filtered_query.where(
+            Arel::Nodes::Not.new(
+              add_arel_conditions(conditions)
+            )
+          )
+        else
+          @sorted_and_filtered_query = @sorted_and_filtered_query.where(
+            add_arel_conditions(conditions)
+          )
+        end
       end
 
       # Example filters:
@@ -401,15 +426,11 @@ module Devextreme
 
         filters.each_slice(2).each do |filter, condition|
 
-          if filter.is_a?(Array) && filter.dimension > 1
+          if filter.dimension > 1
             conditions << build_filter_conditions(filter)
             conditions << condition if condition
-          elsif filter.is_a?(Array) # Binary filter
-            # ie. [ "dataField", "=", 3 ]
+          else
             conditions = build_arel_conditions(filter, condition, conditions)
-          elsif filter.is_a?(String) # Unary filter
-            # ie. [ "!", [ "dataField", "=", 3 ] ]
-            conditions = build_arel_conditions(condition, nil, conditions, filter)
           end
 
         end
@@ -454,18 +475,8 @@ module Devextreme
       #   will produce an arel statement:
       #   "[vComposites].[ShortName] != true"
       #
-      # Unary filter
-      # Supported operators: binary operators, "!".
-      #
-      # See: https://js.devexpress.com/Documentation/ApiReference/Data_Layer/CustomStore/LoadOptions/#filter
-      #
-      def build_arel_conditions(filter, condition = nil, conditions = [], unary_condition = nil)
+      def build_arel_conditions(filter, condition = nil, conditions = [])
         column, operator, expr = filter
-
-        # Only supported unary operator: !
-        # Only implemented on =
-        # ie. !=
-        raise NotImplementedError if unary_condition.present? && operator == '=' && unary_condition != '!'
 
         table, attribute, assoc_attribute = column.split('.')
 
@@ -486,11 +497,7 @@ module Devextreme
 
         operation = case operator
                       when "="
-                        if unary_condition
-                          arel_col.not_eq(expr)
-                        else
-                          arel_col.eq(expr)
-                        end
+                        arel_col.eq(expr)
                       when "<>"
                         arel_col.not_eq(expr)
                       when "<"
