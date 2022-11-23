@@ -391,28 +391,11 @@ module Devextreme
 
         filter_options = JSON.parse(filter_options) if filter_options.is_a? String
 
-        # Binary filter
-        # ie. [ "dataField", "=", 3 ]
-        # Unary filter
-        # ie. [ "!", [ "dataField", "=", 3 ] ]
-        if filter_options.first&.is_a?(String)
-          unary_condition = filter_options.shift
-          filter_options.flatten!(1) if filter_options.dimension > 1
-        end
-
         conditions = build_filter_conditions(filter_options)
 
-        if unary_condition.present?
-          @sorted_and_filtered_query = @sorted_and_filtered_query.where(
-            Arel::Nodes::Not.new(
-              add_arel_conditions(conditions)
-            )
-          )
-        else
-          @sorted_and_filtered_query = @sorted_and_filtered_query.where(
-            add_arel_conditions(conditions)
-          )
-        end
+        @sorted_and_filtered_query = @sorted_and_filtered_query.where(
+          add_arel_conditions(conditions)
+        )
       end
 
       # Example filters:
@@ -424,13 +407,35 @@ module Devextreme
 
         return build_arel_conditions(filters) if filters.dimension == 1
 
+        # Binary filter
+        # ie. [ "dataField", "=", 3 ]
+        # Unary filter
+        # ie. [ "!", [ "dataField", "=", 3 ] ]
+        unary_condition = filters.shift if filters.dimension > 1 && filters.first&.is_a?(String)
+
         filters.each_slice(2).each do |filter, condition|
 
           if filter.dimension > 1
-            conditions << build_filter_conditions(filter)
+            conditions_set = build_filter_conditions(filter)
+
+            if unary_condition.present?
+              # Prepend to handle in #add_arel_conditions with Arel::Nodes::Not
+              conditions << ['not', conditions_set]
+            else
+              conditions << conditions_set
+            end
+
+            # condition: AND | OR
             conditions << condition if condition
           else
-            conditions = build_arel_conditions(filter, condition, conditions)
+            conditions_set = build_arel_conditions(filter, condition, conditions)
+
+            if unary_condition.present?
+              # Prepend to handle in #add_arel_conditions with Arel::Nodes::Not
+              conditions = ['not', conditions_set]
+            else
+              conditions = conditions_set
+            end
           end
 
         end
@@ -444,7 +449,23 @@ module Devextreme
       #  ["[vComposites].[ShortName] LIKE N'%adm%'", "and", "[vComposites].[InceptionDate] >= '01-01-1800 00:00:00.0'"]]
       def add_arel_conditions(conditions)
         arel_conditions = conditions.shift
-        while conditions.any?
+        while conditions.any? || arel_conditions.first == 'not'
+
+          # Handle a array of AREL conditions
+          if arel_conditions.is_a?(Array) && arel_conditions.first == 'not'
+            use_not_node = true
+            # Drop 'not' condition
+            arel_conditions.shift
+            arel_conditions.flatten!(1)
+          end
+
+          # Handle a single AREL condition
+          if arel_conditions == 'not'
+            use_not_node = true
+            conditions.flatten!(1)
+            return Arel::Nodes::Not.new(conditions.first) if conditions.dimension == 1
+          end
+
           operator, right_condition = conditions.shift(2)
 
           if arel_conditions.is_a?(Array)
@@ -455,10 +476,24 @@ module Devextreme
             right_condition = Arel::Nodes::Grouping.new(add_arel_conditions(right_condition))
           end
 
-          arel_conditions = arel_conditions.send(
+          if use_not_node
+            arel_conditions = Arel::Nodes::Not.new(arel_conditions)
+
+            if right_condition.present?
+              arel_conditions = arel_conditions.send(
+                operator,
+                right_condition
+              )
+            end
+
+            # Reset value for next iteration
+            use_not_node = nil
+          else
+            arel_conditions = arel_conditions.send(
               operator,
               right_condition
-          )
+            )
+          end
         end
         arel_conditions
       end
@@ -473,7 +508,7 @@ module Devextreme
       # Unary filter:
       #   "["!", ["vComposites.HasWarningsCurrent", "=", true]]"
       #   will produce an arel statement:
-      #   "[vComposites].[ShortName] != true"
+      #   "NOT [vComposites].[ShortName] = true"
       #
       def build_arel_conditions(filter, condition = nil, conditions = [])
         column, operator, expr = filter
@@ -491,7 +526,7 @@ module Devextreme
         arel_col = get_arel_column(table, attribute, assoc_attribute)
         return [] unless arel_col
 
-        if is_date_column = [Devextreme::DataTable::ColumnDate, Devextreme::DataTable::ColumnTimeago].any? { |k| data_table_column.is_a? k }
+        if is_date_column = expr && [Devextreme::DataTable::ColumnDate, Devextreme::DataTable::ColumnTimeago].any? { |k| data_table_column.is_a? k }
           expr = DateTime.parse(expr)
         end
 
@@ -501,13 +536,13 @@ module Devextreme
                       when "<>"
                         arel_col.not_eq(expr)
                       when "<"
-                        expr = expr.end_of_day if is_date_column
+                        expr = expr.beginning_of_day if is_date_column
                         arel_col.lt(expr)
                       when ">"
                         expr = expr.beginning_of_day if is_date_column
                         arel_col.gt(expr)
                       when "<="
-                        expr = expr.end_of_day if is_date_column
+                        expr = expr.beginning_of_day if is_date_column
                         arel_col.lteq(expr)
                       when ">="
                         expr = expr.beginning_of_day if is_date_column
