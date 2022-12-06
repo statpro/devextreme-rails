@@ -104,7 +104,8 @@ module Devextreme
           :selection => {
             :mode => 'multiple',
             :allow_select_all => false,
-            :show_check_boxes_mode => 'onClick'
+            :show_check_boxes_mode => 'onClick',
+            :select_all_mode => 'page'
           },
           :state_storing => {
             :ignore_column_option_names => [],
