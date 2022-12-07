@@ -31,7 +31,7 @@
   function _resize_#{container_id}() {
     ItemResize($("##{ container_id }"), "#{height}", "#{width}");
   }
-  $(window).on('resize', _resize_#{container_id});
+  $(window).on('load resize', _resize_#{container_id});
 
   $(function() {
     var dataGrid = $("##{ container_id }");
@@ -143,6 +143,7 @@
           loadpanel.show();
         }
         activateJSPlugins();
+        $(window).trigger('resize');
       }#{ functions },
       onRowPrepared: function (rowInfo) {
         if (rowInfo.data && rowInfo.rowType != 'group' && rowInfo.data['#{ data_table.base_query.table_name }'] ) {
@@ -241,17 +242,6 @@
               }
             }
           });
-        }
-      },
-      height: function() {
-        if ("#{height}") {
-          var dgMargin = dataGrid.outerHeight(true)-dataGrid.outerHeight();
-          var containerHeight = $("##{container_id}-container").height();
-          return containerHeight - dgMargin;
-        } else {
-          var screenHeight = $('.navbar-fixed-bottom').offset().top - $('##{container_id}-holder').parent().offset().top;
-          var footerHeight = $('footer').height();
-          return screenHeight - footerHeight;
         }
       },
 
