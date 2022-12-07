@@ -592,7 +592,7 @@ module Devextreme
         remote = extra.fetch(:remote, nil)
         css_class  = extra.fetch(:class, nil)
         translation_params = extra.fetch(:translation_params, {})
-        title = I18n.translate(name, {:scope => [:data_tables, :actions]}.merge(translation_params))
+        title = I18n.translate(name, **{:scope => [:data_tables, :actions]}.merge(translation_params))
         data = {:method => method} unless method == :none
         data[:remote] = true if remote
         data[:confirm] = "Are you sure?" if method == :delete
@@ -1072,7 +1072,7 @@ module Devextreme
         unless @caption.is_a?(String)
           translation_params = @options.delete(:translation_params) || {}
           @caption = @name.first if @name.is_a? Array
-          @caption = I18n.translate(@caption, {:scope => [:data_tables, @t_scope]}.merge(translation_params))
+          @caption = I18n.translate(@caption, **{:scope => [:data_tables, @t_scope]}.merge(translation_params))
         end
         @params = {}
         @params[:link_to] = @options.delete(:link_to)
