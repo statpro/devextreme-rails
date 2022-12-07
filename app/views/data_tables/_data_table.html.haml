@@ -143,7 +143,13 @@
           loadpanel.show();
         }
         activateJSPlugins();
-        $(window).trigger('resize');
+        // This sets the height of the grid to allow for the grid to scroll correctly when in infinite scroll mode.
+        // Note: Should rather be replaced with css height calculation:
+        //   .dxDataGrid-container {
+        //     height: calc(100vh - $menu-height - $toolbar-height - $footer-height);
+        //   }
+        // or a better solution would be to change to use flex layouts
+        _resize_#{container_id}();
       }#{ functions },
       onRowPrepared: function (rowInfo) {
         if (rowInfo.data && rowInfo.rowType != 'group' && rowInfo.data['#{ data_table.base_query.table_name }'] ) {
