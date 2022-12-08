@@ -8,7 +8,7 @@
 function ItemResize(dataGrid, height, width) {
   // Remove any window events triggering this if the grid has been removed from the dom.
   if (dataGrid.length < 1) {
-    $(window).off('load resize', window[`_resize_${dataGrid.selector.replace('#', '')}`]);
+    $(window).off('load resize', window["_resize_" + dataGrid.selector.replace('#', '')]);
     return;
   }
   if (!(height || width)){
