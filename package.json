@@ -1,0 +1,24 @@
+{
+  "license": "UNLICENSED",
+  "os": [
+    "darwin",
+    "linux"
+  ],
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
+  "name": "@statpro/devextreme-rails",
+  "description": "assets used for the devextreme-rails gem",
+  "repository": "https://github.com/statpro/devextreme-rails.git",
+  "main": "app/src/javascripts/devextreme.js",
+  "style": "app/src/stylesheets/devextreme.scss",
+  "files": [
+    "app/src",
+    "app/assets/"
+  ],
+  "dependencies": {
+    "devextreme": "22.1.6",
+    "globalize": "1.7.0",
+    "jquery": "^2.2.4"
+  }
+}

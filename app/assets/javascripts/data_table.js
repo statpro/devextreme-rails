@@ -5,7 +5,7 @@
  * @param width E.g 60%, 60vw, 600px
  * @constructor
  */
-function ItemResize(dataGrid, height, width) {
+ window.ItemResize = function(dataGrid, height, width) {
   // Remove any window events triggering this if the grid has been removed from the dom.
   if (dataGrid.length < 1) {
     $(window).off('load resize', window["_resize_" + dataGrid.selector.replace('#', '')]);
@@ -24,22 +24,22 @@ function ItemResize(dataGrid, height, width) {
   }
 }
 
-function genericCustomSummary(opt, name, value) {
+window.genericCustomSummary = function(opt, name, value) {
   if (opt.name === name && opt.summaryProcess === "start") {
     opt.totalValue = value;
   }
 }
 
-function getDataGrid(container_id) {
+window.getDataGrid = function(container_id) {
   return $(container_id).dxDataGrid('instance');
 }
 
-function getSelectedRowKeys(container_id) {
+window.getSelectedRowKeys = function(container_id) {
   var dataGrid = getDataGrid(container_id);
   return dataGrid.getSelectedRowKeys();
 }
 
-function getSelectedRowsAsParams(container_id, filter_form_id) {
+window.getSelectedRowsAsParams = function(container_id, filter_form_id) {
   var keys = getSelectedRowKeys("#" + container_id);
 
   var params = {};
@@ -69,7 +69,7 @@ function getSelectedRowsAsParams(container_id, filter_form_id) {
   return params;
 }
 
-function submit_bulk_action(caller, container_id, fn_callback, confirm_message_selector) {
+window.submit_bulk_action = function(caller, container_id, fn_callback, confirm_message_selector) {
   var $caller = $(caller);
   var dataGrid = getDataGrid('#' + container_id);
   var keys = dataGrid.getSelectedRowKeys();
@@ -88,17 +88,17 @@ function submit_bulk_action(caller, container_id, fn_callback, confirm_message_s
   }
 }
 
-function show_column_chooser(container_id) {
+window.show_column_chooser = function(container_id) {
   var dataGrid = getDataGrid('#' + getSelectedContainerId(container_id));
   dataGrid.showColumnChooser();
 }
 
-function refresh_grid(container_id) {
+window.refresh_grid = function(container_id) {
   var dataGrid = getDataGrid('#' + getSelectedContainerId(container_id));
   dataGrid.refresh();
 }
 
-function initiate_grid_reset(container_id) {
+window.initiate_grid_reset = function(container_id) {
   container_id = getSelectedContainerId(container_id);
   var $dataGrid = $('#' + container_id);
 
@@ -121,12 +121,12 @@ function initiate_grid_reset(container_id) {
   });
 }
 
-function getSelectedContainerId(default_container_id) {
+window.getSelectedContainerId = function(default_container_id) {
   var is_master_detail = JSON.parse($('#is_master_detail').val().toLowerCase());
   return (is_master_detail === true) ? $('#selected_container_id').val() : default_container_id;
 }
 
-function hide_download_modal(event, container_id) {
+window.hide_download_modal = function(event, container_id) {
   event.preventDefault();
 
   // Hide the modal
@@ -139,7 +139,7 @@ function hide_download_modal(event, container_id) {
   }
 }
 
-function show_download_modal(container_id) {
+window.show_download_modal = function(container_id) {
   container_id = getSelectedContainerId(container_id);
 
   // Show the modal
