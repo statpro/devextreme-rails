@@ -35,7 +35,7 @@ function show_level_1(data_to_show) {
   remove_level_back('level_2');
 }
 
-function show_level_2(data_to_show) {
+window.show_level_2 = function(data_to_show) {
   $('#selected_container_id').val('level_2_grid');
   $('#is_master_detail').val(true);
   $level1.removeClass('span12 dx-back-hidden').addClass('span3 grow');
@@ -52,7 +52,7 @@ function show_level_2(data_to_show) {
   remove_level_back('level_2');
 }
 
-function show_level_3(data_to_show, level_3_grid_id) {
+window.show_level_3 = function(data_to_show, level_3_grid_id) {
   level_3_grid_id = level_3_grid_id || 'level_3_grid';
   $('#selected_container_id').val(level_3_grid_id);
   $('#is_master_detail').val(true);
@@ -138,7 +138,7 @@ function factory_reset_grid($grid){
   }, 1000);
 }
 
-function initMasterDetail() {
+window.initMasterDetail = function() {
   $thisGridL1 = $('#level_1_grid');
   $thisGridL2 = undefined;
   $thisGridL3 = undefined;

@@ -1,4 +1,4 @@
-function showModal(event){
+window.showModal = function(event){
   target = (window.event) ? window.event.srcElement /* for IE */ : event.target;
   var getModalTitle = $(target).attr("modal-title");
   var getModalBodyContent = $(target).attr("modal-data");
@@ -36,7 +36,7 @@ function showModal(event){
     .draggable({ handle: ".modal-header" });
 }
 
-var column_template_label = function(container, options){
+window.column_template_label = function(container, options){
   if (options.value){
     $('<span />')
       .addClass("label label-" + options.value.label)
@@ -45,7 +45,7 @@ var column_template_label = function(container, options){
   }
 };
 
-var column_template_label_with_modal = function(container, options){
+window.column_template_label_with_modal = function(container, options){
   if (options.value && options.value.label && options.value.text){
 
     var info = $(options.value.modal_value);
@@ -67,7 +67,7 @@ var column_template_label_with_modal = function(container, options){
   }
 };
 
-var base_column_template_timeago = function(css_class, container, options) {
+window.base_column_template_timeago = function(css_class, container, options) {
   if (options.value) {
     var abbr = $('<abbr />');
     abbr.addClass(css_class);
@@ -84,15 +84,15 @@ var base_column_template_timeago = function(css_class, container, options) {
   }
 };
 
-var column_template_timeago = function(container, options){
+window.column_template_timeago = function(container, options){
   base_column_template_timeago('timeago', container, options);
 };
 
-var column_template_timeago2 = function(container, options){
+window.column_template_timeago2 = function(container, options){
   base_column_template_timeago('timeago2', container, options);
 };
 
-var column_template_timestamp = function(container, options){
+window.column_template_timestamp = function(container, options){
   if (options.value){
     var abbr = $('<abbr />')
       .addClass('timestamp')
@@ -101,7 +101,7 @@ var column_template_timestamp = function(container, options){
   }
 };
 
-var column_template_checkbox = function(container, options){
+window.column_template_checkbox = function(container, options){
   if (options.value){
     $('<i />')
       .addClass("fa fa-check-square-o")
@@ -109,7 +109,7 @@ var column_template_checkbox = function(container, options){
   }
 };
 
-var column_template_icon = function(container, options){
+window.column_template_icon = function(container, options){
   if (options.value.title && options.value.title.length > 0){
     var $icon = $('<i />')
       .attr('rel', 'tooltip')
@@ -133,7 +133,7 @@ var column_template_icon = function(container, options){
   }
 };
 
-var column_template_mailto = function(container, options){
+window.column_template_mailto = function(container, options){
   if (options.value){
     var link = $('<a />')
       .attr('href', "mailto:"+options.value)
@@ -142,7 +142,7 @@ var column_template_mailto = function(container, options){
   }
 };
 
-var column_template_linkto = function(container, options){
+window.column_template_linkto = function(container, options){
   if (options.value){
     var text = options.value.text;
 
@@ -150,7 +150,7 @@ var column_template_linkto = function(container, options){
       var value = options.value.value;
 
       if (!isNaN(value)) {
-        text = Globalize.format(value, "n" + options.column.format.precision);
+        text = Globalize.formatNumber(value, {minimumFractionDigits: options.column.format.precision, maximumFractionDigits: options.column.format.precision});
       }
     }
 
@@ -166,7 +166,7 @@ var column_template_linkto = function(container, options){
   }
 };
 
-var column_template_cell_content = function(container, options){
+window.column_template_cell_content = function(container, options){
   if (options.value){
     container.addClass(options.value.cell_css_class).text(safe_text(options.value.text));
 
@@ -179,7 +179,7 @@ var column_template_cell_content = function(container, options){
   }
 };
 
-var column_template_linkto_content = function(container, options){
+window.column_template_linkto_content = function(container, options){
   if (options.value && options.value.content){
     var href = $.parseHTML(options.value.content);
 
@@ -187,7 +187,7 @@ var column_template_linkto_content = function(container, options){
       var value = options.value.value;
 
       if (!isNaN(value)) {
-        text = Globalize.format(value, "n" + options.column.format.precision);
+        text = Globalize.formatNumber(value, {minimumFractionDigits: options.column.format.precision, maximumFractionDigits: options.column.format.precision});
 
         // 3 == Text
         // see https://www.w3schools.com/jsref/prop_node_nodetype.asp
@@ -203,7 +203,7 @@ var column_template_linkto_content = function(container, options){
   }
 };
 
-var column_template_background_task_info = function(container, options){
+window.column_template_background_task_info = function(container, options){
   if (options.value && options.value.length > 0){
 
     var info = $('<div />');
@@ -226,7 +226,7 @@ var column_template_background_task_info = function(container, options){
   }
 };
 
-var column_template_progress_bar = function(container, options){
+window.column_template_progress_bar = function(container, options){
   if (options.value && options.value.width > 0){
     var progress = $('<div />')
       .addClass('progress no-bottom-margin')
@@ -241,7 +241,7 @@ var column_template_progress_bar = function(container, options){
   }
 };
 
-var column_template_background_task_descriptor = function(container, options){
+window.column_template_background_task_descriptor = function(container, options){
   if (JSON.stringify(options.value) == "{}")
     return;
 
@@ -273,7 +273,7 @@ var column_template_background_task_descriptor = function(container, options){
   }
 };
 
-var column_template_background_task_args = function(container, options){
+window.column_template_background_task_args = function(container, options){
   if (options.value){
 
     var info = $('<div />');
@@ -296,7 +296,7 @@ var column_template_background_task_args = function(container, options){
   }
 };
 
-var column_template_html = function(container, options){
+window.column_template_html = function(container, options){
     if (options.value){
 
         var info = $('<div />').html(options.value);
@@ -314,7 +314,7 @@ var column_template_html = function(container, options){
     }
 };
 
-var column_template_actions = function(container, options){
+window.column_template_actions = function(container, options){
   var actions = jQuery.parseJSON(options.value);
 
   if (actions.length > 0) {
@@ -335,7 +335,7 @@ var column_template_actions = function(container, options){
     set_data_properties(button, actions[0].data);
 
     $('<i />')
-      .addClass(icon_class(actions[0].image))
+      .addClass(actions[0].image)
       .appendTo(button);
 
     var actions_link = $('<a />')
@@ -408,7 +408,7 @@ function syntaxHighlight(json) {
   });
 }
 
-var column_template_exports_portfolio_filters = function(container, options, popup_header) {
+window.column_template_exports_portfolio_filters = function(container, options, popup_header) {
   if (options.value && options.value.length > 0) {
     var filters = JSON.parse(options.value);
     var groups_present = filters.groups && filters.groups.length > 0;
@@ -498,7 +498,7 @@ var column_template_exports_portfolio_filters = function(container, options, pop
   }
 };
 
-var column_template_popup = function(container, options) {
+window.column_template_popup = function(container, options) {
   if (options.value && options.value.length > 0) {
     var filters = JSON.parse(options.value);
     var $info = $('<div />');
@@ -552,7 +552,7 @@ var column_template_popup = function(container, options) {
   }
 };
 
-var column_header_template_precision = function(itemData, itemIndex, itemElement) {
+window.column_header_template_precision = function(itemData, itemIndex, itemElement) {
 
   itemElement.append(
     $('<form/>').append(
@@ -589,7 +589,7 @@ var column_header_template_precision = function(itemData, itemIndex, itemElement
   )
 };
 
-var hide_grouping_column_name_group_cell_template = function(cellElement, cell){
+window.hide_grouping_column_name_group_cell_template = function(cellElement, cell){
   cellElement.text(cell.displayValue);
 };
 
