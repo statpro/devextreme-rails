@@ -14,6 +14,6 @@ jobs:
           node-version: 12.22.12
           registry-url: https://npm.pkg.github.com/
           scope: '@statpro'
-      - run: yarn publish --new-version `echo "${GITHUB_REF##refs/tags/}" | sed -e 's/\./-/3'`
+      - run: make publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}

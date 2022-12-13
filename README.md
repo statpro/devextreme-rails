@@ -7,6 +7,8 @@ It also adds a nice ruby dsl to be able to create data tables easily
 
 ## Installation
 
+### GEM
+
 Add this line to your application's Gemfile:
 
 ```ruby
@@ -20,6 +22,28 @@ And then execute:
 Or install it yourself as:
 
     $ gem install devextreme-rails
+
+### Sprockets
+
+_application.js_
+
+    //= require 'devextreme'
+
+### Webpacker
+
+Ensure you have the following:  
+_.npmrc_
+
+    //npm.pkg.github.com/:_authToken=<Github Personal Access Token with packages:read scope>
+    @statpro:registry=https://npm.pkg.github.com/
+
+Then execute
+
+    $ yarn add @statpro/devextreme-rails
+
+_application.js_
+
+    import 'devextreme'
 
 ## Usage
 
@@ -91,6 +115,16 @@ end
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
 
 To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+
+Once a release is created on github, the latest version of the js will be published and hosted on github packages.
+
+To publish the npm package from your development local environment, run:
+
+    $ make publish
+
+By default, this will use the current version from version.rb. To specify a custom version:
+
+    $ VERSION=<custom_version> make publish
 
 ## Contributing
 
