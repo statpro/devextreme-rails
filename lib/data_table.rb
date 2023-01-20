@@ -795,10 +795,8 @@ module Devextreme
           query = query.order("(SELECT NULL)")
         end
 
-        # Need to run off the base class for STI model.
-        # Activerecord will add the default scope back for STI models
-        resultset = @base_query.model.base_class.unscoped.from(
-          @base_query.arel_table.create_table_alias(query, @base_query.model.base_class.table_name)
+        resultset = @base_query.model.unscoped.from(
+          @base_query.arel_table.create_table_alias(query, @base_query.model.table_name)
         )
 
         # avoid n+1's
