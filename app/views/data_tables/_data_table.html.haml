@@ -141,6 +141,9 @@
       onInitialized(e){
         e.component.option("scrolling.prerenderedRowCount",10);
       },
+      onShow: function(e) {
+        e.component.repaint();
+      },
       onRowPrepared: function (rowInfo) {
         if (rowInfo.data && rowInfo.rowType != 'group' && rowInfo.data['#{ data_table.base_query.table_name }'] ) {
           var row_info_data = rowInfo.data['#{ data_table.base_query.table_name }'];
