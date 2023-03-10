@@ -27,12 +27,6 @@
 #dialog_container
 
 :javascript
-
-  function _resize_#{container_id}() {
-    ItemResize($("##{ container_id }"), "#{height}", "#{width}");
-  }
-  $(window).on('load resize', _resize_#{container_id});
-
   $(function() {
     var dataGrid = $("##{ container_id }");
 
@@ -143,14 +137,10 @@
           loadpanel.show();
         }
         activateJSPlugins();
-        // This sets the height of the grid to allow for the grid to scroll correctly when in infinite scroll mode.
-        // Note: Should rather be replaced with css height calculation:
-        //   .dxDataGrid-container {
-        //     height: calc(100vh - $menu-height - $toolbar-height - $footer-height);
-        //   }
-        // or a better solution would be to change to use flex layouts
-        _resize_#{container_id}();
       }#{ functions },
+      onInitialized(e){
+        e.component.option("scrolling.prerenderedRowCount",10);
+      },
       onRowPrepared: function (rowInfo) {
         if (rowInfo.data && rowInfo.rowType != 'group' && rowInfo.data['#{ data_table.base_query.table_name }'] ) {
           var row_info_data = rowInfo.data['#{ data_table.base_query.table_name }'];
@@ -250,7 +240,7 @@
           });
         }
       },
-
+      height: #{height || "`calc(100vh - ${$('##{container_id}-holder').parent().parent().offset().top + ($('footer').height() * 2)}px)`"},
       repaintChangesOnly: true,
       onCellPrepared: function(e) {
         if(e.rowType === "data") {

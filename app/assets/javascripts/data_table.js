@@ -1,16 +1,11 @@
 /**
- *
+ * DEPRECATED
  * @param dataGrid
  * @param height E.g 50%, 50vh, 500px
  * @param width E.g 60%, 60vw, 600px
  * @constructor
  */
  window.ItemResize = function(dataGrid, height, width) {
-  // Remove any window events triggering this if the grid has been removed from the dom.
-  if (dataGrid.length < 1) {
-    $(window).off('load resize', window["_resize_" + dataGrid.selector.replace('#', '')]);
-    return;
-  }
   if (!(height || width)){
     var screenHeight = $('.navbar-fixed-bottom').offset().top - $('#' + dataGrid.attr('id') + '-holder').offset().top;
     var footerHeight = $('footer').height();
