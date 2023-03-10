@@ -14,23 +14,12 @@ $('.grow').one('webkitTransitionEnd otransitionend oTransitionEnd msTransitionEn
   $thisGridL1.css('overflow', 'none');
 });
 
-function unregister_resize($grid) {
-  if (typeof($grid) != 'undefined') {
-    var fn_resize_grid = window["_resize_" + $grid.attr('id')]
-    if (typeof (fn_resize_grid) != 'undefined') {
-      $(window).off('resize', fn_resize_grid);
-    }
-  }
-}
-
 function show_level_1(data_to_show) {
   $('#selected_container_id').val('level_1_grid');
   $('#is_master_detail').val(true);
   $level1.addClass('span12 grow dx-back-hidden').html(data_to_show).removeClass('hidden');
   $level2.removeClass('span3 span6').addClass('hidden').animateCss('fadeInRight');
   $level3.removeClass('span6').addClass('hidden').animateCss('fadeInLeft');
-  unregister_resize($thisGridL2);
-  unregister_resize($thisGridL3);
   remove_level_back('level_1');
   remove_level_back('level_2');
 }
@@ -48,7 +37,6 @@ window.show_level_2 = function(data_to_show) {
   if ($thisGridL2.length > 0) {
     reset_grid($thisGridL2, 'level_2');
   }
-  unregister_resize($thisGridL3);
   remove_level_back('level_2');
 }
 
