@@ -14,7 +14,7 @@ $('.grow').one('webkitTransitionEnd otransitionend oTransitionEnd msTransitionEn
   $thisGridL1.css('overflow', 'none');
 });
 
-function show_level_1(data_to_show) {
+window.show_level_1 = function(data_to_show) {
   $('#selected_container_id').val('level_1_grid');
   $('#is_master_detail').val(true);
   $level1.addClass('span12 grow dx-back-hidden').html(data_to_show).removeClass('hidden');
@@ -103,8 +103,12 @@ function reset_grid($grid, level){
   }
   finally {
     window.setTimeout(function(){
-      dataGrid.updateDimensions();
-      dataGrid.repaint();
+      // If someone is clicking fast on different rows, the grid may not be on the dom anymore.
+      // We don't want to repaint the grid if it isn't there. Plus, it will fail if it isn't there.
+      if ($($grid.selector).length > 0) {
+        dataGrid.updateDimensions();
+        dataGrid.repaint();
+      }
     }, 1000);
   }
 }

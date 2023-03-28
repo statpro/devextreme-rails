@@ -28,16 +28,30 @@
 
 :javascript
   $(function() {
-    var dataGrid = $("##{ container_id }");
+    // To allow the grid to load correctly with fixed columns, we set the pre-rendered row count.
+    // This is a workaround for the issue created by the new infinite/virtual scroll engine,
+    // where fixed columns cayse the grid to render incorrectly.
+    DevExpress.ui.dxDataGrid.defaultOptions({
+      options: {
+        scrolling: {
+          prerenderedRowCount: 1,
+          legacyMode: true
+        }
+      }
+    });
+    let dataGrid_#{ container_id } = $("##{ container_id }");
 
-    var compact_view_json = #{compact_view_json};
-    var columns_json = [#{columns_json}];
-    var data_options_json = #{data_options_json};
+    // compact-view is a list of the columns to show when the grid is compacted to show a specific grid level.
+    let compact_view_json = #{compact_view_json};
+    dataGrid_#{ container_id }.data("compact-view", compact_view_json);
 
-    dataGrid.data("compact-view", compact_view_json);
-    dataGrid.data("default-json", columns_json);
+    // default-json is used as a fallback layout if there is no level 1 layout set on master-detail.
+    let columns_json = [#{columns_json}];
+    dataGrid_#{ container_id }.data("default-json", columns_json);
+
+    let data_options_json = #{data_options_json};
     for (var i in data_options_json) {
-      dataGrid.data(i, data_options_json[i]);
+      dataGrid_#{ container_id }.data(i, data_options_json[i]);
     }
 
     // FIXME: this isn't a specific enough jQuery selector when filter_form_id == "form"
@@ -46,11 +60,11 @@
     //   will contain the necessary values and the filter will work
     var search_params = $("#{filter_form_id}").serialize();
 
-    var user_grid_layouts_save_layout_path = '#{ disable_state_storing ? '' : user_grid_layouts_save_layout_path}';
+    var user_grid_layouts_save_layout_path = '#{ disable_state_storing ? '' : user_grid_layouts_save_layout_path }';
 
     var filter_sort = null;
 
-    var dataSource = new DevExpress.data.CustomStore({
+    var dataSource_#{ container_id } = new DevExpress.data.CustomStore({
       key: '#{ data_table.base_query.table_name }.id',
       load: function(loadOptions) {
         var d = new $.Deferred();
@@ -89,7 +103,7 @@
 
         var columns_layout = #{ columns_layout.to_json};
         if (!#{disable_state_storing} && columns_layout != undefined && columns_layout.columns != undefined && params.skip == 0) {
-          var grid = dataGrid.dxDataGrid('instance');
+          var grid = dataGrid_#{ container_id }.dxDataGrid('instance');
 
           $.each(columns_layout.columns, function( index, value ) {
             if (value.precision != undefined) {
@@ -112,9 +126,9 @@
       onShown: function(e){ e.component.hide(); }
     });
 
-    var gridDataSourceConfiguration = { store: dataSource };
-    dataGrid.dxDataGrid({
-      dataSource: gridDataSourceConfiguration,
+    var gridDataSourceConfiguration_#{ container_id } = { store: dataSource_#{ container_id } };
+    dataGrid_#{ container_id }.dxDataGrid({
+      dataSource: gridDataSourceConfiguration_#{ container_id },
       columns: columns_json,
       summary: {
         totalItems: [
@@ -138,9 +152,6 @@
         }
         activateJSPlugins();
       }#{ functions },
-      onInitialized(e){
-        e.component.option("scrolling.prerenderedRowCount",10);
-      },
       onShow: function(e) {
         e.component.repaint();
       },
@@ -168,7 +179,7 @@
         customLoad: function() {
 
           var custom_layout = #{ columns_layout.to_json};
-          var grid = dataGrid.dxDataGrid('instance');
+          var grid = dataGrid_#{ container_id }.dxDataGrid('instance');
           $.each(custom_layout.columns, function( index, value ) {
 
             if (value.precision != undefined) {
@@ -196,7 +207,7 @@
             }
           }
 
-          var grid = dataGrid.dxDataGrid('instance');
+          var grid = dataGrid_#{ container_id }.dxDataGrid('instance');
 
           $.each(gridState.columns, function( index, value ) {
             var column = grid.columnOption(value.dataField);
@@ -212,7 +223,7 @@
             type: "PUT",
             url: user_grid_layouts_save_layout_path,
             success: function(e) {
-              dataGrid.data('default-state-json', gridState)
+              dataGrid_#{ container_id }.data('default-state-json', gridState)
             },
             data: {
               user_grid_layout: {
@@ -243,7 +254,7 @@
           });
         }
       },
-      height: #{height || "`calc(100vh - ${$('##{container_id}-holder').parent().parent().offset().top + ($('footer').height() * 2)}px)`"},
+      height: #{height || "`calc(100vh - ${($('##{container_id}-holder').parents('.master-detail-grids').offset() || $('##{container_id}-holder').offset()).top + ($('footer').height() * 2)}px)`"},
       repaintChangesOnly: true,
       onCellPrepared: function(e) {
         if(e.rowType === "data") {

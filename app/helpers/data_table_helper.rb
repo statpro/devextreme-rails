@@ -68,7 +68,11 @@ module DataTableHelper
 
     options_json = hash_to_json(data_table.options)
 
-    columns_json = data_table.columns.map do |column|
+    columns_json = []
+
+    columns_json << hash_to_json(data_table.action_column) unless data_table.actions.blank?
+
+    columns_json.concat(data_table.columns.map do |column|
       col_data = [
         "dataField: \"#{data_table.base_query.table_name}.#{begin
           column.name.join('.')
@@ -87,9 +91,8 @@ module DataTableHelper
       col_format = hash_to_json(column.options)
       col_data << col_format unless col_format.blank?
       col_data.flatten.join(',')
-    end
+    end)
 
-    columns_json << hash_to_json(data_table.action_column) unless data_table.actions.blank?
     columns_json = columns_json.map { |c| "{#{c}}" }.join(',')
 
     data_options_json = data_table.data_options.each do |k, v|
