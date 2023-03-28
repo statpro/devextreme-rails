@@ -103,8 +103,12 @@ function reset_grid($grid, level){
   }
   finally {
     window.setTimeout(function(){
-      dataGrid.updateDimensions();
-      dataGrid.repaint();
+      // If someone is clicking fast on different rows, the grid may not be on the dom anymore.
+      // We don't want to repaint the grid if it isn't there. Plus, it will fail if it isn't there.
+      if ($($grid.selector).length > 0) {
+        dataGrid.updateDimensions();
+        dataGrid.repaint();
+      }
     }, 1000);
   }
 }
