@@ -14,7 +14,7 @@ $('.grow').one('webkitTransitionEnd otransitionend oTransitionEnd msTransitionEn
   $thisGridL1.css('overflow', 'none');
 });
 
-function show_level_1(data_to_show) {
+window.show_level_1 = function(data_to_show) {
   $('#selected_container_id').val('level_1_grid');
   $('#is_master_detail').val(true);
   $level1.addClass('span12 grow dx-back-hidden').html(data_to_show).removeClass('hidden');
