@@ -254,7 +254,7 @@
           });
         }
       },
-      height: #{height || "`calc(100vh - ${$('##{container_id}-holder').parent().parent().offset().top + ($('footer').height() * 2)}px)`"},
+      height: #{height || "`calc(100vh - ${($('##{container_id}-holder').parents('.master-detail-grids').offset() || $('##{container_id}-holder').offset()).top + ($('footer').height() * 2)}px)`"},
       repaintChangesOnly: true,
       onCellPrepared: function(e) {
         if(e.rowType === "data") {
