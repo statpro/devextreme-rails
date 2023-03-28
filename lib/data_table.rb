@@ -708,19 +708,21 @@ module Devextreme
       end
 
       def action_column
-        {
+        col_data = {
           :data_field => '_actions',
           :data_type => 'string',
           :width => 64, #41.66 * self.actions.length,
           :caption => '',
           :cell_template => :column_template_actions,
-          :fixed => true,
-          :fixedPosition => 'left',
           :allowFixing => false,
           :allowResizing => false,
           :allowHiding => false,
           :allowReordering  => false
         }.merge(DataTableFormatters.filter_sort_disable)
+
+        col_data.merge!({:fixed => true, :fixedPosition => 'left'}) if options.fetch(:fixed_actions, true)
+
+        col_data
       end
 
       def data_field_for(name)
