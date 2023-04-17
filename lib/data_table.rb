@@ -881,6 +881,24 @@ module Devextreme
 
         cols = @columns.select{ |col| col.downloadable? }
 
+        if cols.present?
+          cols.each do |column|
+            user_column = options[:columns_layout]['columns'].detect do |c|
+              col_name = column.name.to_s
+              split_layout_name = c['dataField'].split('.')
+
+              # This has to be done to handle case where the columns name is an array of symbols instead of a symbol
+              name = split_layout_name.length > 2 ? split_layout_name.last(2).map!(&:to_sym).to_s : split_layout_name.last.to_s
+
+              col_name == name
+            end || {'visible' => false}
+
+            column.options.reverse_merge!(:user_visible => user_column['visible'], :user_visible_index => user_column['visibleIndex'])
+          end
+        end
+
+        cols.sort_by! { |c| c.options[:user_visible_index] }
+
         if @options.fetch(:write_headers, :true)
           header << cols.collect{|c| c.caption}.join(',')
         end
