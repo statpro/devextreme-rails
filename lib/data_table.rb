@@ -881,7 +881,7 @@ module Devextreme
 
         cols = @columns.select{ |col| col.downloadable? }
 
-        if cols.present?
+        if cols.present? && options.dig(:columns_layout, 'columns')
           cols.each do |column|
             user_column = options[:columns_layout]['columns'].detect do |c|
               col_name = column.name.to_s
@@ -895,9 +895,9 @@ module Devextreme
 
             column.options.reverse_merge!(:user_visible => user_column['visible'], :user_visible_index => user_column['visibleIndex'])
           end
-        end
 
-        cols.sort_by! { |c| c.options[:user_visible_index] }
+          cols.sort_by! { |c| c.options[:user_visible_index] }
+        end
 
         if @options.fetch(:write_headers, :true)
           header << cols.collect{|c| c.caption}.join(',')
