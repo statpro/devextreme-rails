@@ -85,7 +85,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  bundler (~> 2.1.4)
+  bundler (~> 2.3.0)
   devextreme-rails!
   jquery-rails (~> 4.5.1)
   jquery-ui-rails (~> 6.0.1)
@@ -93,4 +93,4 @@ DEPENDENCIES
   rspec (~> 3.0)
 
 BUNDLED WITH
-   2.1.4
+   2.3.0
