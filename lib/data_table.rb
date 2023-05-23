@@ -450,7 +450,7 @@ module Devextreme
       #  ["[vComposites].[ShortName] LIKE N'%adm%'", "and", "[vComposites].[InceptionDate] >= '01-01-1800 00:00:00.0'"]]
       def add_arel_conditions(conditions)
         arel_conditions = conditions.shift
-        while conditions.any? || arel_conditions.first == 'not'
+        while conditions.any? || (arel_conditions.is_a?(Array) && arel_conditions.first == 'not')
 
           # Handle a array of AREL conditions
           if arel_conditions.is_a?(Array) && arel_conditions.first == 'not'
