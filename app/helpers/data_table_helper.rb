@@ -210,7 +210,7 @@ module DataTableHelper
 
       params = custom_data_source[:params] || {}
 
-    json_params = params.respond_to?(:call) ? params.call(self).to_json : params.to_json
+      json_params = params.respond_to?(:call) ? params.call(self).to_json : params.to_json
 
       data_source_format = <<-TEXT
         dataSource: {
