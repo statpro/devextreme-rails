@@ -426,8 +426,24 @@ module Devextreme
               conditions << conditions_set
             end
 
-            # condition: AND | OR
-            conditions << condition if condition
+            # NOTE: not sure if this is a bug, but a specific combination of filters sometimes don't have a condition(AND | OR)
+            # Trying to manually handle this case here
+            if condition.is_a?(Array)
+              # Manually add `AND` condition
+              conditions << 'and'
+
+              conditions_set = build_filter_conditions(condition)
+
+              if unary_condition.present?
+                # Prepend to handle in #add_arel_conditions with Arel::Nodes::Not
+                conditions << ['not', conditions_set]
+              else
+                conditions << conditions_set
+              end
+            else
+              # condition: AND | OR
+              conditions << condition if condition
+            end
           else
             conditions_set = build_arel_conditions(filter, condition, conditions)
 
