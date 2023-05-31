@@ -752,7 +752,7 @@ module Devextreme
           request_column = self.columns.detect{ |c| c.name == params[:dataField].split('.').last.to_sym }
           Jbuilder.encode do |json|
             json.items(resultset) do |instance|
-              value = request_column.value(instance, view_context) rescue nil
+              value = request_column.text(instance, view_context) rescue nil
               json.set! :key, value
             end
           end
