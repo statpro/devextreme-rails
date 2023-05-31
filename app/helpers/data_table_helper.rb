@@ -85,12 +85,11 @@ module DataTableHelper
         'allowHiding: true'
       ]
 
-      col_data << custom_filter(column, data_table) if column.options[:custom_filter] && !column.options[:headerFilter]
-      column.options.delete(:custom_filter)
+      col_data << header_filter(column, data_table)
 
       col_format = hash_to_json(column.options)
       col_data << col_format unless col_format.blank?
-      col_data.flatten.join(',')
+      col_data.flatten.compact.join(',')
     end)
 
     columns_json = columns_json.map { |c| "{#{c}}" }.join(',')
@@ -124,6 +123,7 @@ module DataTableHelper
     custom_summary_functions = custom_summary_functions.join('')
 
     group_panel_visible = data_table.options[:group_panel][:visible]
+    filter_builder_visible = data_table.options[:filter_sync_enabled]
     column_picker_visible = (options[:column_picker].nil? || options[:column_picker] == true)
     reset_layout_visible = (options[:reset_layout].nil? || options[:reset_layout] == true) && !disable_state_storing
     require_total_row_count_indicator = data_table.options[:requireTotalRowCountIndicator] == true
@@ -141,6 +141,7 @@ module DataTableHelper
         :compact_view_json => compact_view_json,
         :summaries_json => summaries_json,
         :custom_summary_functions => custom_summary_functions,
+        :filter_builder_visible => filter_builder_visible,
         :group_panel_visible => group_panel_visible,
         :column_picker_visible => column_picker_visible,
         :download_visible => download_visible,
@@ -162,14 +163,14 @@ module DataTableHelper
   private
 
   # To use this functionality, the following values must be set
-  # - call method in data_table -> store_source to set global store_url
-  # - set store_url on column level as a symbol or proc -> :store_url => proc { |view_context| view_context.url_for(action: :index, controller: :composites) }
+  # - call method in data_table -> header_filter_source to set global header_filter_url
+  # - set header_filter_url on column level as a symbol or proc -> :header_filter_url => proc { |view_context| view_context.url_for(action: :index, controller: :composites) }
   # - set result mapping keys:
   #   - set :text_selector  => 'key of choice', default = column.name
   #   - set :value_selector => 'key of choice', default = column.name
-  # - set custom_filter options on column or data_table
+  # - set header_filter options on column or data_table
   # - Example {
-  #           :custom_filter => {
+  #           :custom_data_source => {
   #             :params => {
   #               :query_class  => FinancialQuery.to_s,
   #               :query_filter => {
@@ -185,44 +186,61 @@ module DataTableHelper
   #       }
   # @param column Column
   # @param data_table DataTable
-  def custom_filter(column, data_table)
-    store_url = data_table.store_url(self)
+  def header_filter(column, data_table)
+    return nil unless column.options[:header_filter].present?
 
-    text_selector = column.options[:custom_filter][:text_selector] || column.name
-    value_selector = column.options[:custom_filter][:value_selector] || column.name
+    header_filter_options = column.options.delete(:header_filter)
+    custom_data_source = header_filter_options.delete(:custom_data_source)
 
-    if column.options[:custom_filter][:store_url]
-      store_url = column.options[:custom_filter][:store_url].respond_to?(:call) ? column.options[:custom_filter][:store_url].call(self) : send(column.options[:custom_filter][:store_url])
+    header_filter_format = hash_to_json(header_filter_options)
+    header_filter_format << ',' if header_filter_format.present?
+
+    data_source_format = ""
+    if custom_data_source && header_filter_options.fetch(:allow_header_filtering, true)
+      text_selector = custom_data_source[:text_selector] || column.name
+      value_selector = custom_data_source[:value_selector] || column.name
+
+      header_filter_url = custom_data_source[:url]
+
+      if header_filter_url.present?
+        header_filter_url = header_filter_url.respond_to?(:call) ? header_filter_url.call(self) : send(header_filter_url)
+      end
+
+      header_filter_url ||= data_table.header_filter_url(self)
+
+      params = custom_data_source[:params] || {}
+
+      json_params = params.respond_to?(:call) ? params.call(self).to_json : params.to_json
+
+      data_source_format = <<-TEXT
+        dataSource: {
+          paginate: false,
+          map: function (dataItem) {
+              return {
+                  text: dataItem['#{text_selector}'],
+                  value: dataItem['#{value_selector}']
+              };
+          },
+          load: function (loadOptions) {
+            var d = new $.Deferred();
+
+            var request = $.getJSON('#{header_filter_url}', #{json_params});
+            request.done(function (data) {
+                d.resolve(data);
+            });
+
+            return d.promise();
+          }
+        }
+      TEXT
     end
 
-    params = column.options[:custom_filter][:params]
-    params ||= data_table.options[:custom_filter][:params] if data_table.options[:custom_filter]
-
-    json_params = params.respond_to?(:call) ? params.call(self).to_json : params.to_json
-
-    "
-        headerFilter: {
-            dataSource: {
-                paginate: false,
-                map: function (dataItem) {
-                    return {
-                        text: dataItem['#{text_selector}'],
-                        value: dataItem['#{value_selector}']
-                    };
-                },
-                load: function (loadOptions) {
-                  var d = new $.Deferred();
-
-                  var request = $.getJSON('#{store_url}', #{json_params});
-                  request.done(function (data) {
-                      d.resolve(data);
-                  });
-
-                  return d.promise();
-                },
-            }
-        }
-    "
+    <<-TEXT
+      headerFilter: {
+        #{header_filter_format}
+        #{data_source_format}
+      }
+    TEXT
   end
 
   def hash_to_json(hash_array)

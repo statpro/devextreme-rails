@@ -28,9 +28,9 @@ module Devextreme
                   :source_url,
                   :source_parents,
                   :source_options,
-                  :store_source_url,
-                  :store_source_parents,
-                  :store_source_options,
+                  :header_filter_source_url,
+                  :header_filter_source_parents,
+                  :header_filter_source_options,
                   :highlight_row,
                   :highlight_row_class
 
@@ -426,8 +426,24 @@ module Devextreme
               conditions << conditions_set
             end
 
-            # condition: AND | OR
-            conditions << condition if condition
+            # NOTE: not sure if this is a bug, but a specific combination of filters sometimes don't have a condition(AND | OR)
+            # Trying to manually handle this case here
+            if condition.is_a?(Array)
+              # Manually add `AND` condition
+              conditions << 'and'
+
+              conditions_set = build_filter_conditions(condition)
+
+              if unary_condition.present?
+                # Prepend to handle in #add_arel_conditions with Arel::Nodes::Not
+                conditions << ['not', conditions_set]
+              else
+                conditions << conditions_set
+              end
+            else
+              # condition: AND | OR
+              conditions << condition if condition
+            end
           else
             conditions_set = build_arel_conditions(filter, condition, conditions)
 
@@ -655,10 +671,10 @@ module Devextreme
 
       # Set path for custom filtering functionality
       # @param url Symbol or String
-      def store_source(url, *parents)
-        @store_source_options = parents.extract_options!
-        @store_source_url = url.to_sym
-        @store_source_parents = parents
+      def header_filter_source(url, *parents)
+        @header_filter_source_options = parents.extract_options!
+        @header_filter_source_url = url.to_sym
+        @header_filter_source_parents = parents
       end
 
       # if this is called, then overrides source_url, source_parents and source_options
@@ -666,8 +682,8 @@ module Devextreme
         @url = url_path
       end
 
-      def store_source_path(url_path)
-        @store_url = url_path
+      def header_filter_source_path(url_path)
+        @header_filter_url = url_path
       end
 
       def url(view_context, options={})
@@ -683,15 +699,15 @@ module Devextreme
         end
       end
 
-      def store_url(view_context, options={})
-        # return what was provided to store_source_path
-        return @store_url if @store_url
+      def header_filter_url(view_context, options={})
+        # return what was provided to header_filter_source_path
+        return @header_filter_url if @header_filter_url
 
         # otherwise, build the path
-        if store_source_url.nil?
-          view_context.url_for(*store_source_parents, store_source_options.merge(options))
+        if header_filter_source_url.nil?
+          view_context.url_for(*header_filter_source_parents, header_filter_source_options.merge(options))
         else
-          view_context.send(store_source_url, *store_source_parents, store_source_options.merge(options))
+          view_context.send(header_filter_source_url, *header_filter_source_parents, header_filter_source_options.merge(options))
         end
       end
 
@@ -736,7 +752,7 @@ module Devextreme
           request_column = self.columns.detect{ |c| c.name == params[:dataField].split('.').last.to_sym }
           Jbuilder.encode do |json|
             json.items(resultset) do |instance|
-              value = request_column.value(instance, view_context) rescue nil
+              value = request_column.text(instance, view_context) rescue nil
               json.set! :key, value
             end
           end
