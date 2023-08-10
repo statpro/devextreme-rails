@@ -611,7 +611,12 @@ module Devextreme
         title = I18n.translate(name, **{:scope => [:data_tables, :actions]}.merge(translation_params))
         data = {:method => method} unless method == :none
         data[:remote] = true if remote
-        data[:confirm] = "Are you sure?" if method == :delete
+
+        if method == :delete || extra[:confirm] == true
+          data[:confirm] = "Are you sure?"
+        elsif extra[:confirm].present?
+          data[:confirm] = extra[:confirm]
+        end
 
         @actions << {
           :name => name,
