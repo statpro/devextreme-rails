@@ -30,12 +30,12 @@ window.show_level_2 = function(data_to_show) {
   $level1.removeClass('span12 dx-back-hidden').addClass('span3 grow');
   $level2.addClass('span9 grow dx-back-hidden').html(data_to_show).removeClass('hidden');
   $level3.addClass('hidden ').removeClass('span6');
-  reset_grid($thisGridL1, 'level_2');
+  reset_grid('#level_1_grid', 'level_2');
   level_back('level_1');
 
   $thisGridL2 = $('#level_2_grid');
   if ($thisGridL2.length > 0) {
-    reset_grid($thisGridL2, 'level_2');
+    reset_grid('#level_2_grid', 'level_2');
   }
   remove_level_back('level_2');
 }
@@ -49,13 +49,13 @@ window.show_level_3 = function(data_to_show, level_3_grid_id) {
   $level3.removeClass('hidden').addClass('span7 grow ').html(data_to_show);
   $('#level_3 .dx-datagrid').animateCss('fadeIn');
   $('.back-return').css('visibility', 'visible').animateCss('fadeIn');
-  reset_grid($thisGridL1, 'level_3');
-  reset_grid($thisGridL2, 'level_3');
+  reset_grid('#level_1_grid', 'level_3');
+  reset_grid('#level_2_grid', 'level_3');
   level_back('level_2');
 
   $thisGridL3 = $('#' + level_3_grid_id);
   if ($thisGridL3.length > 0) {
-    reset_grid($thisGridL3, 'level_3');
+    reset_grid('#' + level_3_grid_id, 'level_3');
   }
 }
 
@@ -70,8 +70,8 @@ function hide_back_button(event) {
 function level_back(level_id) {
   var $lvlSel = $('#' + level_id);
 
-  $lvlSel.mouseenter(unhide_back_button);
-  $lvlSel.mouseleave(hide_back_button);
+  $lvlSel.on('mouseenter', unhide_back_button);
+  $lvlSel.on('mouseleave', hide_back_button);
 }
 
 function remove_level_back(level_id) {
@@ -89,7 +89,8 @@ function clickBack(btn, level) {
   });
 }
 
-function reset_grid($grid, level){
+function reset_grid(selector, level){
+  var $grid = $(selector);
   var dataGrid = $grid.dxDataGrid('instance');
   try {
     if($grid.data("compact-view") && ($grid.data("compact-view")[level] || []).length > 0) {
@@ -99,13 +100,13 @@ function reset_grid($grid, level){
     }
   }
   catch(e) {
-    // Catches the instance where the compact view is not defined in a master detail (but its indeterminable  )
+    // Catches the instance where the compact view is not defined in a master detail (but its indeterminable)
   }
   finally {
     window.setTimeout(function(){
       // If someone is clicking fast on different rows, the grid may not be on the dom anymore.
       // We don't want to repaint the grid if it isn't there. Plus, it will fail if it isn't there.
-      if ($($grid.selector).length > 0) {
+      if ($(selector).length > 0) {
         dataGrid.updateDimensions();
         dataGrid.repaint();
       }
@@ -146,7 +147,7 @@ window.initMasterDetail = function() {
 
   $('body').on('click', '.btn-return-l1', function () {
     if ($thisGridL1.data("compact-view") && ($thisGridL1.data("compact-view")['level_1'] || []).length > 0) {
-      reset_grid($thisGridL1, 'level_1');
+      reset_grid('#level_1_grid', 'level_1');
       $thisGridL1.dxDataGrid('instance').clearSelection();
     } else {
       //keep original functionality if there is no level 1 setup in the datatable.
