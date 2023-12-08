@@ -118,8 +118,11 @@ window.column_template_icon = function(container, options){
 
     if (options.value.on_click) {
       $icon.attr('onClick', options.value.on_click);
-      $icon.hover(function() {
+      $icon.on('mouseenter', function() {
         $(this).css('cursor', 'pointer');
+      });
+      $icon.on('mouseleave', function() {
+        $(this).css('cursor', 'auto');
       });
     }
 

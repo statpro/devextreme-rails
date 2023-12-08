@@ -70,8 +70,8 @@ function hide_back_button(event) {
 function level_back(level_id) {
   var $lvlSel = $('#' + level_id);
 
-  $lvlSel.mouseenter(unhide_back_button);
-  $lvlSel.mouseleave(hide_back_button);
+  $lvlSel.on('mouseenter', unhide_back_button);
+  $lvlSel.on('mouseleave', hide_back_button);
 }
 
 function remove_level_back(level_id) {
