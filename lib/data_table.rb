@@ -888,52 +888,18 @@ module Devextreme
         data
       end
 
-      def to_csv(view_context, params, options)
+      def to_csv(view_context, params, csv_output_stream = nil, options)
+        # Extracting columns that are downloadable
+        downloadable_columns = @columns.select(&:downloadable?)
 
-        #
-        # NOTE: this implementation has the potential to run out of memory
-        #       since it loads all the data in memory...
-        #
-        # TODO: refactor to use `send_data` so that the data is streamed to the browser instead
-        #
+        # Adjust based on user visibility settings
+        adjust_user_visibility(downloadable_columns, options)
 
-        header = []
-        rows = []
-
-        cols = @columns.select{ |col| col.downloadable? }
-
-        if cols.present? && options.dig(:columns_layout, 'columns')
-          cols.each do |column|
-            user_column = options[:columns_layout]['columns'].detect do |c|
-              col_name = column.name.to_s
-              split_layout_name = c['dataField'].split('.')
-
-              # This has to be done to handle case where the columns name is an array of symbols instead of a symbol
-              name = split_layout_name.length > 2 ? split_layout_name.last(2).map!(&:to_sym).to_s : split_layout_name.last.to_s
-
-              col_name == name
-            end || {'visible' => false}
-
-            column.options.reverse_merge!(:user_visible => user_column['visible'], :user_visible_index => user_column['visibleIndex'])
-          end
-
-          cols.sort_by! { |c| c.options[:user_visible_index] }
+        if csv_output_stream
+          generate_csv_output_stream(csv_output_stream, downloadable_columns)
+        else
+          generate_csv_content(view_context, params, options, downloadable_columns)
         end
-
-        if @options.fetch(:write_headers, :true)
-          header << cols.collect{|c| c.caption}.join(',')
-        end
-
-        resultset, _ = get_resultset_and_count(params, options)
-
-        resultset.each do |instance|
-          rows << cols.collect do |c|
-            value = c.to_csv_text(instance, view_context) rescue nil
-            value.is_a?(Hash) ? value[:text] : value
-          end.join(',')
-        end
-
-        (header + rows).join("\n")
       end
 
       def to_xls(view_context, params, options)
@@ -975,6 +941,58 @@ module Devextreme
 
       def parameter_binding_character
         is_connection_sql_server? ? /[\$@].+/ : /\$.+/
+      end
+
+      def adjust_user_visibility(columns, options)
+        return unless columns.present? && options.dig(:columns_layout, 'columns')
+
+        columns.each do |column|
+          user_column = find_user_column(column.name, options)
+          column.options.reverse_merge!(:user_visible => user_column['visible'], :user_visible_index => user_column['visibleIndex'])
+        end
+
+        columns.sort_by! { |c| c.options[:user_visible_index] }
+      end
+
+      def find_user_column(column_name, options)
+        options[:columns_layout]['columns'].detect do |c|
+          split_layout_name = c['dataField'].split('.')
+          name = split_layout_name.length > 2 ? split_layout_name.last(2).map(&:to_sym).to_s : split_layout_name.last.to_s
+          column_name.to_s == name
+        end || { 'visible' => false }
+      end
+
+      def generate_csv_output_stream(csv_output_stream, columns)
+        if @options.fetch(:write_headers, true)
+          csv_output_stream << columns.map(&:caption)
+        end
+
+        connection = ActiveRecord::Base.connection.raw_connection
+        results = connection.exec(@base_query.to_sql)
+
+        results.each do |result|
+          csv_output_stream << columns.map { |column| result[column.name.to_s] }
+        end
+      end
+
+      def generate_csv_content(view_context, params, options, columns)
+        header = []
+        rows = []
+
+        if @options.fetch(:write_headers, true)
+          header << columns.map(&:caption).join(',')
+        end
+
+        resultset, _ = get_resultset_and_count(params, options)
+
+        resultset.each do |instance|
+          rows << columns.map do |column|
+            value = column.to_csv_text(instance, view_context) rescue nil
+            value.is_a?(Hash) ? value[:text] : value
+          end.join(',')
+        end
+
+        (header + rows).join("\n")
       end
 
     end
