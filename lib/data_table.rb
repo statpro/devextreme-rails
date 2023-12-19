@@ -888,15 +888,15 @@ module Devextreme
         data
       end
 
-      def to_csv(view_context, params, csv_output_stream = nil, options)
+      def to_csv(view_context, params, options)
         # Extracting columns that are downloadable
         downloadable_columns = @columns.select(&:downloadable?)
 
         # Adjust based on user visibility settings
         adjust_user_visibility(downloadable_columns, options)
 
-        if csv_output_stream
-          generate_csv_output_stream(csv_output_stream, downloadable_columns)
+        if options[:csv_output_stream].present?
+          generate_csv_output_stream(options[:csv_output_stream], downloadable_columns)
         else
           generate_csv_content(view_context, params, options, downloadable_columns)
         end
@@ -967,11 +967,13 @@ module Devextreme
           csv_output_stream << columns.map(&:caption)
         end
 
+        decoder = PG::TextDecoder::CopyRow.new
         connection = ActiveRecord::Base.connection.raw_connection
-        results = connection.exec(@base_query.to_sql)
 
-        results.each do |result|
-          csv_output_stream << columns.map { |column| result[column.name.to_s] }
+        connection.copy_data "/*NO LOAD BALANCE*/ COPY (SELECT #{columns.map(&:name).join(', ')} FROM (#{@base_query.to_sql}) AS subquery) TO STDOUT", decoder do
+          while line = connection.get_copy_data
+            csv_output_stream << line
+          end
         end
       end
 
