@@ -85,19 +85,17 @@ window.submit_bulk_action = function(caller, container_id, fn_callback, confirm_
 
 window.show_column_chooser = function(container_id) {
   var dataGrid = getDataGrid('#' + getSelectedContainerId(container_id));
-  dataGrid && dataGrid.showColumnChooser();
+  dataGrid.showColumnChooser();
 }
 
 window.refresh_grid = function(container_id) {
   var dataGrid = getDataGrid('#' + getSelectedContainerId(container_id));
-  dataGrid && dataGrid.refresh();
+  dataGrid.refresh();
 }
 
 window.initiate_grid_reset = function(container_id) {
   container_id = getSelectedContainerId(container_id);
   var $dataGrid = $('#' + container_id);
-
-  if ($dataGrid.length === 0) return;
 
   alertify.confirm($('#btn_grid_reset_' + container_id).data('reset-layout-message'), function(e){
     if(e){

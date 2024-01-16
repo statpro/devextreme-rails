@@ -246,7 +246,7 @@
             column: e.column,
             template: column_header_template_precision,
             onItemClick: function(e) {
-              if (e.itemElement.prevObject.hasClass('btn')) {
+              if (e.itemElement.context.type == "button") {
                 e.component.hide();
               }
             }

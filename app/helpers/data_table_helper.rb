@@ -248,7 +248,7 @@ module DataTableHelper
       if k == :cell_template
         "#{k.to_s.camelize(:lower)}: #{v}"
       elsif v.is_a?(String)
-        "#{k.to_s.camelize(:lower)}: \"#{j(v)}\""
+        "#{k.to_s.camelize(:lower)}: \"#{v}\""
       elsif v.is_a?(Hash)
         "#{k.to_s.camelize(:lower)}: {#{hash_to_json(v)}}"
       elsif v.is_a?(Array)

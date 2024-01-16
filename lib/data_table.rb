@@ -611,12 +611,7 @@ module Devextreme
         title = I18n.translate(name, **{:scope => [:data_tables, :actions]}.merge(translation_params))
         data = {:method => method} unless method == :none
         data[:remote] = true if remote
-
-        if method == :delete || extra[:confirm] == true
-          data[:confirm] = "Are you sure?"
-        elsif extra[:confirm].present?
-          data[:confirm] = extra[:confirm]
-        end
+        data[:confirm] = "Are you sure?" if method == :delete
 
         @actions << {
           :name => name,
@@ -763,9 +758,7 @@ module Devextreme
           end
         else
           Jbuilder.encode do |json|
-
             json.items(resultset) do |instance|
-
               json.set!(@base_query.table_name) do
                 self.columns.each do |c|
                   value = c.value(instance, view_context) rescue nil
@@ -803,7 +796,6 @@ module Devextreme
       end
 
       def get_resultset_and_count(params, options = {})
-
         query = self.query!(params)
 
         no_limit = options.fetch(:no_limit, false) || params.fetch(:no_limit, false).to_b
@@ -824,7 +816,7 @@ module Devextreme
 
         # avoid n+1's
         begin
-          ActiveRecord::Associations::Preloader.new.preload(resultset, @base_query.includes_values) if @base_query.includes_values.present?
+          ActiveRecord::Associations::Preloader.new(records: resultset, associations: @base_query.includes_values).call if @base_query.includes_values.present?
         rescue ActiveModel::MissingAttributeError
           # Do nothing here
         end
@@ -1111,8 +1103,7 @@ module Devextreme
         unless @caption.is_a?(String)
           translation_params = @options.delete(:translation_params) || {}
           @caption = @name.first if @name.is_a? Array
-          default_caption = I18n.translate(@caption, **{:scope => [:data_tables, :common] })
-          @caption = I18n.translate(@caption, **{:scope => [:data_tables, @t_scope], :default => default_caption}.merge(translation_params))
+          @caption = I18n.translate(@caption, **{:scope => [:data_tables, @t_scope]}.merge(translation_params))
         end
         @params = {}
         @params[:link_to] = @options.delete(:link_to)
