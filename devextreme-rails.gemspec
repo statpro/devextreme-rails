@@ -1,3 +1,4 @@
+
 lib = File.expand_path("../lib", __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require "devextreme/rails/version"
@@ -7,10 +8,12 @@ Gem::Specification.new do |spec|
   spec.version       = Devextreme::Rails::VERSION
   spec.authors       = ["StatPro Plc"]
   spec.email         = ["support@statpro.com"]
+
   spec.summary       = %q{Write a short summary, because RubyGems requires one.}
   spec.description   = %q{Write a longer description or delete this line.}
   spec.homepage      = "https://github.com/StatProSA/devextreme-rails"
   spec.license       = "MIT"
+
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
   # to allow pushing to a single host or delete this section to allow pushing to any host.
   if spec.respond_to?(:metadata)

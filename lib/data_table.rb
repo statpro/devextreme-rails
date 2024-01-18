@@ -756,16 +756,16 @@ module Devextreme
         if params.key?(:dataField)
           request_column = self.columns.detect{ |c| c.name == params[:dataField].split('.').last.to_sym }
           Jbuilder.encode do |json|
-
             json.items(resultset) do |instance|
-
               value = request_column.text(instance, view_context) rescue nil
               json.set! :key, value
             end
           end
         else
           Jbuilder.encode do |json|
+
             json.items(resultset) do |instance|
+
               json.set!(@base_query.table_name) do
                 self.columns.each do |c|
                   value = c.value(instance, view_context) rescue nil

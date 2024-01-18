@@ -432,92 +432,71 @@ window.column_template_exports_portfolio_filters = function(container, options, 
           .attr('style', 'color: black;')
           .appendTo(groups_info);
 
+        // Loop through groups and build list
+        var group_filters = filters.groups;
+        for (var i = 0; i < group_filters.length; i++) {
+          var li = $('<li />')
+            .attr('style', 'color: black;')
+            .text(group_filters[i])
+            .appendTo(groups_ul);
+        }
+      }
+
       // Only render if workflow_groups
       if (workflow_groups_present) {
         var workflow_groups_info = $('<strong />').html($('<i />')
           .addClass('fa fa-angle-right')
           .text(' ' + filters.workflow_groups_text))
-            .attr('style', 'color: black;')
-            .appendTo(info);
-            var workflow_groups_ul = $('<ul />')
-              .attr('style', 'color: black;')
-              .appendTo(workflow_groups_info);
-    
-            // Loop through workflow_groups and build list
-            var workflow_groups_filters = filters.workflow_groups;
-            for (var i = 0; i < workflow_groups_filters.length; i++) {
-              var li = $('<li />')
-                .attr('style', 'color: black;')
-                .text(workflow_groups_filters[i])
-                .appendTo(workflow_groups_ul);
-            }
-      }
-
-      // Loop through groups and build list
-      var group_filters = filters.groups;
-      for (var i = 0; i < group_filters.length; i++) {
-        var li = $('<li />')
           .attr('style', 'color: black;')
-          .text(group_filters[i])
-          .appendTo(groups_ul);
-      }
-	  }
+          .appendTo(info);
+        var workflow_groups_ul = $('<ul />')
+          .attr('style', 'color: black;')
+          .appendTo(workflow_groups_info);
 
-    // Only render if workflow_groups
-    if (workflow_groups_present) {
-      var workflow_groups_info = $('<strong />').html($('<i />')
-        .addClass('fa fa-angle-right')
-        .text(' ' + filters.workflow_groups_text))
+        // Loop through workflow_groups and build list
+        var workflow_groups_filters = filters.workflow_groups;
+        for (var i = 0; i < workflow_groups_filters.length; i++) {
+          var li = $('<li />')
+            .attr('style', 'color: black;')
+            .text(workflow_groups_filters[i])
+            .appendTo(workflow_groups_ul);
+        }
+      }
+
+      // Only render if entities_present
+      if (entities_present) {
+        var entities_info = $('<strong />')
+          .html($('<i />')
+          .addClass('fa fa-angle-right')
+          .text(' ' + filters.entities_text)
+        )
         .attr('style', 'color: black;')
         .appendTo(info);
-      var workflow_groups_ul = $('<ul />')
-        .attr('style', 'color: black;')
-        .appendTo(workflow_groups_info);
 
-      // Loop through workflow_groups and build list
-      var workflow_groups_filters = filters.workflow_groups;
-      for (var i = 0; i < workflow_groups_filters.length; i++) {
-        var li = $('<li />')
+        var entities_ul = $('<ul />')
           .attr('style', 'color: black;')
-          .text(workflow_groups_filters[i])
-          .appendTo(workflow_groups_ul);
+          .appendTo(entities_info);
+
+        // Loop through entities and build list
+        var entities_filters = filters.entities
+        for (var i = 0; i < entities_filters.length; i++) {
+          var li = $('<li />')
+          .text(entities_filters[i])
+          .attr('style', 'color: black;')
+          .appendTo(entities_ul);
+        }
       }
-    }
 
-	  // Only render if entities_present
-    if (entities_present) {
-		  var entities_info = $('<strong />')
-        .html($('<i />')
-        .addClass('fa fa-angle-right')
-        .text(' ' + filters.entities_text)
-		  )
-		  .attr('style', 'color: black;')
-		  .appendTo(info);
-
-      var entities_ul = $('<ul />')
-        .attr('style', 'color: black;')
-        .appendTo(entities_info);
-
-		  // Loop through entities and build list
-		  var entities_filters = filters.entities
-		  for (var i = 0; i < entities_filters.length; i++) {
-		    var li = $('<li />')
-        .text(entities_filters[i])
-        .attr('style', 'color: black;')
-        .appendTo(entities_ul);
-		  }
-	  }
-
-	  var label = $('<span />')
-      .addClass("label label-info")
-      .text(filters.cell_text)
-      .attr("modal-title", filters.popup_header)
-      .attr("type", "button")
-      .attr("modal-data", function () {
-        return $(info).html().toString();
-		  })
-		  .attr("onClick", "event.stopPropagation(); showModal(event);")
-		  .appendTo(container);
+      var label = $('<span />')
+        .addClass("label label-info")
+        .text(filters.cell_text)
+        .attr("modal-title", filters.popup_header)
+        .attr("type", "button")
+        .attr("modal-data", function () {
+          return $(info).html().toString();
+        })
+        .attr("onClick", "event.stopPropagation(); showModal(event);")
+        .appendTo(container);
     }
   }
 };
