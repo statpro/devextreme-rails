@@ -118,8 +118,11 @@ window.column_template_icon = function(container, options){
 
     if (options.value.on_click) {
       $icon.attr('onClick', options.value.on_click);
-      $icon.hover(function() {
+      $icon.on('mouseenter', function() {
         $(this).css('cursor', 'pointer');
+      });
+      $icon.on('mouseleave', function() {
+        $(this).css('cursor', 'auto');
       });
     }
 
@@ -297,25 +300,25 @@ window.column_template_background_task_args = function(container, options){
 };
 
 window.column_template_html = function(container, options){
-    if (options.value){
+  if (options.value){
 
-        var info = $('<div />').html(options.value);
+    var info = $('<div />').html(options.value);
 
-        var label = $('<span />')
-            .addClass("label label-info")
-            .attr("modal-title", "Options")
-            .attr("modal-size", "modal-xlarge")
-            .attr("modal-data", function() {
-                return $(info).html().toString();
-            })
-            .attr("onClick", "showModal(event)")
-            .text("detail")
-            .appendTo(container);
-    }
+    var label = $('<span />')
+      .addClass("label label-info")
+      .attr("modal-title", "Options")
+      .attr("modal-size", "modal-xlarge")
+      .attr("modal-data", function() {
+        return $(info).html().toString();
+      })
+      .attr("onClick", "showModal(event)")
+      .text("detail")
+      .appendTo(container);
+  }
 };
 
 window.column_template_actions = function(container, options){
-  var actions = jQuery.parseJSON(options.value);
+  var actions = JSON.parse(options.value);
 
   if (actions.length > 0) {
 
@@ -416,18 +419,39 @@ window.column_template_exports_portfolio_filters = function(container, options, 
     var entities_present = filters.entities && filters.entities.length > 0;
     var info = $('<div />');
 
-	// Only render if groups_present or workflow_groups_present or entities_present
-	if (groups_present || workflow_groups_present || entities_present) {
-	  // Only render if groups_present
-    if (groups_present) {
-      var groups_info = $('<strong />').html($('<i />')
-        .addClass('fa fa-angle-right')
-        .text(' ' + filters.groups_text))
-        .attr('style', 'color: black;')
-        .appendTo(info);
-	    var groups_ul = $('<ul />')
-        .attr('style', 'color: black;')
-        .appendTo(groups_info);
+    // Only render if groups_present or workflow_groups_present or entities_present
+    if (groups_present || workflow_groups_present || entities_present) {
+      // Only render if groups_present
+      if (groups_present) {
+        var groups_info = $('<strong />').html($('<i />')
+          .addClass('fa fa-angle-right')
+          .text(' ' + filters.groups_text))
+          .attr('style', 'color: black;')
+          .appendTo(info);
+        var groups_ul = $('<ul />')
+          .attr('style', 'color: black;')
+          .appendTo(groups_info);
+
+      // Only render if workflow_groups
+      if (workflow_groups_present) {
+        var workflow_groups_info = $('<strong />').html($('<i />')
+          .addClass('fa fa-angle-right')
+          .text(' ' + filters.workflow_groups_text))
+            .attr('style', 'color: black;')
+            .appendTo(info);
+            var workflow_groups_ul = $('<ul />')
+              .attr('style', 'color: black;')
+              .appendTo(workflow_groups_info);
+    
+            // Loop through workflow_groups and build list
+            var workflow_groups_filters = filters.workflow_groups;
+            for (var i = 0; i < workflow_groups_filters.length; i++) {
+              var li = $('<li />')
+                .attr('style', 'color: black;')
+                .text(workflow_groups_filters[i])
+                .appendTo(workflow_groups_ul);
+            }
+      }
 
       // Loop through groups and build list
       var group_filters = filters.groups;

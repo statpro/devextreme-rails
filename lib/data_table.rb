@@ -611,7 +611,12 @@ module Devextreme
         title = I18n.translate(name, **{:scope => [:data_tables, :actions]}.merge(translation_params))
         data = {:method => method} unless method == :none
         data[:remote] = true if remote
-        data[:confirm] = "Are you sure?" if method == :delete
+
+        if method == :delete || extra[:confirm] == true
+          data[:confirm] = "Are you sure?"
+        elsif extra[:confirm].present?
+          data[:confirm] = extra[:confirm]
+        end
 
         @actions << {
           :name => name,
@@ -751,7 +756,9 @@ module Devextreme
         if params.key?(:dataField)
           request_column = self.columns.detect{ |c| c.name == params[:dataField].split('.').last.to_sym }
           Jbuilder.encode do |json|
+
             json.items(resultset) do |instance|
+
               value = request_column.text(instance, view_context) rescue nil
               json.set! :key, value
             end
@@ -796,6 +803,7 @@ module Devextreme
       end
 
       def get_resultset_and_count(params, options = {})
+
         query = self.query!(params)
 
         no_limit = options.fetch(:no_limit, false) || params.fetch(:no_limit, false).to_b
@@ -1103,7 +1111,8 @@ module Devextreme
         unless @caption.is_a?(String)
           translation_params = @options.delete(:translation_params) || {}
           @caption = @name.first if @name.is_a? Array
-          @caption = I18n.translate(@caption, **{:scope => [:data_tables, @t_scope]}.merge(translation_params))
+          default_caption = I18n.translate(@caption, **{:scope => [:data_tables, :common] })
+          @caption = I18n.translate(@caption, **{:scope => [:data_tables, @t_scope], :default => default_caption}.merge(translation_params))
         end
         @params = {}
         @params[:link_to] = @options.delete(:link_to)
