@@ -824,7 +824,7 @@ module Devextreme
 
         # avoid n+1's
         begin
-          if Rails::VERSION::MAJOR >= 7
+          if ::Rails::VERSION::MAJOR >= 7
             ActiveRecord::Associations::Preloader.new(records: resultset, associations: @base_query.includes_values).call if @base_query.includes_values.present?
           else
             ActiveRecord::Associations::Preloader.new.preload(resultset, @base_query.includes_values) if @base_query.includes_values.present?
