@@ -91,7 +91,8 @@ function clickBack(btn, level) {
 
 function reset_grid(selector, level){
   var $grid = $(selector);
-  var dataGrid = $grid.dxDataGrid('instance');
+  var dataGrid;
+
   try {
     if($grid.data("compact-view") && ($grid.data("compact-view")[level] || []).length > 0) {
       $.each($grid.data("compact-view")[level], function(i, item) {
@@ -107,6 +108,7 @@ function reset_grid(selector, level){
       // If someone is clicking fast on different rows, the grid may not be on the dom anymore.
       // We don't want to repaint the grid if it isn't there. Plus, it will fail if it isn't there.
       if ($(selector).length > 0) {
+        dataGrid = $grid.dxDataGrid('instance');
         dataGrid.updateDimensions();
         dataGrid.repaint();
       }
