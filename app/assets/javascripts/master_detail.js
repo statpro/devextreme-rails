@@ -90,31 +90,29 @@ function clickBack(btn, level) {
 }
 
 function reset_grid(selector, level){
-  var $grid = $(selector);  
+  var $grid = $(selector);
   var dataGrid;
 
-  if($grid.isConnected) {
-    try {
-      if($grid.data("compact-view") && ($grid.data("compact-view")[level] || []).length > 0) {
-        $.each($grid.data("compact-view")[level], function(i, item) {
-          $grid.dxDataGrid('columnOption', item.name, item.property, item.value);
-        });
+  try {
+    if($grid.data("compact-view") && ($grid.data("compact-view")[level] || []).length > 0) {
+      $.each($grid.data("compact-view")[level], function(i, item) {
+        $grid.dxDataGrid('columnOption', item.name, item.property, item.value);
+      });
+    }
+  }
+  catch(e) {
+    // Catches the instance where the compact view is not defined in a master detail (but its indeterminable)
+  }
+  finally {
+    window.setTimeout(function(){
+      // If someone is clicking fast on different rows, the grid may not be on the dom anymore.
+      // We don't want to repaint the grid if it isn't there. Plus, it will fail if it isn't there.
+      if ($(selector).length > 0) {
+        dataGrid = $grid.dxDataGrid('instance');
+        dataGrid.updateDimensions();
+        dataGrid.repaint();
       }
-    }
-    catch(e) {
-      // Catches the instance where the compact view is not defined in a master detail (but its indeterminable)
-    }
-    finally {
-      window.setTimeout(function(){
-        // If someone is clicking fast on different rows, the grid may not be on the dom anymore.
-        // We don't want to repaint the grid if it isn't there. Plus, it will fail if it isn't there.
-        if ($(selector).length > 0) {
-          dataGrid = $grid.dxDataGrid('instance');
-          dataGrid.updateDimensions();
-          dataGrid.repaint();
-        }
-      }, 1000);
-    }
+    }, 1000);
   }
 }
 
