@@ -93,6 +93,7 @@ function reset_grid(selector, level, factory_reset = false){
   var $grid = $(selector);
   var dataGrid;
   var apply_default_state_on_reset = $grid.data("internal_master_detail-apply_default_state_on_reset") ?? true;
+  var disable_repaint = $grid.data("internal_master_detail-disable_repaint") ?? false;
 
   try {
     if ($grid.data("compact-view") && ($grid.data("compact-view")[level] || []).length > 0) {
@@ -113,6 +114,8 @@ function reset_grid(selector, level, factory_reset = false){
     // Catches the instance where the compact view is not defined in a master detail (but its indeterminable)
   }
   finally {
+    if (disable_repaint) return;
+
     window.setTimeout(function () {
       // If someone is clicking fast on different rows, the grid may not be on the dom anymore.
       // We don't want to repaint the grid if it isn't there. Plus, it will fail if it isn't there.

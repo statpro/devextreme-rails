@@ -126,7 +126,8 @@ module Devextreme
             :xls_visible => true
           },
           :internal_master_detail => {
-            :apply_default_state_on_reset => true
+            :apply_default_state_on_reset => true,
+            :disable_repaint => false
           }
 
         }
