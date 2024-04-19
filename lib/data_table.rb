@@ -128,7 +128,8 @@ module Devextreme
           :internal_master_detail => {
             :apply_default_state_on_reset => true,
             :disable_repaint => false
-          }
+          },
+          :preserve_selected_rows => false
 
         }
 

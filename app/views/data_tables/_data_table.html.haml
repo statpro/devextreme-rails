@@ -128,6 +128,7 @@
       onShown: function(e){ e.component.hide(); }
     });
 
+    var selectedRowKeys = [];
     var gridDataSourceConfiguration_#{ container_id } = { store: dataSource_#{ container_id } };
     dataGrid_#{ container_id }.dxDataGrid({
       dataSource: gridDataSourceConfiguration_#{ container_id },
@@ -152,6 +153,11 @@
 
           loadpanel.show();
         }
+
+        if (#{preserve_selected_rows}) {
+          dataGrid_#{ container_id }.dxDataGrid('option', 'selectedRowKeys', selectedRowKeys);
+        }
+
         activateJSPlugins();
       }#{ functions },
       onShow: function(e) {
