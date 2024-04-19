@@ -92,7 +92,23 @@ function clickBack(btn, level) {
 function reset_grid(selector, level, factory_reset = false){
   var $grid = $(selector);
   var dataGrid;
+
+  /**
+   * This setting is used to bypass setting the grid back to the default state when reset_grid is called without a compact view.
+   * This prevents the grid from reloading/refreshing and making additional calls to the server when it's not necessary.
+   * Note: this is only applicable when we do not have a compact view defined for the grid as the compact view columns
+   *       will no longer resize themselves nicely.
+   **/
   var apply_default_state_on_reset = $grid.data("internal_master_detail-apply_default_state_on_reset") ?? true;
+
+  /**
+   * This setting is to disable repainting of the grid and updating dimensions when reset_grid is called.
+   * This produces a smoother experience as the columns will no longer resize themselves when switching between levels.
+   * Repaint should only be disabled if there is no need to resize columns to fit them on the left of the page when the
+   * second grid is shown.
+   * Note: this is only applicable when we do not have a compact view defined for the grid as the compact view columns
+   *       will no longer resize themselves nicely.
+   **/
   var disable_repaint = $grid.data("internal_master_detail-disable_repaint") ?? false;
 
   try {
