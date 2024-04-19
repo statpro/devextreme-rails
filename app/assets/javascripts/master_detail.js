@@ -92,13 +92,14 @@ function clickBack(btn, level) {
 function reset_grid(selector, level, factory_reset = false){
   var $grid = $(selector);
   var dataGrid;
+  var apply_default_state_on_reset = $grid.data("internal_master_detail-apply_default_state_on_reset") ?? true;
 
   try {
     if ($grid.data("compact-view") && ($grid.data("compact-view")[level] || []).length > 0) {
       $.each($grid.data("compact-view")[level], function (i, item) {
         $grid.dxDataGrid('columnOption', item.name, item.property, item.value);
       });
-    } else if (factory_reset) {
+    } else if (factory_reset && apply_default_state_on_reset) {
       if ($grid.data("default-state-json") !== undefined) {
         $grid.dxDataGrid('instance').state($grid.data("default-state-json"));
       } else {

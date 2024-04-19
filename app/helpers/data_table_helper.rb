@@ -101,6 +101,8 @@ module DataTableHelper
     compact_view = data_table.options.delete(:compact_view)
     compact_view_json = compact_view ? compact_view.to_json : [].to_json
 
+    internal_master_detail_options = data_table.options.delete(:internal_master_detail) || {}
+
     custom_summary_functions = []
     summaries_json = data_table.summaries.map do |summary|
       sum_data = []
@@ -155,7 +157,8 @@ module DataTableHelper
         :requireTotalRowCountIndicator => require_total_row_count_indicator,
         :options => options,
         :data_options_json => data_options_json,
-        :state_storing_json => state_storing_json
+        :state_storing_json => state_storing_json,
+        :internal_master_detail_options => internal_master_detail_options
       }
     )
   end

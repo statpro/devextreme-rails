@@ -45,6 +45,8 @@
     let compact_view_json = #{compact_view_json};
     dataGrid_#{ container_id }.data("compact-view", compact_view_json);
 
+    dataGrid_#{ container_id }.data("internal_master_detail-apply_default_state_on_reset", #{internal_master_detail_options.fetch(:apply_default_state_on_reset, true)});
+
     // default-json is used as a fallback layout if there is no level 1 layout set on master-detail.
     let columns_json = [#{columns_json}];
     dataGrid_#{ container_id }.data("default-json", columns_json);

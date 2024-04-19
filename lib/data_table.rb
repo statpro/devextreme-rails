@@ -124,6 +124,9 @@ module Devextreme
             :visible => true,
             :csv_visible => true,
             :xls_visible => true
+          },
+          :internal_master_detail => {
+            :apply_default_state_on_reset => true
           }
 
         }
