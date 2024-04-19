@@ -45,6 +45,9 @@
     let compact_view_json = #{compact_view_json};
     dataGrid_#{ container_id }.data("compact-view", compact_view_json);
 
+    dataGrid_#{ container_id }.data("internal_master_detail-apply_default_state_on_reset", #{internal_master_detail_options.fetch(:apply_default_state_on_reset, true)});
+    dataGrid_#{ container_id }.data("internal_master_detail-disable_repaint", #{internal_master_detail_options.fetch(:disable_repaint, false)});
+
     // default-json is used as a fallback layout if there is no level 1 layout set on master-detail.
     let columns_json = [#{columns_json}];
     dataGrid_#{ container_id }.data("default-json", columns_json);
@@ -125,6 +128,7 @@
       onShown: function(e){ e.component.hide(); }
     });
 
+    var selectedRowKeys = [];
     var gridDataSourceConfiguration_#{ container_id } = { store: dataSource_#{ container_id } };
     dataGrid_#{ container_id }.dxDataGrid({
       dataSource: gridDataSourceConfiguration_#{ container_id },
@@ -149,6 +153,11 @@
 
           loadpanel.show();
         }
+
+        if (#{preserve_selected_rows}) {
+          dataGrid_#{ container_id }.dxDataGrid('option', 'selectedRowKeys', selectedRowKeys);
+        }
+
         activateJSPlugins();
       }#{ functions },
       onShow: function(e) {
