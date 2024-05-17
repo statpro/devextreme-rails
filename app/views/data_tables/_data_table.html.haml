@@ -139,6 +139,12 @@
       },
       #{ options_json },
       onContentReady: function(e){
+        var gridId = e.element.attr("id");
+        var condition = e.component.getCombinedFilter(true);
+        var display = condition === undefined ? 'none' : 'inline';
+        $('#' + gridId + '_clearFilterButton').css('display', display)
+        $('#' + gridId + '_clearFilterButton').css('text-wrap', 'wrap')
+
         if (#{requireTotalRowCountIndicator}) {
           var loadpanel = $("##{container_id}-row_count").dxLoadPanel("instance");
           loadpanel.option({
@@ -256,6 +262,16 @@
       height: #{height.present? ? "'calc(#{height} - 18px)'" : "`calc(100vh - ${($('##{container_id}-holder').parents('.master-detail-grids').offset() || $('##{container_id}-holder').offset()).top + ($('footer').height() * 2)}px)`"},
       repaintChangesOnly: true,
       onCellPrepared: function(e) {
+        if (e.rowType == "filter" && e.columnIndex === 0) {
+          debugger;
+          var gridId = e.element.attr("id");
+          $("<a></a>", { id: gridId + '_clearFilterButton', text: 'Clear Filters', href: 'javascript:void(0);' })
+            .click(function () {
+              var grid = $('#' + gridId).dxDataGrid('instance');
+              grid.clearFilter();
+            })
+            .appendTo(e.cellElement);
+        }
         if(e.rowType === "data") {
           var data_cell_css_class = e.data['#{data_table.base_query.table_name}'][e.column.dataFieldWithoutTable + '_cell_css_class'];
           if(data_cell_css_class != undefined) {
