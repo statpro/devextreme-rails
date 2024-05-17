@@ -143,7 +143,8 @@
         var condition = e.component.getCombinedFilter(true);
         var display = condition === undefined ? 'none' : 'inline';
         $('#' + gridId + '_clearFilterButton').css('display', display)
-        $('#' + gridId + '_clearFilterButton').css('text-wrap', 'wrap')
+        $('#' + gridId + '_clearFilterButton').css('text-wrap', 'wrap')        
+        $('#' + gridId + '_clearFilterButton').css('position', '')
 
         if (#{requireTotalRowCountIndicator}) {
           var loadpanel = $("##{container_id}-row_count").dxLoadPanel("instance");
@@ -263,12 +264,13 @@
       repaintChangesOnly: true,
       onCellPrepared: function(e) {
         if (e.rowType == "filter" && e.columnIndex === 0) {
-          debugger;
           var gridId = e.element.attr("id");
           $("<a></a>", { id: gridId + '_clearFilterButton', text: 'Clear Filters', href: 'javascript:void(0);' })
             .click(function () {
               var grid = $('#' + gridId).dxDataGrid('instance');
               grid.clearFilter();
+              this.style.position = 'absolute';
+              this.style.display = 'none';
             })
             .appendTo(e.cellElement);
         }
