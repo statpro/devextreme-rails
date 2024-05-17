@@ -89,48 +89,59 @@ function clickBack(btn, level) {
   });
 }
 
-function reset_grid(selector, level){
+function reset_grid(selector, level, factory_reset = false){
   var $grid = $(selector);
   var dataGrid;
 
+  /**
+   * This setting is used to bypass setting the grid back to the default state when reset_grid is called without a compact view.
+   * This prevents the grid from reloading/refreshing and making additional calls to the server when it's not necessary.
+   * Note: this is only applicable when we do not have a compact view defined for the grid as the compact view columns
+   *       will no longer resize themselves nicely.
+   **/
+  var apply_default_state_on_reset = $grid.data("internal_master_detail-apply_default_state_on_reset") ?? true;
+
+  /**
+   * This setting is to disable repainting of the grid and updating dimensions when reset_grid is called.
+   * This produces a smoother experience as the columns will no longer resize themselves when switching between levels.
+   * Repaint should only be disabled if there is no need to resize columns to fit them on the left of the page when the
+   * second grid is shown.
+   * Note: this is only applicable when we do not have a compact view defined for the grid as the compact view columns
+   *       will no longer resize themselves nicely.
+   **/
+  var disable_repaint = $grid.data("internal_master_detail-disable_repaint") ?? false;
+
   try {
-    if($grid.data("compact-view") && ($grid.data("compact-view")[level] || []).length > 0) {
-      $.each($grid.data("compact-view")[level], function(i, item) {
+    if ($grid.data("compact-view") && ($grid.data("compact-view")[level] || []).length > 0) {
+      $.each($grid.data("compact-view")[level], function (i, item) {
         $grid.dxDataGrid('columnOption', item.name, item.property, item.value);
       });
+    } else if (factory_reset && apply_default_state_on_reset) {
+      if ($grid.data("default-state-json") !== undefined) {
+        $grid.dxDataGrid('instance').state($grid.data("default-state-json"));
+      } else {
+        $grid.dxDataGrid({
+          columns: $grid.data("default-json")
+        });
+      }
     }
   }
   catch(e) {
     // Catches the instance where the compact view is not defined in a master detail (but its indeterminable)
   }
   finally {
-    window.setTimeout(function(){
+    if (disable_repaint) return;
+
+    window.setTimeout(function () {
       // If someone is clicking fast on different rows, the grid may not be on the dom anymore.
       // We don't want to repaint the grid if it isn't there. Plus, it will fail if it isn't there.
       if ($(selector).length > 0) {
         dataGrid = $grid.dxDataGrid('instance');
-        dataGrid.updateDimensions();
         dataGrid.repaint();
+        dataGrid.updateDimensions();
       }
     }, 1000);
   }
-}
-
-function factory_reset_grid($grid){
-  if ($grid.data("default-state-json") !== undefined) {
-    $grid.dxDataGrid('instance').state($grid.data("default-state-json"));
-  } else {
-    $grid.dxDataGrid({
-      columns: $grid.data("default-json")
-    });
-  }
-
-  var dataGrid = $grid.dxDataGrid('instance');
-  dataGrid.clearSelection();
-  window.setTimeout(function(){
-    dataGrid.updateDimensions();
-    dataGrid.repaint();
-  }, 1000);
 }
 
 window.initMasterDetail = function() {
@@ -148,13 +159,7 @@ window.initMasterDetail = function() {
   clickBack('.btn-return-l2', show_level_2);
 
   $('body').on('click', '.btn-return-l1', function () {
-    if ($thisGridL1.data("compact-view") && ($thisGridL1.data("compact-view")['level_1'] || []).length > 0) {
-      reset_grid('#level_1_grid', 'level_1');
-      $thisGridL1.dxDataGrid('instance').clearSelection();
-    } else {
-      //keep original functionality if there is no level 1 setup in the datatable.
-      factory_reset_grid($thisGridL1)
-    }
+    reset_grid('#level_1_grid', 'level_1', true)
   });
 
   this.showErrorDialog = function() {

@@ -12,6 +12,7 @@ module DataTableHelper
     height = options.delete(:height)
     width = options.delete(:width)
 
+    preserve_selected_rows = data_table.options.delete(:preserve_selected_rows) || false
     selection_changed = options.delete(:selection_changed)
     row_expanding = options.delete(:row_expanding)
     master_detail = options.delete(:master_detail)
@@ -45,16 +46,12 @@ module DataTableHelper
       ,
        onSelectionChanged: function (selecteditems) {
          if (selecteditems.selectedRowKeys.length <= 0) return;
-    JS
+         
+         #{selection_changed.present? ? "#{selection_changed}(selecteditems)" : ''}
 
-    if selection_changed
-      functions += <<-JS
-        #{selection_changed}(selecteditems);
-      JS
-    end
-
-    functions += <<-JS
-      }
+         if (#{preserve_selected_rows})
+           selectedRowKeys = selecteditems.selectedRowKeys;
+       }
     JS
 
     if row_expanding
@@ -100,6 +97,8 @@ module DataTableHelper
 
     compact_view = data_table.options.delete(:compact_view)
     compact_view_json = compact_view ? compact_view.to_json : [].to_json
+
+    internal_master_detail_options = data_table.options.delete(:internal_master_detail) || {}
 
     custom_summary_functions = []
     summaries_json = data_table.summaries.map do |summary|
@@ -155,7 +154,9 @@ module DataTableHelper
         :requireTotalRowCountIndicator => require_total_row_count_indicator,
         :options => options,
         :data_options_json => data_options_json,
-        :state_storing_json => state_storing_json
+        :state_storing_json => state_storing_json,
+        :internal_master_detail_options => internal_master_detail_options,
+        :preserve_selected_rows => preserve_selected_rows
       }
     )
   end

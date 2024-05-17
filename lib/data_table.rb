@@ -124,7 +124,13 @@ module Devextreme
             :visible => true,
             :csv_visible => true,
             :xls_visible => true
-          }
+          },
+          :internal_master_detail => {
+            :apply_default_state_on_reset => true,
+            :disable_repaint => false
+          },
+          # This setting preserves the selected rows when the grid is reset such as when the user navigates between level 1 and level 2 grids.
+          :preserve_selected_rows => false
 
         }
 
