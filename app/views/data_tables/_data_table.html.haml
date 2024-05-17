@@ -145,7 +145,8 @@
         $('#' + gridId + '_clearFilterButton').css('display', display)
         $('#' + gridId + '_clearFilterButton').css('text-wrap', 'wrap')        
         $('#' + gridId + '_clearFilterButton').css('position', '')
-
+        $('#' + gridId + '_clearFilterButton').css('font-weight', '400')
+        
         if (#{requireTotalRowCountIndicator}) {
           var loadpanel = $("##{container_id}-row_count").dxLoadPanel("instance");
           loadpanel.option({
