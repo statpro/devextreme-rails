@@ -143,7 +143,6 @@
       },
       #{ options_json },
       onContentReady: function(e){
-        debugger;
         var condition = e.component.getCombinedFilter(true);
         let showFilterBuilderButton = getVisibleButtonFor('btn_show_filter_builder', '#{container_id}')
 
@@ -151,7 +150,6 @@
           $(showFilterBuilderButton).addClass('btn-primary');
         else
           $(showFilterBuilderButton).removeClass('btn-primary');
-
 
         if (#{requireTotalRowCountIndicator}) {
           var loadpanel = $("##{container_id}-row_count").dxLoadPanel("instance");

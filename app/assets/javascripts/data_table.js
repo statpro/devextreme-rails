@@ -124,7 +124,6 @@ window.getSelectedContainerId = function(default_container_id) {
 }
 
 window.getVisibleButtonFor = function(btnIdSelectorPrefix, currentContainerId) {
-  debugger;
   let is_master_detail = JSON.parse($('#is_master_detail').val().toLowerCase());
   return (is_master_detail === true) ? $(`#${btnIdSelectorPrefix}_level_1_grid`) : $(`#${btnIdSelectorPrefix}_${currentContainerId}`);
 }
