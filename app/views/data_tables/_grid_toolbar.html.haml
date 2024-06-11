@@ -5,22 +5,20 @@
 = hidden_field_tag :is_master_detail, false
 
 - if filter_builder_visible
-  %li
-    %a.btn.as_tooltip{:type    => 'button',
-                          :id      => "btn_show_filter_builder_#{container_id}",
-                          # :title   => t(:advanced_search, :scope => :data_tables), # set tooltip value
-                          :onclick => "show_filter_builder('#{container_id}')"}
+  .btn-group
+    %button.btn.as_tooltip{:type    => 'button',
+                           :id      => "btn_show_filter_builder_#{container_id}",
+                           :title   => t(:advanced_search, :scope => :data_tables),
+                           :onclick => "show_filter_builder('#{container_id}')"}
       = icon_tag('filter')
-      %span
-        = t(:configure, :scope => :data_tables)
-
-    %a.btn.as_tooltip{:type    => 'button',
+    %a.btn.dropdown-toggle{:data => {:toggle => 'dropdown'}, :href => '#'}
+      %span.caret
+    %ul.dropdown-menu.pull-right
+      %li
+        %a.as_tooltip{:type    => 'button',
                       :id      => "btn_clear_filter_builder_#{container_id}",
-                      # :title   => t(:configure, :scope => :data_tables), #set the tooltip value
                       :onclick => "clear_filter_builder('#{container_id}')"}
-      = icon_tag('minus')
-      %span
-        = t(:configure, :scope => :data_tables)
+          = t(:clear_filter, :scope => :data_tables)
 
 %li
   %button.btn.as_tooltip{:type    => 'button',

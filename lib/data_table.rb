@@ -247,9 +247,9 @@ module Devextreme
       attr_accessor :sorted_and_filtered_query
       def query!(params)
         @sorted_and_filtered_query = @base_query.arel.dup # convert to AREL
+        apply_grouping!(params)
         apply_sorting(params)
         apply_filter!(params)
-        apply_grouping!(params)
         @sorted_and_filtered_query
       end
 
@@ -285,6 +285,7 @@ module Devextreme
 
         group_params = JSON.parse(group_params) if group_params.is_a? String
 
+        @sorted_and_filtered_query.orders.clear
         @sorted_and_filtered_query.projections.clear
 
         group_params.each do |grouper|
