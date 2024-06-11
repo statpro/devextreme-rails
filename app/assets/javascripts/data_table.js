@@ -123,6 +123,11 @@ window.getSelectedContainerId = function(default_container_id) {
   return (is_master_detail === true) ? $('#selected_container_id').val() : default_container_id;
 }
 
+window.getVisibleButtonFor = function(btnIdSelectorPrefix, currentContainerId) {
+  let is_master_detail = JSON.parse($('#is_master_detail').val().toLowerCase());
+  return (is_master_detail === true) ? $(`#${btnIdSelectorPrefix}_level_1_grid`) : $(`#${btnIdSelectorPrefix}_${currentContainerId}`);
+}
+
 window.hide_download_modal = function(event, container_id) {
   event.preventDefault();
 

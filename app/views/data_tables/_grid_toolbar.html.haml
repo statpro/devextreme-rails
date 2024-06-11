@@ -4,6 +4,22 @@
 = hidden_field_tag :selected_container_id, container_id
 = hidden_field_tag :is_master_detail, false
 
+- if filter_builder_visible
+  .btn-group
+    %button.btn.as_tooltip{:type    => 'button',
+                           :id      => "btn_show_filter_builder_#{container_id}",
+                           :title   => t(:advanced_search, :scope => :data_tables),
+                           :onclick => "show_filter_builder('#{container_id}')"}
+      = icon_tag('filter')
+    %a.btn.dropdown-toggle{:data => {:toggle => 'dropdown'}, :href => '#'}
+      %span.caret
+    %ul.dropdown-menu.pull-right
+      %li
+        %a.as_tooltip{:type    => 'button',
+                      :id      => "btn_clear_filter_builder_#{container_id}",
+                      :onclick => "clear_filter_builder('#{container_id}')"}
+          = t(:clear_filter, :scope => :data_tables)
+
 %li
   %button.btn.as_tooltip{:type    => 'button',
                          :id      => "btn_refresh_#{container_id}",
