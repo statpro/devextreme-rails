@@ -760,19 +760,16 @@ module Devextreme
       def to_json(view_context, params = {})
         resultset, total_count = get_resultset_and_count(params)
 
-        if params.key?(:dataField)
-          request_column = self.columns.detect{ |c| c.name == params[:dataField].split('.').last.to_sym }
-          Jbuilder.encode do |json|
-            json.items(resultset) do |instance|
-              value = request_column.text(instance, view_context) rescue nil
-              json.set! :key, value
-            end
-          end
-        else
-          Jbuilder.encode do |json|
+        group_params = params.fetch('groupOptions', {})
+        group_params = JSON.parse(group_params) if group_params.is_a?(String) && group_params.present?
 
-            json.items(resultset) do |instance|
-
+        Jbuilder.encode do |json|
+          json.items(resultset) do |instance|
+            if !params.key?(:skip) && !params.key?(:take) && group_params.size == 1 # if lookup filter row
+              json.set! :key, self.columns.detect{ |c| c.name == group_params.first['selector'].split('.').last.to_sym }.text(instance, view_context) rescue nil
+            elsif params.key?(:dataField) # elsif header filters in the form of dates
+              json.set! :key, self.columns.detect{ |c| c.name == params[:dataField].split('.').last.to_sym }.text(instance, view_context) rescue nil
+            else
               json.set!(@base_query.table_name) do
                 self.columns.each do |c|
                   value = c.value(instance, view_context) rescue nil
@@ -793,7 +790,6 @@ module Devextreme
                   json.set! '_highlight_row', {
                     :highlight_row_class =>  highlights_to_set[:class],
                     :highlight_row => highlights_to_set[:callback] }.to_json if highlights_to_set
-
                 end
               end
 
@@ -802,9 +798,9 @@ module Devextreme
                 actions = self.actions.map { |action| build_action(action, instance, view_context) }.reject(&:blank?)
                 json._actions actions.to_json
               end
-            end
 
-            json.total_count(total_count) if total_count
+              json.total_count(total_count) if total_count
+            end
           end
         end
       end
