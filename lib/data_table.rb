@@ -763,13 +763,31 @@ module Devextreme
         group_params = params.fetch('groupOptions', {})
         group_params = JSON.parse(group_params) if group_params.is_a?(String) && group_params.present?
 
-        Jbuilder.encode do |json|
-          json.items(resultset) do |instance|
-            if !params.key?(:skip) && !params.key?(:take) && group_params.size == 1 # if lookup filter row
-              json.set! :key, self.columns.detect{ |c| c.name == group_params.first['selector'].split('.').last.to_sym }.text(instance, view_context) rescue nil
-            elsif params.key?(:dataField) # elsif header filters in the form of dates
-              json.set! :key, self.columns.detect{ |c| c.name == params[:dataField].split('.').last.to_sym }.text(instance, view_context) rescue nil
-            else
+        is_lookup_filter_request = !params.key?(:skip) && !params.key?(:take) && group_params.size == 1
+        is_header_filter_request = params.key?(:dataField)
+
+        column_selector = if is_lookup_filter_request
+                            group_params.first['selector'].split('.').last.to_sym
+                          elsif is_header_filter_request
+                            params[:dataField].split('.').last.to_sym
+                          end
+
+        requested_column = self.columns.detect{ |c| c.name == column_selector  } if column_selector
+
+        # If the request is for a lookup column or from headerfilter(Date)
+        #   set the appropriate column value for the lookup column and headerfilter(Date) such that the correct values are displayed in the dropdown
+        # else
+        #   default
+        if requested_column
+          Jbuilder.encode do |json|
+            json.items(resultset) do |instance|
+              value = request_column.text(instance, view_context) rescue nil
+              json.set! :key, value
+            end
+          end
+        else
+          Jbuilder.encode do |json|
+            json.items(resultset) do |instance|
               json.set!(@base_query.table_name) do
                 self.columns.each do |c|
                   value = c.value(instance, view_context) rescue nil
