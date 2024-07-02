@@ -763,26 +763,20 @@ module Devextreme
         group_params = params.fetch('groupOptions', {})
         group_params = JSON.parse(group_params) if group_params.is_a?(String) && group_params.present?
 
-        is_lookup_filter_request = !params.key?(:skip) && !params.key?(:take) && group_params.size == 1
-        is_header_filter_request = params.key?(:dataField)
-
-        column_selector = if is_lookup_filter_request
-                            group_params.first['selector'].split('.').last.to_sym
-                          elsif is_header_filter_request
-                            params[:dataField].split('.').last.to_sym
-                          end
-
-        requested_column = self.columns.detect{ |c| c.name == column_selector  } if column_selector
+        column_selector = if !params.key?(:skip) && !params.key?(:take) && group_params.size == 1
+                group_params.first['selector'].split('.').last.to_sym
+              elsif params.key?(:dataField)
+                params[:dataField].split('.').last.to_sym
+              end
 
         # If the request is for a lookup column or from headerfilter(Date)
         #   set the appropriate column value for the lookup column and headerfilter(Date) such that the correct values are displayed in the dropdown
         # else
         #   default
-        if requested_column
+        if column_selector.present?
           Jbuilder.encode do |json|
             json.items(resultset) do |instance|
-              value = request_column.text(instance, view_context) rescue nil
-              json.set! :key, value
+                json.set! :key, self.columns.detect{ |c| c.name == column_selector }.text(instance, view_context) rescue nil
             end
           end
         else
