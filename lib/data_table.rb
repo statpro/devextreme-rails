@@ -764,10 +764,10 @@ module Devextreme
         group_params = JSON.parse(group_params) if group_params.is_a?(String) && group_params.present?
 
         column_selector = if !params.key?(:skip) && !params.key?(:take) && group_params.size == 1
-                group_params.first['selector'].split('.').last.to_sym
-              elsif params.key?(:dataField)
-                params[:dataField].split('.').last.to_sym
-              end
+                            group_params.first['selector'].split('.').last.to_sym
+                          elsif params.key?(:dataField)
+                            params[:dataField].split('.').last.to_sym
+                          end
 
         # If the request is for a lookup column or from headerfilter(Date)
         #   set the appropriate column value for the lookup column and headerfilter(Date) such that the correct values are displayed in the dropdown
