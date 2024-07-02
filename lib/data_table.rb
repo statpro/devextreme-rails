@@ -781,7 +781,9 @@ module Devextreme
           end
         else
           Jbuilder.encode do |json|
+
             json.items(resultset) do |instance|
+
               json.set!(@base_query.table_name) do
                 self.columns.each do |c|
                   value = c.value(instance, view_context) rescue nil
@@ -802,6 +804,7 @@ module Devextreme
                   json.set! '_highlight_row', {
                     :highlight_row_class =>  highlights_to_set[:class],
                     :highlight_row => highlights_to_set[:callback] }.to_json if highlights_to_set
+
                 end
               end
 
@@ -811,6 +814,7 @@ module Devextreme
                 json._actions actions.to_json
               end
             end
+
             json.total_count(total_count) if total_count
           end
         end
