@@ -776,7 +776,8 @@ module Devextreme
         if column_selector.present?
           Jbuilder.encode do |json|
             json.items(resultset) do |instance|
-                json.set! :key, self.columns.detect{ |c| c.name == column_selector }.text(instance, view_context) rescue nil
+              value = self.columns.detect{ |c| c.name == column_selector }.text(instance, view_context) rescue nil
+              json.set! :key, value
             end
           end
         else
