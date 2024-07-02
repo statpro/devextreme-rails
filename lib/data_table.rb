@@ -810,9 +810,8 @@ module Devextreme
                 actions = self.actions.map { |action| build_action(action, instance, view_context) }.reject(&:blank?)
                 json._actions actions.to_json
               end
-
-              json.total_count(total_count) if total_count
             end
+            json.total_count(total_count) if total_count
           end
         end
       end
