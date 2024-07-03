@@ -763,7 +763,7 @@ module Devextreme
         group_params = params.fetch('groupOptions', {})
         group_params = JSON.parse(group_params) if group_params.is_a?(String) && group_params.present?
 
-        column_selector = if !params.key?(:skip) && !params.key?(:take) && group_params.size == 1
+        column_selector = if !params.key?(:skip) && !params.key?(:take) && group_params.try(:size) == 1
                             group_params.first['selector'].split('.').last.to_sym
                           elsif params.key?(:dataField)
                             params[:dataField].split('.').last.to_sym
