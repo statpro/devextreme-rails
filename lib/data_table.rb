@@ -760,8 +760,21 @@ module Devextreme
       def to_json(view_context, params = {})
         resultset, total_count = get_resultset_and_count(params)
 
-        if params.key?(:dataField)
-          request_column = self.columns.detect{ |c| c.name == params[:dataField].split('.').last.to_sym }
+        group_params = params.fetch('groupOptions', {})
+        group_params = JSON.parse(group_params) if group_params.is_a?(String) && group_params.present?
+
+        column_selector = if !params.key?(:skip) && !params.key?(:take) && group_params.size == 1
+                            group_params.first['selector'].split('.').last.to_sym
+                          elsif params.key?(:dataField)
+                            params[:dataField].split('.').last.to_sym
+                          end
+
+        # If the request is for a lookup column or from headerfilter(Date)
+        #   set the appropriate column value for the lookup column and headerfilter(Date) such that the correct values are displayed in the dropdown
+        # else
+        #   default
+        if column_selector.present?
+          request_column = self.columns.detect{ |c| c.name == column_selector }
           Jbuilder.encode do |json|
             json.items(resultset) do |instance|
               value = request_column.text(instance, view_context) rescue nil
