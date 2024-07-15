@@ -902,14 +902,14 @@ module Devextreme
       def build_action_hash(action, instance, view_context)
         css_class = action[:css_class] || ''
         data = {
-          :name   => action[:name],
-          :url    => action[:value].call(instance, view_context),
-          :method => action[:method].to_s,
-          :image  => view_context.icon_class(action[:image]).join(' '),
-          :title  => action[:title] || I18n.translate(action[:name], :scope => [:data_tables, :actions]),
-          :data   => action[:data],
+          :name      => action[:name],
+          :url       => action[:value].call(instance, view_context),
+          :method    => action[:method].to_s,
+          :image     => view_context.icon_class(action[:image]).join(' '),
+          :title     => action[:title] || I18n.translate(action[:name], :scope => [:data_tables, :actions]),
+          :data      => action[:data],
           :css_class => css_class,
-          :onclick => action[:onclick]
+          :onclick   => action[:onclick]
         }
         data.merge!(:rel => "nofollow") if action[:method] == :delete
         data

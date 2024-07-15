@@ -335,8 +335,9 @@ window.column_template_actions = function(container, options){
       .addClass(actions[0].css_class + ' btn btn-micro as_tooltip grid-btn')
       .appendTo(group);
 
-    if(actions[0].onclick)
+    if(actions[0].onclick) {
       button.attr('onclick', actions[0].onclick);
+    }
 
     set_data_properties(button, actions[0].data);
 
@@ -373,8 +374,9 @@ window.column_template_actions = function(container, options){
           .attr('href', actions[i].url)
           .appendTo(list_item);
 
-        if(actions[i].onclick)
+        if(actions[i].onclick) {
           link.attr('onclick', actions[i].onclick);
+        }
 
         if (actions[i].rel) {
           link.attr('rel', actions[i].rel);
