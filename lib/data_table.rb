@@ -613,6 +613,7 @@ module Devextreme
         extra = extra || {}
         method = extra.fetch(:method, :get)
         remote = extra.fetch(:remote, nil)
+        onclick = extra.fetch(:onclick, nil)
         css_class  = extra.fetch(:class, nil)
         translation_params = extra.fetch(:translation_params, {})
         title = I18n.translate(name, **{:scope => [:data_tables, :actions]}.merge(translation_params))
@@ -632,7 +633,8 @@ module Devextreme
           :title => title,
           :data => data,
           :css_class => css_class,
-          :visible_lambda => visible_lambda
+          :visible_lambda => visible_lambda,
+          :onclick => onclick
         }
       end
 
@@ -906,7 +908,8 @@ module Devextreme
           :image  => view_context.icon_class(action[:image]).join(' '),
           :title  => action[:title] || I18n.translate(action[:name], :scope => [:data_tables, :actions]),
           :data   => action[:data],
-          :css_class => css_class
+          :css_class => css_class,
+          :onclick => action[:onclick]
         }
         data.merge!(:rel => "nofollow") if action[:method] == :delete
         data
