@@ -1261,7 +1261,11 @@ module Devextreme
         # then a double-quote appearing inside a field must be escaped by preceding it with another double quote."
         # https://tools.ietf.org/html/rfc4180
         val = get_value(instance, view_context)
-        val.each { |k, v| val[k] = "\"#{v.strip.gsub('"', '""')}\"" if v.is_a? String }
+        "\"#{val.to_json.gsub('"', '""')}\""
+      end
+
+      def to_xls_text(instance, view_context)
+        get_value(instance, view_context)
       end
     end
 
