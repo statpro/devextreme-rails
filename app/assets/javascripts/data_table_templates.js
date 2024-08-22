@@ -95,9 +95,14 @@ window.column_template_timeago2 = function(container, options){
 window.column_template_timestamp = function(container, options){
   if (options.value){
     var abbr = $('<abbr />')
-      .addClass('timestamp')
-      .data('datetime', options.value.datetime)
-      .appendTo(container);
+    if (typeof options.value === 'string' || options.value instanceof String) {
+      abbr.text(options.value);
+    } else {
+      abbr
+        .addClass('timestamp')
+        .data('datetime', options.value.datetime)
+    }
+    abbr.appendTo(container);
   }
 };
 
