@@ -27,8 +27,8 @@ window.showModal = function(event){
     .addClass('modal-body')
     .appendTo(info);
 
-  $(".modal-header").find('h3').html(getModalTitle);
-  $('.modal-body').html(getModalBodyContent);
+  $('#infoModal .modal-header').find('h3').html(getModalTitle);
+  $('#infoModal .modal-body').html(getModalBodyContent);
   $("#infoModal").on('shown', function () {
     $('.modal-backdrop').css({ opacity: 0 });
     })
