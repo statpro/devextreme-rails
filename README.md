@@ -123,6 +123,33 @@ end
 
 ```
 
+## Exports
+
+### Date Format
+_Defaults to the `:db` date format (`%F` eg. `2026-01-26`)._
+
+To format date fields for export, set either the `:dx_export` date format or globally expose `DEFAULT_EXPORT_DATE_FORMAT`.
+eg.
+```ruby
+Date::DATE_FORMATS[:dx_export] = '%F'
+```
+or
+```ruby
+DEFAULT_EXPORT_DATE_FORMAT = '%F'.freeze
+```
+
+### Time Format
+_Defaults to the `:db` time format (`%F %k:%M:%S` eg. `2026-01-26 18:36:14`)._
+
+To format time fields for export, set either the `:dx_export` time format or globally expose `DEFAULT_EXPORT_DATE_TIME_FORMAT`.
+```ruby
+Time::DATE_FORMATS[:dx_export] = '%F %k:%M:%S'
+```
+or
+```ruby
+DEFAULT_EXPORT_DATE_TIME_FORMAT = '%F %k:%M:%S'.freeze
+```
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.

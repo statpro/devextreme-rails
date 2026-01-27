@@ -1182,7 +1182,12 @@ module Devextreme
 
       def to_csv_text(instance, view_context)
         value = get_value(instance, view_context)
-        value.strftime(DEFAULT_EXPORT_DATE_TIME_FORMAT)
+        format = if defined?(DEFAULT_EXPORT_DATE_TIME_FORMAT) && DEFAULT_EXPORT_DATE_TIME_FORMAT.present?
+                   DEFAULT_EXPORT_DATE_TIME_FORMAT
+                 else
+                   Time::DATE_FORMATS[:dx_export] || Time::DATE_FORMATS[:db]
+                 end
+        value.strftime(format)
       end
     end
 
@@ -1300,8 +1305,7 @@ module Devextreme
 
       def to_csv_text(instance, view_context)
         value = get_value(instance, view_context)
-        # this will produce '23-JAN-2014'
-        safe_parse(value, DEFAULT_EXPORT_DATE_FORMAT)
+        safe_parse(value, (defined?(DEFAULT_EXPORT_DATE_FORMAT) && DEFAULT_EXPORT_DATE_FORMAT) || Date::DATE_FORMATS[:dx_export] || Date::DATE_FORMATS[:db])
       end
 
       private
