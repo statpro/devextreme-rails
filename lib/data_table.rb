@@ -1300,7 +1300,7 @@ module Devextreme
 
       def to_csv_text(instance, view_context)
         value = get_value(instance, view_context)
-        safe_parse(value, DEFAULT_EXPORT_DATE_FORMAT || Date::DATE_FORMATS[:dx_export] || Date::DATE_FORMATS[:db])
+        safe_parse(value, (defined?(DEFAULT_EXPORT_DATE_FORMAT) && DEFAULT_EXPORT_DATE_FORMAT) || Date::DATE_FORMATS[:dx_export] || Date::DATE_FORMATS[:db])
       end
 
       private
