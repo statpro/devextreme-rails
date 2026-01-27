@@ -1172,7 +1172,7 @@ module Devextreme
 
       def transform(instance, view_context, text)
         if text.present? && text.respond_to?(:strftime)
-          { :title => text.to_time.iso8601, :datetime => text.getutc.iso8601, :formatted => text.to_time.to_fs(:long) }
+          { :title => text.to_time.iso8601, :datetime => text.getutc.iso8601, :formatted => text.to_time.to_formatted_s(:long) }
         elsif @options[:allow_non_date_values]
           text
         else
