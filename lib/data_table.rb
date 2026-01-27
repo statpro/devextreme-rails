@@ -1182,7 +1182,12 @@ module Devextreme
 
       def to_csv_text(instance, view_context)
         value = get_value(instance, view_context)
-        value.strftime(DEFAULT_EXPORT_DATE_TIME_FORMAT || Time::DATE_FORMATS[:dx_export] || Time::DATE_FORMATS[:db])
+        format = if defined?(DEFAULT_EXPORT_DATE_TIME_FORMAT) && DEFAULT_EXPORT_DATE_TIME_FORMAT.present?
+                   DEFAULT_EXPORT_DATE_TIME_FORMAT
+                 else
+                   Time::DATE_FORMATS[:dx_export] || Time::DATE_FORMATS[:db]
+                 end
+        value.strftime(format)
       end
     end
 
