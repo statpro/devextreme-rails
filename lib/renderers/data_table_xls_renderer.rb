@@ -89,7 +89,9 @@ module Devextreme
 
       if columns.present?
         @data_table.columns.each do |column|
-          user_column = columns.detect { |c| c['dataField'].split('.').last == column.name.to_s } || { 'visible' => false }
+          # column.name can be an array (related column), so we need to join it with '.'
+          column_name = "#{@data_table.base_query.table_name}.#{column.name.is_a?(Array) ? column.name.join('.') : column.name.to_s}"
+          user_column = columns.detect { |c| c['dataField'] == column_name } || { 'visible' => false }
           # Call reverse_merge! on column to not override explicit options already set for the column
           column.options.reverse_merge!(:user_visible => user_column['visible'], :user_visible_index => user_column['visibleIndex'])
         end
