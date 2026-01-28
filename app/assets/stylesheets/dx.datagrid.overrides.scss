@@ -17,3 +17,17 @@
   padding: 0 !important;
   margin: 0 !important;
 }
+
+//adjusts search box styles to remove extra space
+.dx-searchbox {
+  .dx-texteditor-input {
+    margin-bottom: 0px;
+    border: unset;
+  }
+
+  .dx-placeholder::before {
+    padding-top: unset;
+    padding-bottom: unset;
+    padding-right: unset;
+  }
+}

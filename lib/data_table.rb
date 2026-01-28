@@ -93,6 +93,11 @@ module Devextreme
             :showIndicator => true,
             :showPane      => true
           },
+          :column_chooser                => {
+            :allow_search => false,
+            :width        => 250,
+            :height       => 250
+          },
           :columnAutoWidth               => true,
           :wordWrapEnabled               => false,
           :requireTotalRowCountIndicator => true,

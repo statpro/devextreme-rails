@@ -123,7 +123,7 @@ module DataTableHelper
 
     group_panel_visible = data_table.options[:group_panel][:visible]
     filter_builder_visible = data_table.options[:filter_sync_enabled]
-    column_picker_visible = (options[:column_picker].nil? || options[:column_picker] == true)
+    column_picker_visible = (options[:column_picker] != false)
     reset_layout_visible = (options[:reset_layout].nil? || options[:reset_layout] == true) && !disable_state_storing
     require_total_row_count_indicator = data_table.options[:requireTotalRowCountIndicator] == true
 
