@@ -94,7 +94,9 @@ module Devextreme
             :showPane      => true
           },
           :column_chooser                => {
-            :allow_search => false,
+            :search       => {
+              :enabled => false
+            },
             :width        => 250,
             :height       => 250
           },
